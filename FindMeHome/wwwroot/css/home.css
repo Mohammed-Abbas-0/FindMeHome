@@ -1,0 +1,18 @@
+﻿body {
+    direction: rtl;
+    text-align: right;
+}
+
+select[multiple] {
+    height: 100px;
+}
+
+@media (max-width: 768px) {
+    aside {
+        order: 2;
+    }
+
+    section {
+        order: 1;
+    }
+}

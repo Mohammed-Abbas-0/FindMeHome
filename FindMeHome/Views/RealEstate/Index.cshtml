@@ -1,0 +1,80 @@
+﻿@model IEnumerable<FindMeHome.Models.RealEstate>
+
+@{
+    ViewData["Title"] = "الصفحة الرئيسية";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- الشريط الجانبي للبحث -->
+        <aside class="col-lg-3 col-md-4 mb-4">
+            <div class="card shadow-sm p-3 position-sticky" style="top: 90px; z-index: 100;">
+                <h5 class="fw-bold mb-3 text-center">🔎 بحث متقدم</h5>
+                <form asp-controller="RealEstate" asp-action="AdvancedSearch" method="get">
+                    <div class="mb-3">
+                        <label class="form-label">السعر من</label>
+                        <input type="number" class="form-control" name="priceFrom" placeholder="مثلاً 500000" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">السعر إلى</label>
+                        <input type="number" class="form-control" name="priceTo" placeholder="مثلاً 2000000" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">المساحة من</label>
+                        <input type="number" class="form-control" name="areaFrom" placeholder="مثلاً 100" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">المساحة إلى</label>
+                        <input type="number" class="form-control" name="areaTo" placeholder="مثلاً 250" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">المنطقة</label>
+                        <select class="form-select" name="neighborhoods" multiple>
+                            <option value="مدينة نصر">مدينة نصر</option>
+                            <option value="المعادي">المعادي</option>
+                            <option value="الزمالك">الزمالك</option>
+                            <option value="6 أكتوبر">6 أكتوبر</option>
+                            <option value="التجمع">التجمع</option>
+                        </select>
+                        <small class="text-muted">يمكنك اختيار أكثر من منطقة</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">بحث</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- عرض العقارات -->
+        <section class="col-lg-9 col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold">🏠 العقارات المتاحة</h4>
+                <a asp-controller="RealEstate" asp-action="Create"
+                   class="btn btn-success btn-lg shadow-sm">
+                    <i class="bi bi-plus-circle"></i> إضافة عقار جديد
+                </a>
+            </div>
+            <div class="row g-4">
+                @foreach (var item in Model)
+                {
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="card shadow-sm h-100">
+                            <img src="@(item.Images?.FirstOrDefault()?.ImageUrl ?? "/images/test1.png")"
+                                 class="card-img-top" alt="صورة العقار" style="height: 220px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">@item.Title</h5>
+                                <p class="card-text text-muted">@item.Address - @item.City</p>
+                                <p class="card-text mb-1"><strong>💰 السعر:</strong> @item.Price.ToString("N0") جنيه</p>
+                                <p class="card-text mb-1"><strong>📏 المساحة:</strong> @item.Area م²</p>
+                                <p class="card-text"><strong>🏠 النوع:</strong> @item.UnitType</p>
+                                <a asp-controller="RealEstate" asp-action="Details" asp-route-id="@item.Id"
+                                   class="btn btn-outline-primary btn-sm mt-2">عرض التفاصيل</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+</div>

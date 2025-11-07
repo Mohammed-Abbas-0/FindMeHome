@@ -1,0 +1,237 @@
+﻿@model FindMeHome.Models.RealEstate
+@{
+    ViewData["Title"] = "إضافة عقار جديد";
+}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<div class="container mt-5 mb-5" dir="rtl">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white text-center py-3 rounded-top">
+            <h4 class="mb-0">🏠 إضافة عقار جديد</h4>
+        </div>
+
+        <div class="card-body p-4">
+            <form asp-action="Create" asp-controller="RealEstate" method="post" enctype="multipart/form-data">
+                <div class="row g-3">
+
+                    <!-- العنوان -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">عنوان العقار</label>
+                        <input asp-for="Title" class="form-control" placeholder="مثلاً شقة مميزة بالتجمع الخامس" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <!-- السعر -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">السعر</label>
+                        <input asp-for="Price" class="form-control" placeholder="مثلاً 850000" />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+
+                    <!-- المدينة -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">المدينة</label>
+                        <input asp-for="City" class="form-control" placeholder="مثلاً القاهرة" />
+                    </div>
+
+                    <!-- العنوان -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">العنوان بالتفصيل</label>
+                        <input asp-for="Address" class="form-control" placeholder="مثلاً شارع التسعين الجنوبي" />
+                    </div>
+
+                    <!-- المساحة -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">المساحة (م²)</label>
+                        <input asp-for="Area" class="form-control" placeholder="مثلاً 120" />
+                    </div>
+
+                    <!-- نوع العقار -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">نوع العرض</label>
+                        <select asp-for="IsForSale" class="form-select">
+                            <option value="">-- اختر نوع العرض --</option>
+                            <option value="ForSale">للبيع</option>
+                            <option value="ForRent">للإيجار</option>
+                        </select>
+                    </div>
+
+                    <!-- هل مفروش -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">هل العقار مفروش؟</label>
+                        <div class="form-check">
+                            <input id="CanBeFurnished" class="form-check-input" asp-for="CanBeFurnished" type="checkbox" />
+                            <label class="form-check-label">نعم، العقار مفروش</label>
+                        </div>
+                    </div>
+
+                    <!-- نوع الوحدة -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">نوع الوحدة</label>
+                        <input asp-for="UnitType" class="form-control" placeholder="مثلاً شقة، دوبلكس، فيلا..." />
+                    </div>
+
+                    <!-- 🪑 قسم الأثاث -->
+                    <div id="furnitureSection" class="col-12 mt-4" style="display:none;">
+                        <h5 class="fw-bold text-secondary mb-3">🪑 تفاصيل الأثاث</h5>
+                        <div id="furnitureList">
+                            <div class="card p-3 mb-3 furniture-item shadow-sm border-0">
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-md-4"><input type="text" name="Furnitures[0].Name" class="form-control" placeholder="اسم الأثاث (مثلاً: تلفاز)" /></div>
+                                    <div class="col-md-3"><input type="number" name="Furnitures[0].Price" class="form-control" placeholder="السعر" /></div>
+                                    <div class="col-md-3"><input type="file" name="Furnitures[0].Image" accept="image/*" class="form-control furniture-image-input" /></div>
+                                    <div class="col-md-2 text-center"><button type="button" class="btn btn-danger remove-furniture w-100">🗑️ حذف</button></div>
+                                </div>
+                                <div class="mt-2 text-center"><img class="img-preview img-thumbnail" style="max-height:120px; display:none;" /></div>
+                            </div>
+                        </div>
+                        <div class="text-end mt-3">
+                            <button type="button" id="addFurnitureBtn" class="btn btn-outline-primary">
+                                ➕ إضافة قطعة أثاث أخرى
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 🗺️ موقع العقار -->
+                    <div class="col-12 mt-4">
+                        <label class="form-label fw-bold">📍 موقع العقار</label>
+                        <div class="card shadow-sm border-0 p-3 bg-light">
+                            <div id="map" style="height: 300px; border-radius: 12px; overflow: hidden;"></div>
+                            <small class="text-muted">اضغط على الخريطة لتحديد الموقع بدقة.</small>
+                        </div>
+                    </div>
+
+                    <!-- العنوان الناتج -->
+                    <div class="col-md-12 mt-3">
+                        <label class="form-label fw-bold">📌 العنوان الناتج من الخريطة</label>
+                        <input type="text" id="LocationAddress" name="LocationAddress" class="form-control" readonly placeholder="سيظهر العنوان هنا بعد اختيار الموقع..." />
+                    </div>
+
+                    <!-- الإحداثيات -->
+                    <input type="hidden" id="Latitude" name="Latitude" />
+                    <input type="hidden" id="Longitude" name="Longitude" />
+
+                    <!-- صور العقار -->
+                    <div class="col-md-12 mt-4">
+                        <label class="form-label fw-bold">📸 صور العقار</label>
+                        <div class="upload-box border rounded-3 p-4 text-center bg-light" style="cursor:pointer;">
+                            <i class="bi bi-cloud-upload fs-2 text-primary"></i>
+                            <p class="mb-2">اضغط هنا لاختيار الصور أو اسحبها هنا</p>
+                            <input type="file" name="Images" multiple class="form-control d-none" id="propertyImages" />
+                            <div id="previewContainer" class="d-flex flex-wrap justify-content-center mt-3 gap-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- زر الحفظ -->
+                    <div class="col-12 text-center mt-4">
+                        <button type="submit" class="btn btn-success px-5 py-2 fw-bold">💾 حفظ العقار</button>
+                        <a asp-action="Index" asp-controller="RealEstate" class="btn btn-outline-secondary px-4 py-2 ms-2">↩️ رجوع</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 🌍 خريطة جوجل -->
+<script>
+    var map = L.map('map').setView([30.0444, 31.2357], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    var marker = L.marker([30.0444, 31.2357], { draggable: true }).addTo(map);
+
+    function updateLocation(lat, lon) {
+        document.getElementById("Latitude").value = lat;
+        document.getElementById("Longitude").value = lon;
+
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=ar`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("LocationAddress").value = data.display_name || "عنوان غير معروف";
+            })
+            .catch(() => {
+                document.getElementById("LocationAddress").value = "حدث خطأ أثناء تحديد العنوان";
+            });
+    }
+
+    map.on('click', function (e) {
+        marker.setLatLng(e.latlng);
+        updateLocation(e.latlng.lat, e.latlng.lng);
+    });
+
+    marker.on('dragend', function (e) {
+        var latlng = e.target.getLatLng();
+        updateLocation(latlng.lat, latlng.lng);
+    });
+</script>
+
+@section Scripts {
+    <script>
+        const checkbox = document.getElementById("CanBeFurnished");
+        const furnitureSection = document.getElementById("furnitureSection");
+        const list = document.getElementById("furnitureList");
+        const addBtn = document.getElementById("addFurnitureBtn");
+
+        checkbox.addEventListener("change", () => {
+            furnitureSection.style.display = checkbox.checked ? "block" : "none";
+        });
+
+        let index = 1;
+        addBtn.addEventListener("click", () => {
+            const item = document.createElement("div");
+            item.classList.add("card", "p-3", "mb-3", "furniture-item", "shadow-sm", "border-0");
+            item.innerHTML = `
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4"><input type="text" name="Furnitures[${index}].Name" class="form-control" placeholder="اسم الأثاث" /></div>
+                    <div class="col-md-3"><input type="number" name="Furnitures[${index}].Price" class="form-control" placeholder="السعر" /></div>
+                    <div class="col-md-3"><input type="file" name="Furnitures[${index}].Image" accept="image/*" class="form-control furniture-image-input" /></div>
+                    <div class="col-md-2 text-center"><button type="button" class="btn btn-danger remove-furniture w-100">🗑️ حذف</button></div>
+                </div>
+                <div class="mt-2 text-center"><img class="img-preview img-thumbnail" style="max-height:120px; display:none;" /></div>
+            `;
+            list.appendChild(item);
+            index++;
+        });
+
+        list.addEventListener("click", e => {
+            if (e.target.classList.contains("remove-furniture")) e.target.closest(".furniture-item").remove();
+        });
+
+        list.addEventListener("change", e => {
+            if (e.target.classList.contains("furniture-image-input")) {
+                const file = e.target.files[0];
+                const img = e.target.closest(".furniture-item").querySelector(".img-preview");
+                if (file) {
+                    img.src = URL.createObjectURL(file);
+                    img.style.display = "block";
+                } else img.style.display = "none";
+            }
+        });
+
+        // تصميم رفع الصور
+        const uploadBox = document.querySelector(".upload-box");
+        const fileInput = document.getElementById("propertyImages");
+        const previewContainer = document.getElementById("previewContainer");
+
+        uploadBox.addEventListener("click", () => fileInput.click());
+        fileInput.addEventListener("change", e => {
+            previewContainer.innerHTML = "";
+            [...e.target.files].forEach(file => {
+                const reader = new FileReader();
+                reader.onload = e2 => {
+                    const img = document.createElement("img");
+                    img.src = e2.target.result;
+                    img.classList.add("img-thumbnail");
+                    img.style.maxHeight = "120px";
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+    </script>
+
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
