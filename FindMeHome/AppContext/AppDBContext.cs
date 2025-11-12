@@ -15,6 +15,7 @@ namespace FindMeHome.AppContext
         public DbSet<RealEstateImage> RealEstateImages { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Furniture> Furnitures { get; set; }
+        public DbSet<Wishlist> Wishlists { get; set; }
 
     }
 }

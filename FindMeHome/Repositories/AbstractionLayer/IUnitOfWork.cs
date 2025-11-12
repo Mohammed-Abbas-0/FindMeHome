@@ -6,7 +6,9 @@ namespace FindMeHome.Repositories.AbstractionLayer
     {
         IRepositories<RealEstate> RealEstates { get; }
         IRepositories<RealEstateImage> RealEstateImages { get; }
-        //IRepositories<Comme> Comments { get; }
+        IRepositories<Furniture> Furnitures { get; }
+        IRepositories<Wishlist> Wishlists { get; }
+        IRepositories<Review> Reviews { get; }
         Task<int> CompleteAsync();
     }
 }

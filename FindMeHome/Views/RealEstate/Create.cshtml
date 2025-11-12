@@ -1,4 +1,4 @@
-﻿@model FindMeHome.Models.RealEstate
+﻿@model FindMeHome.Dtos.CreateRealEstateDto
 @{
     ViewData["Title"] = "إضافة عقار جديد";
 }
@@ -18,39 +18,39 @@
                     <!-- العنوان -->
                     <div class="col-md-6">
                         <label class="form-label fw-bold">عنوان العقار</label>
-                        <input asp-for="Title" class="form-control" placeholder="مثلاً شقة مميزة بالتجمع الخامس" />
+                        <input name="Title" class="form-control" placeholder="مثلاً شقة مميزة بالتجمع الخامس" required />
                         <span asp-validation-for="Title" class="text-danger"></span>
                     </div>
 
                     <!-- السعر -->
                     <div class="col-md-6">
                         <label class="form-label fw-bold">السعر</label>
-                        <input asp-for="Price" class="form-control" placeholder="مثلاً 850000" />
+                        <input type="number" name="Price" class="form-control" placeholder="مثلاً 850000" step="0.01" min="1" required />
                         <span asp-validation-for="Price" class="text-danger"></span>
                     </div>
 
                     <!-- المدينة -->
                     <div class="col-md-6">
                         <label class="form-label fw-bold">المدينة</label>
-                        <input asp-for="City" class="form-control" placeholder="مثلاً القاهرة" />
+                        <input name="City" class="form-control" placeholder="مثلاً القاهرة" required />
                     </div>
 
                     <!-- العنوان -->
                     <div class="col-md-6">
                         <label class="form-label fw-bold">العنوان بالتفصيل</label>
-                        <input asp-for="Address" class="form-control" placeholder="مثلاً شارع التسعين الجنوبي" />
+                        <input name="Address" class="form-control" placeholder="مثلاً شارع التسعين الجنوبي" required />
                     </div>
 
                     <!-- المساحة -->
                     <div class="col-md-6">
                         <label class="form-label fw-bold">المساحة (م²)</label>
-                        <input asp-for="Area" class="form-control" placeholder="مثلاً 120" />
+                        <input type="number" name="Area" class="form-control" placeholder="مثلاً 120" step="0.01" min="1" required />
                     </div>
 
                     <!-- نوع العقار -->
                     <div class="col-md-6">
                         <label class="form-label fw-bold">نوع العرض</label>
-                        <select asp-for="IsForSale" class="form-select">
+                        <select name="ApartmentType" class="form-select" required>
                             <option value="">-- اختر نوع العرض --</option>
                             <option value="ForSale">للبيع</option>
                             <option value="ForRent">للإيجار</option>
@@ -61,7 +61,7 @@
                     <div class="col-md-6">
                         <label class="form-label fw-bold">هل العقار مفروش؟</label>
                         <div class="form-check">
-                            <input id="CanBeFurnished" class="form-check-input" asp-for="CanBeFurnished" type="checkbox" />
+                            <input id="CanBeFurnished" name="CanBeFurnished" class="form-check-input" type="checkbox" value="true" />
                             <label class="form-check-label">نعم، العقار مفروش</label>
                         </div>
                     </div>
@@ -69,7 +69,42 @@
                     <!-- نوع الوحدة -->
                     <div class="col-md-6">
                         <label class="form-label fw-bold">نوع الوحدة</label>
-                        <input asp-for="UnitType" class="form-control" placeholder="مثلاً شقة، دوبلكس، فيلا..." />
+                        <select name="UnitType" class="form-select" required>
+                            <option value="">-- اختر نوع الوحدة --</option>
+                            <option value="Residential">سكني</option>
+                            <option value="Commercial">تجاري</option>
+                        </select>
+                    </div>
+
+                    <!-- رقم الواتساب -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">📱 رقم الواتساب</label>
+                        <input type="tel" name="WhatsAppNumber" class="form-control" placeholder="مثلاً +201234567890" required />
+                        <small class="text-muted">رقم الواتساب للتواصل مع المشترين</small>
+                    </div>
+
+                    <!-- الوصف -->
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">الوصف</label>
+                        <textarea name="Description" class="form-control" rows="3" placeholder="وصف تفصيلي للعقار..."></textarea>
+                    </div>
+
+                    <!-- عدد الغرف -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">عدد الغرف</label>
+                        <input type="number" name="Rooms" class="form-control" min="1" value="1" required />
+                    </div>
+
+                    <!-- عدد الحمامات -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">عدد الحمامات</label>
+                        <input type="number" name="Bathrooms" class="form-control" min="1" value="1" required />
+                    </div>
+
+                    <!-- المنطقة -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">المنطقة</label>
+                        <input type="text" name="Neighborhood" class="form-control" placeholder="مثلاً التجمع الخامس" required />
                     </div>
 
                     <!-- 🪑 قسم الأثاث -->
@@ -169,6 +204,98 @@
 </script>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // ✅ Ajax Form Submit
+        $(document).ready(function() {
+
+               $("form").on("submit", function (e) {
+            e.preventDefault();
+
+            const form = $(this);
+            const formData = new FormData(this);
+
+            // ✅ التحقق من مفروشات
+            const isFurnished = $("#CanBeFurnished").is(":checked");
+            const furnitureItems = $(".furniture-item");
+
+            if (isFurnished) {
+                let valid = true;
+
+                furnitureItems.each(function () {
+                    const name = $(this).find("input[name*='Name']").val();
+                    const price = $(this).find("input[name*='Price']").val();
+                    const image = $(this).find("input[name*='Image']")[0].files[0];
+
+                    if (!name || !price || !image) {
+                        valid = false;
+                        return false; // للخروج من الـ each
+                    }
+                });
+
+                if (!valid) {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "الرجاء تعبئة جميع بيانات الأثاث",
+                        text: "تأكد من إدخال الاسم والسعر وصورة لكل قطعة أثاث قبل الحفظ"
+                    });
+                    return;
+                }
+            } else {
+                // لو مش مفروش، نحذف أي بيانات مفروشات من FormData
+                [...formData.keys()].forEach(key => {
+                    if (key.startsWith("Furnitures")) formData.delete(key);
+                });
+            }
+
+            // 🔄 بعد التحقق نعمل الـ AJAX
+            $.ajax({
+                url: form.attr("action"),
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function () {
+                    Swal.fire({
+                        title: "جارٍ الحفظ...",
+                        text: "يرجى الانتظار لحين إتمام العملية",
+                        icon: "info",
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+                },
+                success: function (response) {
+                    Swal.close();
+                    if (response.isSuccess) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "تم الحفظ بنجاح ✅",
+                            text: response.message,
+                            confirmButtonText: "موافق"
+                        }).then(() => window.location.href = "/RealEstate/Index");
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "خطأ ❌",
+                            text: response.message || "حدث خطأ أثناء الحفظ"
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    Swal.close();
+                    Swal.fire({
+                        icon: "error",
+                        title: "خطأ في الخادم ❌",
+                        text: "حدث خطأ أثناء الاتصال بالخادم"
+                    });
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+        });
+    </script>
+
     <script>
         const checkbox = document.getElementById("CanBeFurnished");
         const furnitureSection = document.getElementById("furnitureSection");

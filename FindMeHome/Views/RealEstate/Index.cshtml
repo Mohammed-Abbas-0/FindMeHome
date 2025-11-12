@@ -1,4 +1,4 @@
-﻿@model IEnumerable<FindMeHome.Models.RealEstate>
+﻿@model IEnumerable<FindMeHome.Dtos.RealEstateDto>
 
 @{
     ViewData["Title"] = "الصفحة الرئيسية";
@@ -50,26 +50,44 @@
         <section class="col-lg-9 col-md-8">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="fw-bold">🏠 العقارات المتاحة</h4>
-                <a asp-controller="RealEstate" asp-action="Create"
-                   class="btn btn-success btn-lg shadow-sm">
-                    <i class="bi bi-plus-circle"></i> إضافة عقار جديد
-                </a>
+                <div class="d-flex gap-2">
+                    <a asp-controller="RealEstate" asp-action="Wishlist"
+                       class="btn btn-outline-warning btn-lg shadow-sm">
+                        <i class="bi bi-heart"></i> قائمة المفضلة
+                    </a>
+                    <a asp-controller="RealEstate" asp-action="Create"
+                       class="btn btn-success btn-lg shadow-sm">
+                        <i class="bi bi-plus-circle"></i> إضافة عقار جديد
+                    </a>
+                </div>
             </div>
             <div class="row g-4">
                 @foreach (var item in Model)
                 {
                     <div class="col-lg-6 col-md-6 col-sm-12">
                         <div class="card shadow-sm h-100">
-                            <img src="@(item.Images?.FirstOrDefault()?.ImageUrl ?? "/images/test1.png")"
+                            <img src="@(item.Images?.FirstOrDefault()?.FilePath ?? "/images/test1.png")"
                                  class="card-img-top" alt="صورة العقار" style="height: 220px; object-fit: cover;">
                             <div class="card-body">
                                 <h5 class="card-title fw-bold">@item.Title</h5>
                                 <p class="card-text text-muted">@item.Address - @item.City</p>
                                 <p class="card-text mb-1"><strong>💰 السعر:</strong> @item.Price.ToString("N0") جنيه</p>
                                 <p class="card-text mb-1"><strong>📏 المساحة:</strong> @item.Area م²</p>
-                                <p class="card-text"><strong>🏠 النوع:</strong> @item.UnitType</p>
-                                <a asp-controller="RealEstate" asp-action="Details" asp-route-id="@item.Id"
-                                   class="btn btn-outline-primary btn-sm mt-2">عرض التفاصيل</a>
+                                <p class="card-text mb-1"><strong>🏠 النوع:</strong> @item.UnitType</p>
+                                <p class="card-text mb-1"><strong>📍 المنطقة:</strong> @item.Neighborhood</p>
+                                <p class="card-text mb-1"><strong>🛏️ الغرف:</strong> @item.Rooms | <strong>🚿 الحمامات:</strong> @item.Bathrooms</p>
+                                <div class="d-flex gap-2 mt-3">
+                                    <a asp-controller="RealEstate" asp-action="Details" asp-route-id="@item.Id"
+                                       class="btn btn-outline-primary btn-sm flex-grow-1">عرض التفاصيل</a>
+                                    @if (!string.IsNullOrEmpty(item.WhatsAppNumber))
+                                    {
+                                        <a href="https://wa.me/@(item.WhatsAppNumber.Replace("+", "").Replace(" ", ""))?text=مرحباً، أنا مهتم بالعقار: @item.Title" 
+                                           target="_blank" 
+                                           class="btn btn-success btn-sm">
+                                            <i class="bi bi-whatsapp"></i> واتساب
+                                        </a>
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>

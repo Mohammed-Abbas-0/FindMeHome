@@ -14,8 +14,8 @@ namespace FindMeHome.Models
         public decimal Price { get; set; }                     // 💰 السعر
         public double Area { get; set; }                       // 📏 المساحة (متر مربع)
 
-        public bool IsForSale { get; set; }                    // للبيع ولا للإيجار
-        public bool IsFurnished { get; set; }                  // مفروش؟
+        //public bool IsForSale { get; set; }                    // للبيع ولا للإيجار
+        //public bool IsFurnished { get; set; }                  // مفروش؟
         public ApartmentType ApartmentType { get; set; }
 
         // لو إيجار فقط يظهر الخيار
@@ -29,8 +29,10 @@ namespace FindMeHome.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now; // تاريخ الإضافة
         public DateTime? ExpirationDate { get; set; }          // تاريخ انتهاء الإعلان
         public bool IsActive { get; set; } = true;             // حالة الإعلان (نشط أو منتهي)
+        public string? WhatsAppNumber { get; set; }            // رقم الواتساب للتواصل
         public ICollection<RealEstateImage> Images { get; set; } = new List<RealEstateImage>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
 
         // 🔗 علاقات مستقبلية (تعليقها حاليًا):
         // public int AgentId { get; set; }                     // المفتاح الأجنبي للوكيل

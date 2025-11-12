@@ -8,13 +8,25 @@ namespace FindMeHome.Mappers
     {
         public MappingHelper()
         {
-            CreateMap<RealEstateDto, RealEstate>()
-              .ForMember(dest => dest.Id, opt => opt.Ignore())
-              .ForMember(dest => dest.Images, opt => opt.Ignore())
-              .ForMember(dest => dest.Furnitures, opt => opt.Ignore());
+            // ✅ RealEstate ⇄ RealEstateDto
+            CreateMap<RealEstate, RealEstateDto>();
+            //    .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
+            //    .ForMember(dest => dest.Furnitures, opt => opt.MapFrom(src => src.Furnitures))
+            //    //.ForMember(dest => dest.Reviews, opt => opt.MapFrom(src => src.Reviews))
+            //    //.ReverseMap()
+            //    .ForMember(dest => dest.Id, opt => opt.Ignore()) // لو بتستخدمه في create
+            //    .ForMember(dest => dest.Images, opt => opt.Ignore())
+            //    .ForMember(dest => dest.Furnitures, opt => opt.Ignore());
+            //    //.ForMember(dest => dest.Reviews, opt => opt.Ignore());
 
-            CreateMap<RealEstateImageDto, RealEstateImage>();
-            CreateMap<FurnitureDto, Furniture>();
+            //// ✅ RealEstateImage ⇄ RealEstateImageDto
+            //CreateMap<RealEstateImage, RealEstateImageDto>().ReverseMap();
+
+            //// ✅ Furniture ⇄ FurnitureDto
+            //CreateMap<Furniture, FurnitureDto>().ReverseMap();
+
+            // ✅ Review ⇄ ReviewDto (لو عندك الكلاس)
+            //CreateMap<Review, ReviewDto>().ReverseMap();
 
         }
     }

@@ -10,71 +10,16 @@ namespace FindMeHome.Controllers
     {
         private readonly ILogger<RealEstateController> _logger;
         private readonly IRealStateService _realStateService;
-        public RealEstateController(ILogger<RealEstateController> logger)
+        public RealEstateController(ILogger<RealEstateController> logger, IRealStateService realStateService)
         {
             _logger = logger;
+            _realStateService = realStateService;
         }
 
         public async Task<IActionResult> Index()
-        { // بيانات تجريبية مؤقتة
-            var fakeData = new List<RealEstate>
-            {
-                new RealEstate
-                {
-                    Id = 1,
-                    Title = "شقة فاخرة بالتجمع الخامس",
-                    Description = "شقة مفروشة بالكامل بالقرب من الخدمات",
-                    Address = "شارع التسعين",
-                    City = "القاهرة",
-                    Neighborhood = "التجمع الخامس",
-                    Price = 2500000,
-                    Area = 180,
-                    Rooms = 3,
-                    Bathrooms = 2,
-                    UnitType = UnitType.Residential,
-                    IsForSale = true,
-                    IsFurnished = true,
-                    CreatedAt = DateTime.Now
-                },
-                new RealEstate
-                {
-                    Id = 2,
-                    Title = "مكتب إداري للإيجار بمدينة نصر",
-                    Description = "مكتب بموقع ممتاز قريب من سيتي ستارز",
-                    Address = "شارع عباس العقاد",
-                    City = "القاهرة",
-                    Neighborhood = "مدينة نصر",
-                    Price = 15000,
-                    Area = 120,
-                    Rooms = 4,
-                    Bathrooms = 1,
-                    UnitType = UnitType.Commercial,
-                    IsForSale = false,
-                    IsFurnished = false,
-                    CreatedAt = DateTime.Now
-                },
-                new RealEstate
-                {
-                    Id = 3,
-                    Title = "دوبلكس فاخر بالشيخ زايد",
-                    Description = "دوبلكس رائع بتشطيب سوبر لوكس وحديقة صغيرة",
-                    Address = "كمبوند جرينز",
-                    City = "الجيزة",
-                    Neighborhood = "الشيخ زايد",
-                    Price = 3500000,
-                    Area = 250,
-                    Rooms = 4,
-                    Bathrooms = 3,
-                    UnitType = UnitType.Residential,
-                    IsForSale = true,
-                    IsFurnished = true,
-                    CreatedAt = DateTime.Now
-                }
-            };
-
-            return View(fakeData);
-            //var realEstates = await _unitOfWork.RealEstates.GetAllAsync();
-            //return View(realEstates);
+        {
+            var realEstates = await _realStateService.GetAllAsync();
+            return View(realEstates);
         }
 
         [HttpGet("Create")]
@@ -127,15 +72,54 @@ namespace FindMeHome.Controllers
             return View();
         }
         [HttpPost("Create")]
-        public async Task<IActionResult> CreateAsync([FromForm] RealEstateDto realEstateDto)
+        public async Task<IActionResult> CreateAsync([FromForm] CreateRealEstateDto createDto)
         {
             if (!ModelState.IsValid)
             {
                 return Json(new { isSuccess = false, message = "❌ البيانات المدخلة غير صحيحة" });
             }
+            try
+            {
+                var result = await _realStateService.CreateAsync(createDto);
 
-            var result = await _realStateService.CreateAsync(realEstateDto);
+                return Json(new
+                {
+                    isSuccess = result.IsSuccess,
+                    message = result.Message
+                });
+            }
+            catch(Exception ex)
+            {
+                return Json(new
+                {
+                    isSuccess = false,
+                    message = "❌ حدث خطأ غير متوقع: " + ex.Message
+                });
+            }
+        }
 
+        [HttpGet("Details/{id}")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var realEstate = await _realStateService.GetByIdAsync(id);
+            if (realEstate == null)
+            {
+                return NotFound();
+            }
+
+            // Get current user ID (temporary - using session or default)
+            var userId = HttpContext.Session.GetString("UserId") ?? "default-user";
+            ViewBag.IsInWishlist = await _realStateService.IsInWishlistAsync(id, userId);
+
+            return View(realEstate);
+        }
+
+        [HttpPost("AddToWishlist/{id}")]
+        public async Task<IActionResult> AddToWishlist(int id)
+        {
+            var userId = HttpContext.Session.GetString("UserId") ?? "default-user";
+            var result = await _realStateService.AddToWishlistAsync(id, userId);
+            
             return Json(new
             {
                 isSuccess = result.IsSuccess,
@@ -143,6 +127,26 @@ namespace FindMeHome.Controllers
             });
         }
 
+        [HttpPost("RemoveFromWishlist/{id}")]
+        public async Task<IActionResult> RemoveFromWishlist(int id)
+        {
+            var userId = HttpContext.Session.GetString("UserId") ?? "default-user";
+            var result = await _realStateService.RemoveFromWishlistAsync(id, userId);
+            
+            return Json(new
+            {
+                isSuccess = result.IsSuccess,
+                message = result.Message
+            });
+        }
+
+        [HttpGet("Wishlist")]
+        public async Task<IActionResult> Wishlist()
+        {
+            var userId = HttpContext.Session.GetString("UserId") ?? "default-user";
+            var wishlist = await _realStateService.GetWishlistAsync(userId);
+            return View(wishlist);
+        }
 
     }
 }

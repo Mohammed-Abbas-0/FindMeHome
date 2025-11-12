@@ -3,6 +3,7 @@ using FindMeHome.Dtos;
 using FindMeHome.Models;
 using FindMeHome.Repositories.AbstractionLayer;
 using FindMeHome.Services.Abstraction;
+using Microsoft.EntityFrameworkCore;
 
 namespace FindMeHome.Services.Implementation
 {
@@ -18,58 +19,208 @@ namespace FindMeHome.Services.Implementation
 
         #region Public Methods
 
-
-        public async Task<ResultDto> CreateAsync(RealEstateDto dto)
+        public async Task<ResultDto> CreateAsync(CreateRealEstateDto dto)
         {
-            var validation = ValidateRealStateDto(dto);
+            var validation = ValidateCreateRealEstateDto(dto);
             if (!validation.IsSuccess)
                 return validation;
 
-            var entity = _mapper.Map<RealEstate>(dto);
+            var entity = new RealEstate
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                Address = dto.Address,
+                City = dto.City,
+                Neighborhood = dto.Neighborhood,
+                Price = dto.Price,
+                Area = dto.Area,
+                ApartmentType = dto.ApartmentType,
+                CanBeFurnished = dto.CanBeFurnished,
+                Rooms = dto.Rooms,
+                Bathrooms = dto.Bathrooms,
+                UnitType = dto.UnitType,
+                WhatsAppNumber = dto.WhatsAppNumber,
+                IsActive = true,
+                CreatedAt = DateTime.Now
+            };
 
+            await SaveImages(dto, entity);
+
+            await _unitOfWork.RealEstates.AddAsync(entity);
+            await _unitOfWork.CompleteAsync();
+
+            // Save furniture after entity is saved (so we have the ID)
+            await SaveFurnitures(dto, entity);
+            await _unitOfWork.CompleteAsync();
+
+            return ResultDto.Success("✅ تم الحفظ بنجاح");
+        }
+
+        public async Task<RealEstateDto?> GetByIdAsync(int id)
+        {
+            var entity = await _unitOfWork.RealEstates
+                .GetByIdAsync(id, includeProperties: "Images,Furnitures");
+
+            if (entity == null)
+                return null;
+
+            return MapToDto(entity);
+        }
+
+        public async Task<List<RealEstateDto>> GetAllAsync()
+        {
+            var entities = await _unitOfWork.RealEstates
+                .GetAllAsync(includeProperties: "Images,Furnitures");
+
+            return entities.Select(MapToDto).ToList();
+        }
+
+        public async Task<ResultDto> AddToWishlistAsync(int realEstateId, string userId)
+        {
+            var exists = await _unitOfWork.Wishlists
+                .FindAsync(w => w.RealEstateId == realEstateId && w.UserId == userId);
+
+            if (exists.Any())
+                return ResultDto.Failure("العقار موجود بالفعل في قائمة المفضلة");
+
+            var realEstate = await _unitOfWork.RealEstates.GetByIdAsync(realEstateId);
+            if (realEstate == null)
+                return ResultDto.Failure("العقار غير موجود");
+
+            var wishlist = new Wishlist
+            {
+                RealEstateId = realEstateId,
+                UserId = userId,
+                AddedAt = DateTime.Now
+            };
+
+            await _unitOfWork.Wishlists.AddAsync(wishlist);
+            await _unitOfWork.CompleteAsync();
+
+            return ResultDto.Success("تمت الإضافة إلى قائمة المفضلة بنجاح");
+        }
+
+        public async Task<ResultDto> RemoveFromWishlistAsync(int realEstateId, string userId)
+        {
+            var wishlist = await _unitOfWork.Wishlists
+                .FindAsync(w => w.RealEstateId == realEstateId && w.UserId == userId);
+
+            var item = wishlist.FirstOrDefault();
+            if (item == null)
+                return ResultDto.Failure("العقار غير موجود في قائمة المفضلة");
+
+            _unitOfWork.Wishlists.Remove(item);
+            await _unitOfWork.CompleteAsync();
+
+            return ResultDto.Success("تمت الإزالة من قائمة المفضلة بنجاح");
+        }
+
+        public async Task<bool> IsInWishlistAsync(int realEstateId, string userId)
+        {
+            var wishlist = await _unitOfWork.Wishlists
+                .FindAsync(w => w.RealEstateId == realEstateId && w.UserId == userId);
+
+            return wishlist.Any();
+        }
+
+        public async Task<List<RealEstateDto>> GetWishlistAsync(string userId)
+        {
+            var wishlists = await _unitOfWork.Wishlists
+                .FindAsync(w => w.UserId == userId, includeProperties: "RealEstate.Images,RealEstate.Furnitures");
+
+            return wishlists.Select(w => MapToDto(w.RealEstate)).ToList();
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private ResultDto ValidateCreateRealEstateDto(CreateRealEstateDto dto)
+        {
+            if (dto == null)
+                return ResultDto.Failure("بيانات العقار غير موجودة.");
+
+            if (string.IsNullOrWhiteSpace(dto.Title))
+                return ResultDto.Failure("عنوان العقار مطلوب.");
+
+            if (dto.Price <= 0)
+                return ResultDto.Failure("يجب إدخال سعر صحيح للعقار.");
+
+            if (string.IsNullOrWhiteSpace(dto.City))
+                return ResultDto.Failure("المدينة مطلوبة.");
+
+            if (string.IsNullOrWhiteSpace(dto.Address))
+                return ResultDto.Failure("العنوان مطلوب.");
+
+            if (dto.Area <= 0)
+                return ResultDto.Failure("يجب إدخال مساحة صحيحة.");
+
+            if (string.IsNullOrWhiteSpace(dto.WhatsAppNumber))
+                return ResultDto.Failure("رقم الواتساب مطلوب.");
+
+            if (dto.Images == null || dto.Images.Count == 0)
+                return ResultDto.Failure("يجب رفع صورة واحدة على الأقل للعقار.");
+
+            return ResultDto.Success("تم التحقق بنجاح ✅");
+        }
+
+        private async Task SaveImages(CreateRealEstateDto dto, RealEstate entity)
+        {
             // 🖼️ حفظ صور العقار
             if (dto.Images != null && dto.Images.Count > 0)
             {
-                entity.Images = new List<RealEstateImage>();
-
-                foreach (var file in dto.Images)
+                try
                 {
-                    if (file.Length > 0)
+                    entity.Images = new List<RealEstateImage>();
+
+                    foreach (var file in dto.Images)
                     {
-                        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-                        var folderPath = Path.Combine("wwwroot", "uploads", "properties");
-                        var fullPath = Path.Combine(folderPath, fileName);
-
-                        if (!Directory.Exists(folderPath))
-                            Directory.CreateDirectory(folderPath);
-
-                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        if (file != null && file.Length > 0)
                         {
-                            await file.CopyToAsync(stream);
+                            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                            var folderPath = Path.Combine("wwwroot", "uploads", "properties");
+                            var fullPath = Path.Combine(folderPath, fileName);
+
+                            if (!Directory.Exists(folderPath))
+                                Directory.CreateDirectory(folderPath);
+
+                            using (var stream = new FileStream(fullPath, FileMode.Create))
+                            {
+                                await file.CopyToAsync(stream);
+                            }
+
+                            entity.Images.Add(new RealEstateImage
+                            {
+                                ImageUrl = $"/uploads/properties/{fileName}"
+                            });
                         }
-
-                        entity.Images.Add(new RealEstateImage
-                        {
-                            ImageUrl = $"/uploads/properties/{fileName}"
-                        });
                     }
                 }
+                catch (Exception ex)
+                {
+                    throw new Exception("حدث خطأ أثناء حفظ صور العقار.", ex);
+                }
             }
+        }
 
+        private async Task SaveFurnitures(CreateRealEstateDto dto, RealEstate entity)
+        {
             // 🪑 حفظ الأثاث
-            if (dto.Furnitures != null && dto.Furnitures.Count > 0)
+            if (dto.Furnitures != null && dto.Furnitures.Count > 0 && dto.CanBeFurnished)
             {
-                entity.Furnitures = new List<Furniture>();
-
                 foreach (var furniture in dto.Furnitures)
                 {
+                    if (string.IsNullOrWhiteSpace(furniture.Name) || furniture.Price == null || furniture.Price <= 0)
+                        continue;
+
                     var f = new Furniture
                     {
                         Name = furniture.Name,
-                        Price = furniture.Price??0
+                        Price = furniture.Price.Value,
+                        RealEstateId = entity.Id
                     };
 
-                    if (furniture.Image != null)
+                    if (furniture.Image != null && furniture.Image.Length > 0)
                     {
                         var fileName = $"{Guid.NewGuid()}{Path.GetExtension(furniture.Image.FileName)}";
                         var folderPath = Path.Combine("wwwroot", "uploads", "furnitures");
@@ -86,55 +237,37 @@ namespace FindMeHome.Services.Implementation
                         f.ImagePath = $"/uploads/furnitures/{fileName}";
                     }
 
-                    entity.Furnitures.Add(f);
+                    await _unitOfWork.Furnitures.AddAsync(f);
                 }
             }
-
-            await _unitOfWork.RealEstates.AddAsync(entity);
-            await _unitOfWork.CompleteAsync();
-
-            return  ResultDto.Success( "✅ تم الحفظ بنجاح");
         }
 
-
-        #endregion
-
-        #region Private Methods
-
-        private ResultDto ValidateRealStateDto(RealEstateDto dto)
+        private RealEstateDto MapToDto(RealEstate entity)
         {
-            if (dto == null)
-                return ResultDto.Failure("بيانات العقار غير موجودة.");
-
-            if (string.IsNullOrWhiteSpace(dto.Title))
-                return ResultDto.Failure("عنوان العقار مطلوب.");
-
-            if (dto.Price == null || dto.Price <= 0)
-                return ResultDto.Failure("يجب إدخال سعر صحيح للعقار.");
-
-            if (string.IsNullOrWhiteSpace(dto.City))
-                return ResultDto.Failure("المدينة مطلوبة.");
-
-            if (string.IsNullOrWhiteSpace(dto.Address))
-                return ResultDto.Failure("العنوان مطلوب.");
-
-            if (dto.Area == null || dto.Area <= 0)
-                return ResultDto.Failure("يجب إدخال مساحة صحيحة.");
-
-            if (string.IsNullOrWhiteSpace(dto.IsForSale))
-                return ResultDto.Failure("يجب تحديد نوع العرض (بيع أو إيجار).");
-
-            if (dto.Latitude == 0 || dto.Longitude == 0)
-                return ResultDto.Failure("يجب تحديد موقع العقار على الخريطة.");
-
-            // ممكن تضيف تحقق إضافي للصور مثلاً
-            if (dto.Images == null || dto.Images.Count == 0)
-                return ResultDto.Failure("يجب رفع صورة واحدة على الأقل للعقار.");
-
-            return ResultDto.Success("تم التحقق بنجاح ✅");
+            return new RealEstateDto(
+                entity.Id,
+                entity.Title,
+                entity.Description,
+                entity.Address,
+                entity.City,
+                entity.Neighborhood,
+                entity.Price,
+                entity.Area,
+                entity.CanBeFurnished,
+                entity.ApartmentType,
+                entity.CanBeFurnished,
+                entity.Furnitures?.Select(f => new FurnitureDto(f.Id, f.Name, f.Price, f.ImagePath, null)).ToList(),
+                entity.Rooms,
+                entity.Bathrooms,
+                entity.UnitType,
+                entity.CreatedAt,
+                entity.ExpirationDate,
+                entity.IsActive,
+                entity.WhatsAppNumber,
+                entity.Images?.Select(img => new RealEstateImageDto(img.Id, Path.GetFileName(img.ImageUrl), img.ImageUrl)).ToList()
+            );
         }
-
-
+            
         #endregion
     }
 }
