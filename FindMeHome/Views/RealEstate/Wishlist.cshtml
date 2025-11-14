@@ -42,7 +42,9 @@
                                    class="btn btn-outline-primary btn-sm flex-grow-1">عرض التفاصيل</a>
                                 @if (!string.IsNullOrEmpty(item.WhatsAppNumber))
                                 {
-                                    <a href="https://wa.me/@(item.WhatsAppNumber.Replace("+", "").Replace(" ", ""))?text=مرحباً، أنا مهتم بالعقار: @item.Title" 
+                                    var detailsUrl = Url.Action("Details", "RealEstate", new { id = item.Id }, Context.Request.Scheme);
+                                    
+                                    <a href="https://wa.me/@(item.WhatsAppNumber.Replace("+", "").Replace(" ", ""))?text=@Uri.EscapeDataString(detailsUrl)" 
                                        target="_blank" 
                                        class="btn btn-success btn-sm">
                                         <i class="bi bi-whatsapp"></i> واتساب

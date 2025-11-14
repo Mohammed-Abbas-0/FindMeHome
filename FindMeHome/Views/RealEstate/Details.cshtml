@@ -63,6 +63,10 @@
                             <p><strong>🚿 عدد الحمامات:</strong> @Model.Bathrooms</p>
                             <p><strong>🏠 نوع الوحدة:</strong> @Model.UnitType</p>
                             <p><strong>💰 نوع العرض:</strong> @(Model.ApartmentType == FindMeHome.Enums.ApartmentType.ForSale ? "للبيع" : "للإيجار")</p>
+                            @if (Model.CanBeFurnished)
+                            {
+                                <p><strong>🪑 الحالة:</strong> <span class="badge bg-success">متاح للبيع مفروش</span></p>
+                            }
                         </div>
                     </div>
                 </div>
@@ -79,10 +83,18 @@
                         <h3 class="text-primary" id="basePrice">@basePrice.ToString("N0") جنيه</h3>
                     </div>
 
+                    @if (Model.CanBeFurnished)
+                    {
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle"></i> <strong>العقار متاح للبيع مفروش</strong>
+                            <p class="mb-0 mt-1">يمكنك اختيار قطع الأثاث التي تحتاجها من القائمة أدناه</p>
+                        </div>
+                    }
+                    
                     @if (Model.CanBeFurnished && Model.Furnitures != null && Model.Furnitures.Any())
                     {
                         <div class="mb-3">
-                            <h5 class="fw-bold mb-3">🪑 الأثاث المتاح</h5>
+                            <h5 class="fw-bold mb-3">🪑 الأثاث المتاح للبيع</h5>
                             <div id="furnitureList" class="mb-3">
                                 @foreach (var furniture in Model.Furnitures)
                                 {
@@ -125,7 +137,7 @@
                     <div class="d-grid gap-2">
                         @if (!string.IsNullOrEmpty(Model.WhatsAppNumber))
                         {
-                            <a href="https://wa.me/@(Model.WhatsAppNumber.Replace("+", "").Replace(" ", ""))?text=مرحباً، أنا مهتم بالعقار: @Model.Title - السعر: <span id='whatsappPrice'>@basePrice.ToString("N0")</span> جنيه" 
+                            <a href="#" 
                                target="_blank" 
                                class="btn btn-success btn-lg" id="whatsappLink">
                                 <i class="bi bi-whatsapp"></i> تواصل عبر الواتساب
@@ -171,22 +183,16 @@
                 const totalPrice = basePrice + selectedFurniturePrice;
                 $('#totalPrice').text(totalPrice.toLocaleString('ar-EG') + ' جنيه');
                 
-                // Update WhatsApp link
-                const whatsappText = 'مرحباً، أنا مهتم بالعقار: @Model.Title';
-                const priceText = 'السعر: ' + totalPrice.toLocaleString('ar-EG') + ' جنيه';
-                let furnitureText = '';
-                
-                if (selectedFurniture.length > 0) {
-                    furnitureText = '\nالأثاث المختار:\n';
-                    selectedFurniture.forEach(f => {
-                        furnitureText += '- ' + f.name + ': ' + f.price.toLocaleString('ar-EG') + ' جنيه\n';
-                    });
-                }
-                
-                const fullMessage = whatsappText + '\n' + priceText + furnitureText;
+                // Update WhatsApp link - رابط الإعلان فقط
+                const currentUrl = window.location.href;
                 const whatsappNumber = '@Model.WhatsAppNumber'.replace(/[+\s]/g, '');
-                $('#whatsappLink').attr('href', 'https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(fullMessage));
+                $('#whatsappLink').attr('href', 'https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(currentUrl));
             });
+
+            // تحديث رابط الواتساب عند التحميل
+            const currentUrl = window.location.href;
+            const whatsappNumber = '@Model.WhatsAppNumber'.replace(/[+\s]/g, '');
+            $('#whatsappLink').attr('href', 'https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(currentUrl));
 
             // Wishlist toggle
             $('#wishlistBtn').on('click', function() {

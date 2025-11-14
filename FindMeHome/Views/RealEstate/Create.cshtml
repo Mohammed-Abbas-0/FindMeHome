@@ -59,11 +59,12 @@
 
                     <!-- هل مفروش -->
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">هل العقار مفروش؟</label>
+                        <label class="form-label fw-bold">هل العقار متاح للبيع مفروش؟</label>
                         <div class="form-check">
                             <input id="CanBeFurnished" name="CanBeFurnished" class="form-check-input" type="checkbox" value="true" />
-                            <label class="form-check-label">نعم، العقار مفروش</label>
+                            <label class="form-check-label">نعم، العقار متاح للبيع مفروش مع إمكانية إضافة أثاث إضافي</label>
                         </div>
+                        <small class="text-muted">إذا قمت بتحديد هذا الخيار، يمكنك إضافة قطع الأثاث المتاحة للبيع مع العقار</small>
                     </div>
 
                     <!-- نوع الوحدة -->
@@ -109,22 +110,21 @@
 
                     <!-- 🪑 قسم الأثاث -->
                     <div id="furnitureSection" class="col-12 mt-4" style="display:none;">
-                        <h5 class="fw-bold text-secondary mb-3">🪑 تفاصيل الأثاث</h5>
-                        <div id="furnitureList">
-                            <div class="card p-3 mb-3 furniture-item shadow-sm border-0">
-                                <div class="row g-3 align-items-center">
-                                    <div class="col-md-4"><input type="text" name="Furnitures[0].Name" class="form-control" placeholder="اسم الأثاث (مثلاً: تلفاز)" /></div>
-                                    <div class="col-md-3"><input type="number" name="Furnitures[0].Price" class="form-control" placeholder="السعر" /></div>
-                                    <div class="col-md-3"><input type="file" name="Furnitures[0].Image" accept="image/*" class="form-control furniture-image-input" /></div>
-                                    <div class="col-md-2 text-center"><button type="button" class="btn btn-danger remove-furniture w-100">🗑️ حذف</button></div>
-                                </div>
-                                <div class="mt-2 text-center"><img class="img-preview img-thumbnail" style="max-height:120px; display:none;" /></div>
+                        <div class="card shadow-sm border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="fw-bold mb-0">🪑 إضافة الأثاث المتاح للبيع</h5>
+                                <small>يمكنك إضافة قطع الأثاث المتاحة للبيع مع العقار، وسيظهر للمشتري الخيار لإضافتها للسعر الأساسي</small>
                             </div>
-                        </div>
-                        <div class="text-end mt-3">
-                            <button type="button" id="addFurnitureBtn" class="btn btn-outline-primary">
-                                ➕ إضافة قطعة أثاث أخرى
-                            </button>
+                            <div class="card-body">
+                                <div id="furnitureList">
+                                    <!-- سيتم إضافة قطع الأثاث هنا ديناميكياً -->
+                                </div>
+                                <div class="text-end mt-3">
+                                    <button type="button" id="addFurnitureBtn" class="btn btn-outline-primary">
+                                        <i class="bi bi-plus-circle"></i> إضافة قطعة أثاث
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -219,17 +219,19 @@
             const isFurnished = $("#CanBeFurnished").is(":checked");
             const furnitureItems = $(".furniture-item");
 
-            if (isFurnished) {
+            if (isFurnished && furnitureItems.length > 0) {
                 let valid = true;
+                let emptyItems = [];
 
-                furnitureItems.each(function () {
+                furnitureItems.each(function (index) {
                     const name = $(this).find("input[name*='Name']").val();
                     const price = $(this).find("input[name*='Price']").val();
-                    const image = $(this).find("input[name*='Image']")[0].files[0];
+                    const imageInput = $(this).find("input[name*='Image']")[0];
+                    const image = imageInput ? imageInput.files[0] : null;
 
                     if (!name || !price || !image) {
                         valid = false;
-                        return false; // للخروج من الـ each
+                        emptyItems.push(index + 1);
                     }
                 });
 
@@ -241,11 +243,13 @@
                     });
                     return;
                 }
-            } else {
-                // لو مش مفروش، نحذف أي بيانات مفروشات من FormData
-                [...formData.keys()].forEach(key => {
-                    if (key.startsWith("Furnitures")) formData.delete(key);
+            } else if (isFurnished && furnitureItems.length === 0) {
+                Swal.fire({
+                    icon: "info",
+                    title: "يرجى إضافة أثاث",
+                    text: "إذا كان العقار مفروش، يرجى إضافة قطع الأثاث المتاحة"
                 });
+                return;
             }
 
             // 🔄 بعد التحقق نعمل الـ AJAX
@@ -304,27 +308,58 @@
 
         checkbox.addEventListener("change", () => {
             furnitureSection.style.display = checkbox.checked ? "block" : "none";
+            if (checkbox.checked && list.children.length === 0) {
+                // إضافة أول قطعة أثاث تلقائياً
+                addFurnitureItem(0);
+            }
         });
 
-        let index = 1;
-        addBtn.addEventListener("click", () => {
+        let furnitureIndex = 0;
+        
+        function addFurnitureItem(index) {
             const item = document.createElement("div");
-            item.classList.add("card", "p-3", "mb-3", "furniture-item", "shadow-sm", "border-0");
+            item.classList.add("card", "p-3", "mb-3", "furniture-item", "shadow-sm", "border");
             item.innerHTML = `
-                <div class="row g-3 align-items-center">
-                    <div class="col-md-4"><input type="text" name="Furnitures[${index}].Name" class="form-control" placeholder="اسم الأثاث" /></div>
-                    <div class="col-md-3"><input type="number" name="Furnitures[${index}].Price" class="form-control" placeholder="السعر" /></div>
-                    <div class="col-md-3"><input type="file" name="Furnitures[${index}].Image" accept="image/*" class="form-control furniture-image-input" /></div>
-                    <div class="col-md-2 text-center"><button type="button" class="btn btn-danger remove-furniture w-100">🗑️ حذف</button></div>
+                <div class="row g-3 align-items-start">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">اسم الأثاث</label>
+                        <input type="text" name="Furnitures[${index}].Name" class="form-control" placeholder="مثلاً: تلفاز LED" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">السعر (جنيه)</label>
+                        <input type="number" name="Furnitures[${index}].Price" class="form-control" placeholder="مثلاً: 5000" step="0.01" min="1" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">صورة الأثاث</label>
+                        <input type="file" name="Furnitures[${index}].Image" accept="image/*" class="form-control furniture-image-input" required />
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="button" class="btn btn-danger remove-furniture w-100" title="حذف">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="mt-2 text-center"><img class="img-preview img-thumbnail" style="max-height:120px; display:none;" /></div>
+                <div class="row mt-2">
+                    <div class="col-12 text-center">
+                        <img class="img-preview img-thumbnail" style="max-height:150px; max-width:200px; display:none; border: 2px solid #ddd; border-radius: 8px;" />
+                    </div>
+                </div>
             `;
             list.appendChild(item);
-            index++;
+            furnitureIndex++;
+        }
+
+        addBtn.addEventListener("click", () => {
+            addFurnitureItem(furnitureIndex);
         });
 
         list.addEventListener("click", e => {
-            if (e.target.classList.contains("remove-furniture")) e.target.closest(".furniture-item").remove();
+            if (e.target.closest(".remove-furniture")) {
+                e.target.closest(".furniture-item").remove();
+                // إعادة ترقيم العناصر
+                updateFurnitureIndexes();
+            }
         });
 
         list.addEventListener("change", e => {
@@ -332,11 +367,34 @@
                 const file = e.target.files[0];
                 const img = e.target.closest(".furniture-item").querySelector(".img-preview");
                 if (file) {
-                    img.src = URL.createObjectURL(file);
-                    img.style.display = "block";
-                } else img.style.display = "none";
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        img.src = e.target.result;
+                        img.style.display = "block";
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    img.style.display = "none";
+                }
             }
         });
+
+        function updateFurnitureIndexes() {
+            const items = list.querySelectorAll(".furniture-item");
+            items.forEach((item, index) => {
+                item.querySelectorAll("input, select").forEach(input => {
+                    if (input.name) {
+                        input.name = input.name.replace(/Furnitures\[\d+\]/, `Furnitures[${index}]`);
+                    }
+                });
+            });
+            furnitureIndex = items.length;
+        }
+
+        // إذا كان checkbox محدد مسبقاً، أضف قطعة أثاث أولى
+        if (checkbox.checked) {
+            addFurnitureItem(0);
+        }
 
         // تصميم رفع الصور
         const uploadBox = document.querySelector(".upload-box");

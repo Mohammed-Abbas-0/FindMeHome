@@ -76,12 +76,19 @@
                                 <p class="card-text mb-1"><strong>🏠 النوع:</strong> @item.UnitType</p>
                                 <p class="card-text mb-1"><strong>📍 المنطقة:</strong> @item.Neighborhood</p>
                                 <p class="card-text mb-1"><strong>🛏️ الغرف:</strong> @item.Rooms | <strong>🚿 الحمامات:</strong> @item.Bathrooms</p>
+                                @if (item.CanBeFurnished)
+                                {
+                                    <p class="card-text mb-2"><span class="badge bg-success">🪑 متاح للبيع مفروش</span></p>
+                                }
                                 <div class="d-flex gap-2 mt-3">
                                     <a asp-controller="RealEstate" asp-action="Details" asp-route-id="@item.Id"
                                        class="btn btn-outline-primary btn-sm flex-grow-1">عرض التفاصيل</a>
                                     @if (!string.IsNullOrEmpty(item.WhatsAppNumber))
                                     {
-                                        <a href="https://wa.me/@(item.WhatsAppNumber.Replace("+", "").Replace(" ", ""))?text=مرحباً، أنا مهتم بالعقار: @item.Title" 
+                                       
+                                        var detailsUrl = Url.Action("Details", "RealEstate", new { id = item.Id }, Context.Request.Scheme);
+                                        
+                                        <a href="https://wa.me/@(item.WhatsAppNumber.Replace("+", "").Replace(" ", ""))?text=@Uri.EscapeDataString(detailsUrl)" 
                                            target="_blank" 
                                            class="btn btn-success btn-sm">
                                             <i class="bi bi-whatsapp"></i> واتساب

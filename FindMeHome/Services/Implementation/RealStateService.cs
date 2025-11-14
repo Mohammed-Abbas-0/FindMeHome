@@ -3,7 +3,6 @@ using FindMeHome.Dtos;
 using FindMeHome.Models;
 using FindMeHome.Repositories.AbstractionLayer;
 using FindMeHome.Services.Abstraction;
-using Microsoft.EntityFrameworkCore;
 
 namespace FindMeHome.Services.Implementation
 {
