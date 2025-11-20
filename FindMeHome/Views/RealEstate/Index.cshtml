@@ -29,7 +29,7 @@
                         <input type="number" class="form-control" name="areaTo" placeholder="مثلاً 250" />
                     </div>
 
-                    <div class="mb-3">
+                   @*  <div class="mb-3">
                         <label class="form-label">المنطقة</label>
                         <select class="form-select" name="neighborhoods" multiple>
                             <option value="مدينة نصر">مدينة نصر</option>
@@ -39,9 +39,9 @@
                             <option value="التجمع">التجمع</option>
                         </select>
                         <small class="text-muted">يمكنك اختيار أكثر من منطقة</small>
-                    </div>
+                    </div> *@
 
-                    <button type="submit" class="btn btn-primary w-100">بحث</button>
+                    <button type="submit" class="btn btn-dark w-100">بحث</button>
                 </form>
             </div>
         </aside>
@@ -64,7 +64,7 @@
             <div class="row g-4">
                 @foreach (var item in Model)
                 {
-                    <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="col-lg-4 col-md-4 col-sm-12">
                         <div class="card shadow-sm h-100">
                             <img src="@(item.Images?.FirstOrDefault()?.FilePath ?? "/images/test1.png")"
                                  class="card-img-top" alt="صورة العقار" style="height: 220px; object-fit: cover;">
@@ -80,18 +80,22 @@
                                 {
                                     <p class="card-text mb-2"><span class="badge bg-success">🪑 متاح للبيع مفروش</span></p>
                                 }
+                                else
+                                {
+                                    <p class="card-text mb-2" style="padding:12px 0"></p>
+                                    
+                                }
                                 <div class="d-flex gap-2 mt-3">
                                     <a asp-controller="RealEstate" asp-action="Details" asp-route-id="@item.Id"
-                                       class="btn btn-outline-primary btn-sm flex-grow-1">عرض التفاصيل</a>
+                                       class="btn btn-outline-dark btn-sm flex-grow-1">عرض التفاصيل</a>
                                     @if (!string.IsNullOrEmpty(item.WhatsAppNumber))
                                     {
                                        
                                         var detailsUrl = Url.Action("Details", "RealEstate", new { id = item.Id }, Context.Request.Scheme);
-                                        
                                         <a href="https://wa.me/@(item.WhatsAppNumber.Replace("+", "").Replace(" ", ""))?text=@Uri.EscapeDataString(detailsUrl)" 
                                            target="_blank" 
                                            class="btn btn-success btn-sm">
-                                            <i class="bi bi-whatsapp"></i> واتساب
+                                            <i class="fa-brands fa-whatsapp"></i> واتساب
                                         </a>
                                     }
                                 </div>

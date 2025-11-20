@@ -62,11 +62,10 @@
                         <label class="form-label fw-bold">هل العقار متاح للبيع مفروش؟</label>
                         <div class="form-check">
                             <input id="CanBeFurnished" name="CanBeFurnished" class="form-check-input" type="checkbox" value="true" />
-                            <label class="form-check-label">نعم، العقار متاح للبيع مفروش مع إمكانية إضافة أثاث إضافي</label>
+                            <label class="form-check-label" asp-for="CanBeFurnished">نعم، العقار متاح للبيع مفروش مع إمكانية إضافة أثاث إضافي</label>
                         </div>
                         <small class="text-muted">إذا قمت بتحديد هذا الخيار، يمكنك إضافة قطع الأثاث المتاحة للبيع مع العقار</small>
                     </div>
-
                     <!-- نوع الوحدة -->
                     <div class="col-md-6">
                         <label class="form-label fw-bold">نوع الوحدة</label>
@@ -76,11 +75,31 @@
                             <option value="Commercial">تجاري</option>
                         </select>
                     </div>
+                    <!-- 🪑 قسم الأثاث -->
+                    <div id="furnitureSection" class="col-12 mt-4" style="display:none;">
+                        <div class="card shadow-sm border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="fw-bold mb-0">🪑 إضافة الأثاث المتاح للبيع</h5>
+                                <small>يمكنك إضافة قطع الأثاث المتاحة للبيع مع العقار، وسيظهر للمشتري الخيار لإضافتها للسعر الأساسي</small>
+                            </div>
+                            <div class="card-body">
+                                <div id="furnitureList">
+                                    <!-- سيتم إضافة قطع الأثاث هنا ديناميكياً -->
+                                </div>
+                                <div class="text-end mt-3">
+                                    <button type="button" id="addFurnitureBtn" class="btn btn-outline-primary">
+                                        <i class="bi bi-plus-circle"></i> إضافة قطعة أثاث
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                   
 
                     <!-- رقم الواتساب -->
                     <div class="col-md-6">
                         <label class="form-label fw-bold">📱 رقم الواتساب</label>
-                        <input type="tel" name="WhatsAppNumber" class="form-control" placeholder="مثلاً +201234567890" required />
+                        <input type="tel" name="WhatsAppNumber" class="form-control" placeholder="مثلاً 201234567890" required />
                         <small class="text-muted">رقم الواتساب للتواصل مع المشترين</small>
                     </div>
 
@@ -108,25 +127,7 @@
                         <input type="text" name="Neighborhood" class="form-control" placeholder="مثلاً التجمع الخامس" required />
                     </div>
 
-                    <!-- 🪑 قسم الأثاث -->
-                    <div id="furnitureSection" class="col-12 mt-4" style="display:none;">
-                        <div class="card shadow-sm border-primary">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="fw-bold mb-0">🪑 إضافة الأثاث المتاح للبيع</h5>
-                                <small>يمكنك إضافة قطع الأثاث المتاحة للبيع مع العقار، وسيظهر للمشتري الخيار لإضافتها للسعر الأساسي</small>
-                            </div>
-                            <div class="card-body">
-                                <div id="furnitureList">
-                                    <!-- سيتم إضافة قطع الأثاث هنا ديناميكياً -->
-                                </div>
-                                <div class="text-end mt-3">
-                                    <button type="button" id="addFurnitureBtn" class="btn btn-outline-primary">
-                                        <i class="bi bi-plus-circle"></i> إضافة قطعة أثاث
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                   
 
                     <!-- 🗺️ موقع العقار -->
                     <div class="col-12 mt-4">
