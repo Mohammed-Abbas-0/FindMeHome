@@ -76,44 +76,7 @@ namespace FindMeHome.Controllers
             return View();
         }
 
-        //[HttpPost("Create")]
-        //public async Task<IActionResult> CreateAsync([FromForm] RealEstateDto realEstateDto)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        var errors = ModelState
-        //                             .Where(ms => ms.Value.Errors.Count > 0)
-        //                             .Select(ms => new
-        //                             {
-        //                                 Field = ms.Key, // اسم الحقل اللي فيه المشكلة
-        //                                 Errors = ms.Value!.Errors.Select(e => e.ErrorMessage).ToList()
-        //                             })
-        //                             .ToList();
-
-        //        // ممكن تعرضها في الـ ViewBag مثلاً عشان تشوفها:
-        //        ViewBag.ValidationErrors = errors;
-
-        //        // أو لو عايز تطبعها في الـ console أثناء التطوير
-        //        foreach (var error in errors)
-        //        {
-        //            Console.WriteLine($"❌ {error.Field}: {string.Join(", ", error.Errors)}");
-        //        }
-
-        //        ModelState.AddModelError("", "❌ البيانات المدخلة غير صحيحة، يرجى التحقق والمحاولة مرة أخرى.");
-        //        return View(realEstateDto);
-        //    }
-
-        //    var result = await _realStateService.CreateAsync(realEstateDto);
-
-        //    if (!result.IsSuccess)
-        //    {
-        //        ModelState.AddModelError("", result.Message ?? "");
-        //        return View(realEstateDto);
-        //    }
-
-        //    TempData["Success"] = "✅ تم حفظ العقار بنجاح";
-        //    return RedirectToAction("Index");
-        //}
+        
 
         public IActionResult Privacy()
         {
