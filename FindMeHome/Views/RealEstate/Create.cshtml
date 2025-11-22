@@ -1,17 +1,19 @@
 ﻿@model FindMeHome.Dtos.CreateRealEstateDto
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
 @{
-    ViewData["Title"] = "إضافة عقار جديد";
+    ViewData["Title"] = Localizer["AddPropertyTitle"];
 }
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<div class="container py-5" dir="rtl">
+<div class="container py-5" dir="@(System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft ? "rtl" : "ltr")">
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                 <div class="card-header bg-gradient-primary text-white text-center py-4 border-0" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
-                    <h3 class="mb-1 fw-bold"><i class="fa-solid fa-house-chimney-medical me-2"></i> إضافة عقار جديد</h3>
-                    <p class="mb-0 opacity-75">أدخل تفاصيل عقارك لنشره على المنصة</p>
+                    <h3 class="mb-1 fw-bold"><i class="fa-solid fa-house-chimney-medical me-2"></i> @Localizer["AddPropertyTitle"]</h3>
+                    <p class="mb-0 opacity-75">@Localizer["AddPropertySubtitle"]</p>
                 </div>
 
                 <div class="card-body p-5 bg-light">
@@ -19,19 +21,19 @@
                         
                         <!-- Basic Info Section -->
                         <div class="bg-white p-4 rounded-4 shadow-sm mb-4">
-                            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fa-solid fa-circle-info me-2"></i> المعلومات الأساسية</h5>
+                            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fa-solid fa-circle-info me-2"></i> @Localizer["BasicInfo"]</h5>
                             <div class="row g-4">
                                 <div class="col-md-12">
-                                    <label class="form-label fw-bold text-muted">عنوان الإعلان</label>
+                                    <label class="form-label fw-bold text-muted">@Localizer["AdTitle"]</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i class="fa-solid fa-heading text-primary"></i></span>
-                                        <input name="Title" class="form-control bg-light border-0 py-2" placeholder="مثلاً: شقة فاخرة بالتجمع الخامس تطل على حديقة" required />
+                                        <input name="Title" class="form-control bg-light border-0 py-2" placeholder="@Localizer["AdTitlePlaceholder"]" required />
                                     </div>
                                     <span asp-validation-for="Title" class="text-danger small"></span>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold text-muted">السعر (جنيه)</label>
+                                    <label class="form-label fw-bold text-muted">@Localizer["Price"]</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i class="fa-solid fa-money-bill-wave text-success"></i></span>
                                         <input type="number" name="Price" class="form-control bg-light border-0 py-2" placeholder="0.00" step="0.01" min="1" required />
@@ -40,7 +42,7 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold text-muted">المساحة (م²)</label>
+                                    <label class="form-label fw-bold text-muted">@Localizer["Area"]</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i class="fa-solid fa-ruler-combined text-warning"></i></span>
                                         <input type="number" name="Area" class="form-control bg-light border-0 py-2" placeholder="0" step="0.01" min="1" required />
@@ -48,25 +50,25 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold text-muted">نوع العرض</label>
+                                    <label class="form-label fw-bold text-muted">@Localizer["OfferType"]</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i class="fa-solid fa-tag text-info"></i></span>
                                         <select name="ApartmentType" class="form-select bg-light border-0 py-2" required>
-                                            <option value="">-- اختر --</option>
-                                            <option value="ForSale">للبيع</option>
-                                            <option value="ForRent">للإيجار</option>
+                                            <option value="">@Localizer["SelectOption"]</option>
+                                            <option value="ForSale">@Localizer["ForSale"]</option>
+                                            <option value="ForRent">@Localizer["ForRent"]</option>
                                         </select>
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold text-muted">نوع الوحدة</label>
+                                    <label class="form-label fw-bold text-muted">@Localizer["UnitType"]</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i class="fa-solid fa-building text-secondary"></i></span>
                                         <select name="UnitType" class="form-select bg-light border-0 py-2" required>
-                                            <option value="">-- اختر --</option>
-                                            <option value="Residential">سكني</option>
-                                            <option value="Commercial">تجاري</option>
+                                            <option value="">@Localizer["SelectOption"]</option>
+                                            <option value="Residential">@Localizer["Residential"]</option>
+                                            <option value="Commercial">@Localizer["Commercial"]</option>
                                         </select>
                                     </div>
                                 </div>
@@ -75,10 +77,10 @@
 
                         <!-- Details Section -->
                         <div class="bg-white p-4 rounded-4 shadow-sm mb-4">
-                            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fa-solid fa-list-check me-2"></i> التفاصيل والمواصفات</h5>
+                            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fa-solid fa-list-check me-2"></i> @Localizer["DetailsAndSpecs"]</h5>
                             <div class="row g-4">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold text-muted">عدد الغرف</label>
+                                    <label class="form-label fw-bold text-muted">@Localizer["NumberOfRooms"]</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i class="fa-solid fa-bed text-primary"></i></span>
                                         <input type="number" name="Rooms" class="form-control bg-light border-0 py-2" min="1" value="1" required />
@@ -86,7 +88,7 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold text-muted">عدد الحمامات</label>
+                                    <label class="form-label fw-bold text-muted">@Localizer["NumberOfBathrooms"]</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i class="fa-solid fa-bath text-info"></i></span>
                                         <input type="number" name="Bathrooms" class="form-control bg-light border-0 py-2" min="1" value="1" required />
@@ -94,16 +96,16 @@
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label fw-bold text-muted">وصف العقار</label>
-                                    <textarea name="Description" class="form-control bg-light border-0 rounded-3" rows="4" placeholder="اكتب وصفاً جذاباً للعقار يبرز مميزاته..."></textarea>
+                                    <label class="form-label fw-bold text-muted">@Localizer["PropertyDescription"]</label>
+                                    <textarea name="Description" class="form-control bg-light border-0 rounded-3" rows="4" placeholder="@Localizer["DescriptionPlaceholder"]"></textarea>
                                 </div>
 
                                 <div class="col-12">
                                     <div class="form-check form-switch p-0 d-flex align-items-center gap-3 bg-light p-3 rounded-3">
                                         <input id="CanBeFurnished" name="CanBeFurnished" class="form-check-input ms-0" type="checkbox" value="true" style="width: 3em; height: 1.5em;" />
                                         <div>
-                                            <label class="form-check-label fw-bold mb-0" for="CanBeFurnished">متاح للبيع مفروش</label>
-                                            <small class="d-block text-muted">فعل هذا الخيار إذا كنت ترغب في بيع الأثاث مع العقار</small>
+                                            <label class="form-check-label fw-bold mb-0" for="CanBeFurnished">@Localizer["FurnishedCheckbox"]</label>
+                                            <small class="d-block text-muted">@Localizer["FurnishedHint"]</small>
                                         </div>
                                     </div>
                                 </div>
@@ -113,10 +115,10 @@
                             <div id="furnitureSection" class="mt-4" style="display:none;">
                                 <div class="card border-primary border-opacity-25 bg-primary bg-opacity-10">
                                     <div class="card-body">
-                                        <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-couch me-2"></i> قائمة الأثاث</h6>
+                                        <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-couch me-2"></i> @Localizer["FurnitureList"]</h6>
                                         <div id="furnitureList"></div>
                                         <button type="button" id="addFurnitureBtn" class="btn btn-outline-primary w-100 border-2 border-dashed py-2 mt-2">
-                                            <i class="fa-solid fa-plus me-2"></i> إضافة قطعة أثاث
+                                            <i class="fa-solid fa-plus me-2"></i> @Localizer["AddFurnitureItem"]
                                         </button>
                                     </div>
                                 </div>
@@ -125,35 +127,35 @@
 
                         <!-- Location Section -->
                         <div class="bg-white p-4 rounded-4 shadow-sm mb-4">
-                            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fa-solid fa-map-location-dot me-2"></i> الموقع والعنوان</h5>
+                            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fa-solid fa-map-location-dot me-2"></i> @Localizer["LocationAndAddress"]</h5>
                             <div class="row g-4">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold text-muted">المدينة</label>
+                                    <label class="form-label fw-bold text-muted">@Localizer["City"]</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i class="fa-solid fa-city text-secondary"></i></span>
-                                        <input name="City" class="form-control bg-light border-0 py-2" placeholder="القاهرة" required />
+                                        <input name="City" class="form-control bg-light border-0 py-2" placeholder="@Localizer["City"]" required />
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold text-muted">المنطقة / الحي</label>
+                                    <label class="form-label fw-bold text-muted">@Localizer["Neighborhood"]</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i class="fa-solid fa-map-pin text-danger"></i></span>
-                                        <input name="Neighborhood" class="form-control bg-light border-0 py-2" placeholder="التجمع الخامس" required />
+                                        <input name="Neighborhood" class="form-control bg-light border-0 py-2" placeholder="@Localizer["Neighborhood"]" required />
                                     </div>
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label fw-bold text-muted">العنوان بالتفصيل</label>
-                                    <input name="Address" class="form-control bg-light border-0 py-2" placeholder="اسم الشارع، رقم العمارة، الدور..." required />
+                                    <label class="form-label fw-bold text-muted">@Localizer["DetailedAddress"]</label>
+                                    <input name="Address" class="form-control bg-light border-0 py-2" placeholder="@Localizer["AddressPlaceholder"]" required />
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label fw-bold text-muted">حدد الموقع على الخريطة</label>
+                                    <label class="form-label fw-bold text-muted">@Localizer["MapLocation"]</label>
                                     <div class="card border-0 shadow-sm">
                                         <div id="map" style="height: 350px; border-radius: 12px; z-index: 1;"></div>
                                     </div>
-                                    <input type="text" id="LocationAddress" name="LocationAddress" class="form-control mt-2 bg-light border-0 small text-muted" readonly placeholder="العنوان المختار من الخريطة..." />
+                                    <input type="text" id="LocationAddress" name="LocationAddress" class="form-control mt-2 bg-light border-0 small text-muted" readonly placeholder="@Localizer["MapPlaceholder"]" />
                                     <input type="hidden" id="Latitude" name="Latitude" />
                                     <input type="hidden" id="Longitude" name="Longitude" />
                                 </div>
@@ -162,10 +164,10 @@
 
                         <!-- Contact & Media Section -->
                         <div class="bg-white p-4 rounded-4 shadow-sm mb-4">
-                            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fa-solid fa-images me-2"></i> الصور والتواصل</h5>
+                            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fa-solid fa-images me-2"></i> @Localizer["ImagesAndContact"]</h5>
                             <div class="row g-4">
                                 <div class="col-md-12">
-                                    <label class="form-label fw-bold text-muted">رقم الواتساب للتواصل</label>
+                                    <label class="form-label fw-bold text-muted">@Localizer["WhatsAppNumber"]</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i class="fa-brands fa-whatsapp text-success fs-5"></i></span>
                                         <input type="tel" name="WhatsAppNumber" class="form-control bg-light border-0 py-2" placeholder="201xxxxxxxxx" required />
@@ -173,12 +175,12 @@
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label fw-bold text-muted">صور العقار</label>
+                                    <label class="form-label fw-bold text-muted">@Localizer["PropertyImages"]</label>
                                     <div class="upload-box border-2 border-dashed rounded-4 p-5 text-center bg-light position-relative overflow-hidden transition-all" style="cursor:pointer; border-color: #dee2e6;">
                                         <div class="content">
                                             <i class="fa-solid fa-cloud-arrow-up fs-1 text-primary mb-3"></i>
-                                            <h6 class="fw-bold mb-1">اضغط لرفع الصور</h6>
-                                            <p class="text-muted small mb-0">أو اسحب الملفات هنا</p>
+                                            <h6 class="fw-bold mb-1">@Localizer["UploadImages"]</h6>
+                                            <p class="text-muted small mb-0">@Localizer["DragDropImages"]</p>
                                         </div>
                                         <input type="file" name="Images" multiple class="form-control position-absolute top-0 start-0 w-100 h-100 opacity-0" id="propertyImages" style="cursor:pointer;" />
                                     </div>
@@ -190,10 +192,10 @@
                         <!-- Actions -->
                         <div class="d-flex gap-3 justify-content-center mt-5">
                             <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill fw-bold shadow hover-scale">
-                                <i class="fa-solid fa-check me-2"></i> نشر العقار
+                                <i class="fa-solid fa-check me-2"></i> @Localizer["PublishProperty"]
                             </button>
                             <a asp-action="Index" asp-controller="RealEstate" class="btn btn-light btn-lg px-5 rounded-pill fw-bold shadow-sm hover-scale">
-                                <i class="fa-solid fa-xmark me-2"></i> إلغاء
+                                <i class="fa-solid fa-xmark me-2"></i> @Localizer["Cancel"]
                             </a>
                         </div>
 
@@ -344,15 +346,15 @@
                 item.innerHTML = `
                     <div class="row g-3 align-items-end">
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold text-muted">اسم القطعة</label>
-                            <input type="text" name="Furnitures[${index}].Name" class="form-control bg-light border-0" placeholder="مثلاً: تلفاز" required />
+                            <label class="form-label small fw-bold text-muted">@Localizer["ItemName"]</label>
+                            <input type="text" name="Furnitures[${index}].Name" class="form-control bg-light border-0" placeholder="@Localizer["ItemNamePlaceholder"]" required />
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label small fw-bold text-muted">السعر</label>
+                            <label class="form-label small fw-bold text-muted">@Localizer["ItemPrice"]</label>
                             <input type="number" name="Furnitures[${index}].Price" class="form-control bg-light border-0" placeholder="0.00" required />
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold text-muted">الصورة</label>
+                            <label class="form-label small fw-bold text-muted">@Localizer["ItemImage"]</label>
                             <input type="file" name="Furnitures[${index}].Image" accept="image/*" class="form-control bg-light border-0 furniture-image-input" required />
                         </div>
                         <div class="col-md-1">

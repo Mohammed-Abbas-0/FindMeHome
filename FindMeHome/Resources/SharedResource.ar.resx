@@ -174,4 +174,115 @@
   <data name="CreateAccountTitle" xml:space="preserve">
     <value>إنشاء حساب جديد</value>
   </data>
+  <data name="AddPropertyTitle" xml:space="preserve">
+    <value>إضافة عقار جديد</value>
+  </data>
+  <data name="AddPropertySubtitle" xml:space="preserve">
+    <value>أدخل تفاصيل عقارك لنشره على المنصة</value>
+  </data>
+  <data name="BasicInfo" xml:space="preserve">
+    <value>المعلومات الأساسية</value>
+  </data>
+  <data name="AdTitle" xml:space="preserve">
+    <value>عنوان الإعلان</value>
+  </data>
+  <data name="AdTitlePlaceholder" xml:space="preserve">
+    <value>مثلاً: شقة فاخرة بالتجمع الخامس تطل على حديقة</value>
+  </data>
+  <data name="Price" xml:space="preserve">
+    <value>السعر (جنيه)</value>
+  </data>
+  <data name="OfferType" xml:space="preserve">
+    <value>نوع العرض</value>
+  </data>
+  <data name="SelectOption" xml:space="preserve">
+    <value>-- اختر --</value>
+  </data>
+  <data name="ForSale" xml:space="preserve">
+    <value>للبيع</value>
+  </data>
+  <data name="ForRent" xml:space="preserve">
+    <value>للإيجار</value>
+  </data>
+  <data name="Residential" xml:space="preserve">
+    <value>سكني</value>
+  </data>
+  <data name="Commercial" xml:space="preserve">
+    <value>تجاري</value>
+  </data>
+  <data name="DetailsAndSpecs" xml:space="preserve">
+    <value>التفاصيل والمواصفات</value>
+  </data>
+  <data name="NumberOfRooms" xml:space="preserve">
+    <value>عدد الغرف</value>
+  </data>
+  <data name="NumberOfBathrooms" xml:space="preserve">
+    <value>عدد الحمامات</value>
+  </data>
+  <data name="PropertyDescription" xml:space="preserve">
+    <value>وصف العقار</value>
+  </data>
+  <data name="DescriptionPlaceholder" xml:space="preserve">
+    <value>اكتب وصفاً جذاباً للعقار يبرز مميزاته...</value>
+  </data>
+  <data name="FurnishedCheckbox" xml:space="preserve">
+    <value>متاح للبيع مفروش</value>
+  </data>
+  <data name="FurnishedHint" xml:space="preserve">
+    <value>فعل هذا الخيار إذا كنت ترغب في بيع الأثاث مع العقار</value>
+  </data>
+  <data name="FurnitureList" xml:space="preserve">
+    <value>قائمة الأثاث</value>
+  </data>
+  <data name="AddFurnitureItem" xml:space="preserve">
+    <value>إضافة قطعة أثاث</value>
+  </data>
+  <data name="ItemName" xml:space="preserve">
+    <value>اسم القطعة</value>
+  </data>
+  <data name="ItemNamePlaceholder" xml:space="preserve">
+    <value>مثلاً: تلفاز</value>
+  </data>
+  <data name="ItemPrice" xml:space="preserve">
+    <value>السعر</value>
+  </data>
+  <data name="ItemImage" xml:space="preserve">
+    <value>الصورة</value>
+  </data>
+  <data name="LocationAndAddress" xml:space="preserve">
+    <value>الموقع والعنوان</value>
+  </data>
+  <data name="DetailedAddress" xml:space="preserve">
+    <value>العنوان بالتفصيل</value>
+  </data>
+  <data name="AddressPlaceholder" xml:space="preserve">
+    <value>اسم الشارع، رقم العمارة، الدور...</value>
+  </data>
+  <data name="MapLocation" xml:space="preserve">
+    <value>حدد الموقع على الخريطة</value>
+  </data>
+  <data name="MapPlaceholder" xml:space="preserve">
+    <value>العنوان المختار من الخريطة...</value>
+  </data>
+  <data name="ImagesAndContact" xml:space="preserve">
+    <value>الصور والتواصل</value>
+  </data>
+  <data name="WhatsAppNumber" xml:space="preserve">
+    <value>رقم الواتساب للتواصل</value>
+  </data>
+  <data name="PropertyImages" xml:space="preserve">
+    <value>صور العقار</value>
+  </data>
+  <data name="UploadImages" xml:space="preserve">
+    <value>اضغط لرفع الصور</value>
+  </data>
+  <data name="DragDropImages" xml:space="preserve">
+    <value>أو اسحب الملفات هنا</value>
+  </data>
+  <data name="PublishProperty" xml:space="preserve">
+    <value>نشر العقار</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
 </root>
