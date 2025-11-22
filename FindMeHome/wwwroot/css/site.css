@@ -11,6 +11,19 @@ html {
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
 
 html {
   position: relative;
@@ -19,4 +32,118 @@ html {
 
 body {
   margin-bottom: 60px;
+}
+
+/* Auth Pages Styling */
+.auth-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 2rem 0;
+}
+
+.auth-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.auth-card:hover {
+    transform: translateY(-5px);
+}
+
+.auth-header {
+    background: linear-gradient(45deg, var(--primary-color), #0099ff);
+    color: white;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    border-bottom: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-header::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: rgba(255,255,255,0.1);
+    transform: skewY(-3deg);
+}
+
+.auth-body {
+    padding: 2.5rem;
+}
+
+.form-floating-custom > .form-control {
+    border-radius: 12px;
+    border: 2px solid #f1f3f5;
+    padding-left: 3rem; /* Space for icon (LTR) - will adjust for RTL */
+    background-color: #f8f9fa;
+    transition: all 0.3s;
+}
+
+/* RTL Adjustment for icon padding */
+[dir="rtl"] .form-floating-custom > .form-control {
+    padding-left: 0.75rem;
+    padding-right: 3rem;
+}
+
+[dir="rtl"] .form-floating-custom > label {
+    padding-left: 0.75rem;
+    padding-right: 3rem;
+}
+
+.form-floating-custom > .form-control:focus {
+    border-color: var(--primary-color);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+}
+
+.input-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    z-index: 4;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+}
+
+[dir="rtl"] .input-icon {
+    right: 1.2rem;
+}
+
+[dir="ltr"] .input-icon {
+    left: 1.2rem;
+}
+
+.form-control:focus + label + .input-icon,
+.form-control:focus ~ .input-icon {
+    color: var(--primary-color);
+}
+
+.btn-auth {
+    border-radius: 50px;
+    padding: 0.8rem 2rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: linear-gradient(45deg, var(--primary-color), #0099ff);
+    border: none;
+    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4);
+    background: linear-gradient(45deg, #0b5ed7, #0088cc);
 }

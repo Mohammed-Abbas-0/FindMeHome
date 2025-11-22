@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="BrandName" xml:space="preserve">
+    <value>بيتك</value>
+  </data>
+  <data name="ServicesAndCraftsmen" xml:space="preserve">
+    <value>خدمات وحرفيين</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>دخول</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>حساب جديد</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>تسجيل الخروج</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>الرئيسية</value>
+  </data>
+  <data name="AdvancedSearch" xml:space="preserve">
+    <value>بحث متقدم</value>
+  </data>
+  <data name="AddProperty" xml:space="preserve">
+    <value>أضف عقارك</value>
+  </data>
+  <data name="Profile" xml:space="preserve">
+    <value>الملف الشخصي</value>
+  </data>
+  <data name="MyProperties" xml:space="preserve">
+    <value>عقاراتي</value>
+  </data>
+  <data name="Wishlist" xml:space="preserve">
+    <value>المفضلة</value>
+  </data>
+  <data name="ContactUs" xml:space="preserve">
+    <value>اتصل بنا</value>
+  </data>
+  <data name="FAQ" xml:space="preserve">
+    <value>الأسئلة الشائعة</value>
+  </data>
+  <data name="PrivacyPolicy" xml:space="preserve">
+    <value>سياسة الخصوصية</value>
+  </data>
+  <data name="FooterDescription" xml:space="preserve">
+    <value>منصتك الأولى للبحث عن العقارات في مصر. نساعدك في العثور على منزل أحلامك بسهولة وأمان.</value>
+  </data>
+  <data name="QuickLinks" xml:space="preserve">
+    <value>روابط سريعة</value>
+  </data>
+  <data name="Help" xml:space="preserve">
+    <value>المساعدة</value>
+  </data>
+  <data name="Newsletter" xml:space="preserve">
+    <value>النشرة البريدية</value>
+  </data>
+  <data name="Subscribe" xml:space="preserve">
+    <value>اشتراك</value>
+  </data>
+  <data name="EmailPlaceholder" xml:space="preserve">
+    <value>بريدك الإلكتروني</value>
+  </data>
+  <data name="RightsReserved" xml:space="preserve">
+    <value>جميع الحقوق محفوظة</value>
+  </data>
+  <data name="FilterResults" xml:space="preserve">
+    <value>تصفية النتائج</value>
+  </data>
+  <data name="GeneralSearch" xml:space="preserve">
+    <value>بحث عام</value>
+  </data>
+  <data name="SearchPlaceholder" xml:space="preserve">
+    <value>ابحث عن عقار...</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>الموقع</value>
+  </data>
+  <data name="City" xml:space="preserve">
+    <value>المدينة</value>
+  </data>
+  <data name="Neighborhood" xml:space="preserve">
+    <value>الحي / المنطقة</value>
+  </data>
+  <data name="PriceRange" xml:space="preserve">
+    <value>نطاق السعر (جنيه)</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>من</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>إلى</value>
+  </data>
+  <data name="Area" xml:space="preserve">
+    <value>المساحة (م²)</value>
+  </data>
+  <data name="RoomsAndBathrooms" xml:space="preserve">
+    <value>الغرف والحمامات</value>
+  </data>
+  <data name="Rooms" xml:space="preserve">
+    <value>غرف</value>
+  </data>
+  <data name="Bathrooms" xml:space="preserve">
+    <value>حمامات</value>
+  </data>
+  <data name="UnitType" xml:space="preserve">
+    <value>نوع الوحدة</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>الكل</value>
+  </data>
+  <data name="FurnishedOption" xml:space="preserve">
+    <value>مفروش / قابل للفرش</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>إعادة تعيين</value>
+  </data>
+  <data name="FeaturedProperties" xml:space="preserve">
+    <value>عقارات مميزة</value>
+  </data>
+  <data name="FindPropertyText" xml:space="preserve">
+    <value>اعثر على العقار المناسب لك من بين {0} خيار</value>
+  </data>
+  <data name="Furnished" xml:space="preserve">
+    <value>مفروش</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>التفاصيل</value>
+  </data>
+  <data name="WhatsApp" xml:space="preserve">
+    <value>واتساب</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>المزيد</value>
+  </data>
+  <data name="DiscoverNewHome" xml:space="preserve">
+    <value>اكتشف منزلك الجديد</value>
+  </data>
+  <data name="WelcomeBack" xml:space="preserve">
+    <value>مرحباً بك مجدداً في بيتك</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>البريد الإلكتروني</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>كلمة المرور</value>
+  </data>
+  <data name="NoAccount" xml:space="preserve">
+    <value>ليس لديك حساب؟</value>
+  </data>
+  <data name="CreateAccount" xml:space="preserve">
+    <value>أنشئ حساب جديد</value>
+  </data>
+  <data name="JoinUs" xml:space="preserve">
+    <value>انضم إلينا وابحث عن منزل أحلامك</value>
+  </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>الاسم الأول</value>
+  </data>
+  <data name="LastName" xml:space="preserve">
+    <value>اسم العائلة</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>اسم المستخدم</value>
+  </data>
+  <data name="AlreadyHaveAccount" xml:space="preserve">
+    <value>لديك حساب بالفعل؟</value>
+  </data>
+  <data name="SignUp" xml:space="preserve">
+    <value>تسجيل</value>
+  </data>
+  <data name="LoginTitle" xml:space="preserve">
+    <value>تسجيل الدخول</value>
+  </data>
+  <data name="CreateAccountTitle" xml:space="preserve">
+    <value>إنشاء حساب جديد</value>
+  </data>
+</root>

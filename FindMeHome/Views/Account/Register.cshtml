@@ -1,0 +1,80 @@
+@model FindMeHome.Dtos.RegisterDto
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
+
+@{
+    ViewData["Title"] = Localizer["CreateAccountTitle"];
+}
+
+<div class="auth-container">
+    <div class="col-md-6 col-lg-5">
+        <div class="card auth-card border-0">
+            <div class="auth-header">
+                <div class="mb-3">
+                    <i class="fa-solid fa-user-plus fa-3x text-white-50"></i>
+                </div>
+                <h2 class="fw-bold mb-0">@Localizer["CreateAccountTitle"]</h2>
+                <p class="mb-0 opacity-75 mt-2">@Localizer["JoinUs"]</p>
+            </div>
+            <div class="card-body auth-body">
+                <form asp-action="Register" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4 border-0 bg-danger bg-opacity-10 text-danger" role="alert"></div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating form-floating-custom position-relative">
+                                <input asp-for="FirstName" class="form-control" placeholder="@Localizer["FirstName"]" />
+                                <label asp-for="FirstName">@Localizer["FirstName"]</label>
+                                <i class="fa-solid fa-user input-icon"></i>
+                            </div>
+                            <span asp-validation-for="FirstName" class="text-danger small ms-2"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating form-floating-custom position-relative">
+                                <input asp-for="LastName" class="form-control" placeholder="@Localizer["LastName"]" />
+                                <label asp-for="LastName">@Localizer["LastName"]</label>
+                                <i class="fa-solid fa-user input-icon"></i>
+                            </div>
+                            <span asp-validation-for="LastName" class="text-danger small ms-2"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-floating form-floating-custom mb-3 position-relative">
+                        <input asp-for="Username" class="form-control" placeholder="@Localizer["Username"]" />
+                        <label asp-for="Username">@Localizer["Username"]</label>
+                        <i class="fa-solid fa-at input-icon"></i>
+                        <span asp-validation-for="Username" class="text-danger small ms-2"></span>
+                    </div>
+
+                    <div class="form-floating form-floating-custom mb-3 position-relative">
+                        <input asp-for="Email" class="form-control" type="email" placeholder="name@example.com" />
+                        <label asp-for="Email">@Localizer["Email"]</label>
+                        <i class="fa-solid fa-envelope input-icon"></i>
+                        <span asp-validation-for="Email" class="text-danger small ms-2"></span>
+                    </div>
+
+                    <div class="form-floating form-floating-custom mb-4 position-relative">
+                        <input asp-for="Password" class="form-control" type="password" placeholder="Password" />
+                        <label asp-for="Password">@Localizer["Password"]</label>
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <span asp-validation-for="Password" class="text-danger small ms-2"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-auth text-white">
+                            @Localizer["SignUp"] <i class="fa-solid fa-check me-2"></i>
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted mb-0">@Localizer["AlreadyHaveAccount"] <a asp-action="Login" class="text-primary fw-bold text-decoration-none">@Localizer["LoginTitle"]</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

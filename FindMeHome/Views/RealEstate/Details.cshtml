@@ -3,154 +3,158 @@
 @{
     ViewData["Title"] = Model.Title;
     var basePrice = Model.Price;
-    var selectedFurniturePrice = 0m;
 }
 
-<div class="container mt-4 mb-5" dir="rtl">
-    <div class="row">
-        <!-- صور العقار -->
-        <div class="col-md-8">
-            <div id="carouselExampleIndicators" class="carousel slide mb-4" data-bs-ride="carousel">
-                <div class="carousel-indicators">
-                    @for (int i = 0; i < (Model.Images?.Count ?? 0); i++)
-                    {
-                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@i" 
-                                class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i+1)"></button>
-                    }
-                </div>
-                <div class="carousel-inner">
-                    @if (Model.Images != null && Model.Images.Any())
-                    {
-                        @for (int i = 0; i < Model.Images.Count; i++)
+<div class="container py-5" dir="rtl">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">@Model.Title</h2>
+            <p class="text-muted mb-0"><i class="fa-solid fa-location-dot me-2 text-primary"></i> @Model.Address, @Model.Neighborhood, @Model.City</p>
+        </div>
+        <div>
+            <span class="badge bg-primary rounded-pill px-3 py-2 fs-6">@Model.UnitType</span>
+            <span class="badge bg-dark rounded-pill px-3 py-2 fs-6">@(Model.ApartmentType == FindMeHome.Enums.ApartmentType.ForSale ? "للبيع" : "للإيجار")</span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Image Gallery -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div id="propertyCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        @if (Model.Images != null && Model.Images.Any())
                         {
-                            <div class="carousel-item @(i == 0 ? "active" : "")">
-                                <img src="@Model.Images[i].FilePath" class="d-block w-100" alt="صورة العقار" style="height: 500px; object-fit: cover;">
+                            for (int i = 0; i < Model.Images.Count; i++)
+                            {
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <img src="@Model.Images[i].FilePath" class="d-block w-100 object-fit-cover" style="height: 500px;" alt="صورة العقار">
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="carousel-item active">
+                                <img src="/images/test1.png" class="d-block w-100 object-fit-cover" style="height: 500px;" alt="صورة افتراضية">
                             </div>
                         }
-                    }
-                    else
-                    {
-                        <div class="carousel-item active">
-                            <img src="/images/test1.png" class="d-block w-100" alt="صورة العقار" style="height: 500px; object-fit: cover;">
-                        </div>
-                    }
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#propertyCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#propertyCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
                 </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
             </div>
 
-            <!-- تفاصيل العقار -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <h2 class="card-title fw-bold mb-3">@Model.Title</h2>
-                    <p class="text-muted mb-3">@Model.Description</p>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p><strong>📍 العنوان:</strong> @Model.Address</p>
-                            <p><strong>🏙️ المدينة:</strong> @Model.City</p>
-                            <p><strong>📍 المنطقة:</strong> @Model.Neighborhood</p>
+            <!-- Details Cards -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h4 class="fw-bold mb-4 border-bottom pb-2">تفاصيل العقار</h4>
+                <div class="row g-4 text-center mb-4">
+                    <div class="col-4">
+                        <div class="p-3 bg-light rounded-3">
+                            <i class="fa-solid fa-bed fs-3 text-primary mb-2"></i>
+                            <h6 class="fw-bold mb-0">@Model.Rooms غرف</h6>
                         </div>
-                        <div class="col-md-6">
-                            <p><strong>📏 المساحة:</strong> @Model.Area م²</p>
-                            <p><strong>🛏️ عدد الغرف:</strong> @Model.Rooms</p>
-                            <p><strong>🚿 عدد الحمامات:</strong> @Model.Bathrooms</p>
-                            <p><strong>🏠 نوع الوحدة:</strong> @Model.UnitType</p>
-                            <p><strong>💰 نوع العرض:</strong> @(Model.ApartmentType == FindMeHome.Enums.ApartmentType.ForSale ? "للبيع" : "للإيجار")</p>
-                            @if (Model.CanBeFurnished)
-                            {
-                                <p><strong>🪑 الحالة:</strong> <span class="badge bg-success">متاح للبيع مفروش</span></p>
-                            }
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 bg-light rounded-3">
+                            <i class="fa-solid fa-bath fs-3 text-info mb-2"></i>
+                            <h6 class="fw-bold mb-0">@Model.Bathrooms حمام</h6>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-3 bg-light rounded-3">
+                            <i class="fa-solid fa-ruler-combined fs-3 text-warning mb-2"></i>
+                            <h6 class="fw-bold mb-0">@Model.Area م²</h6>
                         </div>
                     </div>
                 </div>
+                
+                <h5 class="fw-bold mb-3">الوصف</h5>
+                <p class="text-muted leading-relaxed">@Model.Description</p>
             </div>
-        </div>
 
-        <!-- معلومات السعر والشراء -->
-        <div class="col-md-4">
-            <div class="card shadow-sm sticky-top" style="top: 20px;">
-                <div class="card-body">
-                    <h4 class="fw-bold mb-3">💰 السعر</h4>
-                    <div class="mb-3">
-                        <p class="mb-1"><strong>سعر العقار:</strong></p>
-                        <h3 class="text-primary" id="basePrice">@basePrice.ToString("N0") جنيه</h3>
+            <!-- Furniture Section (if applicable) -->
+            @if (Model.CanBeFurnished && Model.Furnitures != null && Model.Furnitures.Any())
+            {
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-success bg-opacity-10 p-2 rounded-circle me-3">
+                            <i class="fa-solid fa-couch text-success fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">أثاث إضافي متاح</h5>
+                            <small class="text-muted">اختر القطع التي تريد إضافتها للعقار</small>
+                        </div>
                     </div>
 
-                    @if (Model.CanBeFurnished)
-                    {
-                        <div class="alert alert-info mb-3">
-                            <i class="bi bi-info-circle"></i> <strong>العقار متاح للبيع مفروش</strong>
-                            <p class="mb-0 mt-1">يمكنك اختيار قطع الأثاث التي تحتاجها من القائمة أدناه</p>
-                        </div>
-                    }
-                    
-                    @if (Model.CanBeFurnished && Model.Furnitures != null && Model.Furnitures.Any())
-                    {
-                        <div class="mb-3">
-                            <h5 class="fw-bold mb-3">🪑 الأثاث المتاح للبيع</h5>
-                            <div id="furnitureList" class="mb-3">
-                                @foreach (var furniture in Model.Furnitures)
-                                {
-                                    <div class="card mb-2 furniture-item" data-price="@furniture.Price">
-                                        <div class="card-body p-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input furniture-checkbox" type="checkbox" 
-                                                       value="@furniture.Price" 
-                                                       id="furniture_@furniture.Id"
-                                                       data-furniture-id="@furniture.Id"
-                                                       data-furniture-name="@furniture.Name"
-                                                       data-furniture-price="@furniture.Price">
-                                                <label class="form-check-label d-flex justify-content-between w-100" for="furniture_@furniture.Id">
-                                                    <span>
-                                                        @if (!string.IsNullOrEmpty(furniture.ImagePath))
-                                                        {
-                                                            <img src="@furniture.ImagePath" alt="@furniture.Name" style="width: 30px; height: 30px; object-fit: cover; border-radius: 4px;" class="me-2">
-                                                        }
-                                                        @furniture.Name
-                                                    </span>
-                                                    <strong class="text-success">+@furniture.Price!.Value.ToString("N0") جنيه</strong>
-                                                </label>
-                                            </div>
+                    <div class="row g-3">
+                        @foreach (var furniture in Model.Furnitures)
+                        {
+                            <div class="col-md-6">
+                                <label class="card h-100 border-2 cursor-pointer furniture-card position-relative overflow-hidden" for="furniture_@furniture.Id">
+                                    <div class="card-body d-flex align-items-center gap-3">
+                                        <div class="form-check m-0">
+                                            <input class="form-check-input furniture-checkbox fs-5" type="checkbox" 
+                                                   value="@furniture.Price" 
+                                                   id="furniture_@furniture.Id"
+                                                   data-furniture-name="@furniture.Name">
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(furniture.ImagePath))
+                                        {
+                                            <img src="@furniture.ImagePath" class="rounded-3 object-fit-cover" style="width: 60px; height: 60px;" alt="@furniture.Name">
+                                        }
+                                        <div class="flex-grow-1">
+                                            <h6 class="fw-bold mb-1">@furniture.Name</h6>
+                                            <span class="badge bg-success bg-opacity-10 text-success">+@furniture.Price?.ToString("N0") ج.م</span>
                                         </div>
                                     </div>
-                                }
+                                </label>
                             </div>
-                            <div class="mb-3">
-                                <p class="mb-1"><strong>سعر الأثاث المختار:</strong></p>
-                                <h5 class="text-success" id="furniturePrice">0 جنيه</h5>
-                            </div>
-                        </div>
-                    }
-
-                    <div class="mb-3 border-top pt-3">
-                        <p class="mb-1"><strong>السعر الإجمالي:</strong></p>
-                        <h3 class="text-primary" id="totalPrice">@basePrice.ToString("N0") جنيه</h3>
-                    </div>
-
-                    <div class="d-grid gap-2">
-                        @if (!string.IsNullOrEmpty(Model.WhatsAppNumber))
-                        {
-                            <a href="#" 
-                               target="_blank" 
-                               class="btn btn-success btn-lg" id="whatsappLink">
-                                <i class="bi bi-whatsapp"></i> تواصل عبر الواتساب
-                            </a>
                         }
-                        
-                        <button type="button" 
-                                class="btn @(ViewBag.IsInWishlist == true ? "btn-danger" : "btn-outline-danger") btn-lg" 
-                                id="wishlistBtn"
-                                data-realestate-id="@Model.Id">
-                            <i class="bi bi-heart@(ViewBag.IsInWishlist == true ? "-fill" : "")"></i> 
-                            <span id="wishlistText">@(ViewBag.IsInWishlist == true ? "إزالة من المفضلة" : "إضافة إلى المفضلة")</span>
-                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg rounded-4 p-4 sticky-top" style="top: 100px;">
+                <h5 class="fw-bold text-muted mb-2">السعر الإجمالي</h5>
+                <h2 class="fw-bold text-primary mb-4" id="totalPrice">@basePrice.ToString("N0") <small class="fs-5 text-muted">ج.م</small></h2>
+
+                <div class="d-grid gap-3">
+                    @if (!string.IsNullOrEmpty(Model.WhatsAppNumber))
+                    {
+                        <a href="#" target="_blank" id="whatsappLink" class="btn btn-success btn-lg rounded-pill fw-bold shadow-sm hover-scale">
+                            <i class="fa-brands fa-whatsapp me-2"></i> تواصل عبر واتساب
+                        </a>
+                    }
+                    
+                    <button type="button" 
+                            class="btn @(ViewBag.IsInWishlist == true ? "btn-danger" : "btn-outline-danger") btn-lg rounded-pill fw-bold shadow-sm hover-scale" 
+                            id="wishlistBtn"
+                            data-realestate-id="@Model.Id">
+                        <i class="@(ViewBag.IsInWishlist == true ? "fa-solid" : "fa-regular") fa-heart me-2"></i> 
+                        <span id="wishlistText">@(ViewBag.IsInWishlist == true ? "إزالة من المفضلة" : "إضافة للمفضلة")</span>
+                    </button>
+                </div>
+
+                <hr class="my-4 opacity-10">
+
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-light rounded-circle p-3">
+                        <i class="fa-solid fa-shield-halved text-secondary fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0">ضمان الجودة</h6>
+                        <small class="text-muted">تم التحقق من صحة البيانات</small>
                     </div>
                 </div>
             </div>
@@ -158,85 +162,99 @@
     </div>
 </div>
 
+<style>
+    .cursor-pointer { cursor: pointer; }
+    
+    .furniture-card {
+        transition: all 0.2s ease;
+        border-color: #dee2e6;
+    }
+
+    .furniture-checkbox:checked + .furniture-card,
+    .furniture-card:has(.furniture-checkbox:checked) {
+        border-color: #198754;
+        background-color: #f8fffb;
+    }
+
+    .hover-scale {
+        transition: transform 0.2s ease;
+    }
+    
+    .hover-scale:hover {
+        transform: scale(1.03);
+    }
+</style>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
             const basePrice = @basePrice;
-            let selectedFurniturePrice = 0;
-
-            // Update price when furniture is selected
+            
+            // Price Calculation
             $('.furniture-checkbox').on('change', function() {
-                selectedFurniturePrice = 0;
-                const selectedFurniture = [];
-                
+                let selectedFurniturePrice = 0;
                 $('.furniture-checkbox:checked').each(function() {
-                    const price = parseFloat($(this).val());
-                    selectedFurniturePrice += price;
-                    selectedFurniture.push({
-                        name: $(this).data('furniture-name'),
-                        price: price
-                    });
+                    selectedFurniturePrice += parseFloat($(this).val());
                 });
 
-                $('#furniturePrice').text(selectedFurniturePrice.toLocaleString('ar-EG') + ' جنيه');
                 const totalPrice = basePrice + selectedFurniturePrice;
-                $('#totalPrice').text(totalPrice.toLocaleString('ar-EG') + ' جنيه');
+                $('#totalPrice').html(totalPrice.toLocaleString('ar-EG') + ' <small class="fs-5 text-muted">ج.م</small>');
                 
-                // Update WhatsApp link - رابط الإعلان فقط
-                const currentUrl = window.location.href;
-                const whatsappNumber = '@Model.WhatsAppNumber'.replace(/[+\s]/g, '');
-                $('#whatsappLink').attr('href', 'https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(currentUrl));
+                updateWhatsAppLink();
             });
 
-            // تحديث رابط الواتساب عند التحميل
-            const currentUrl = window.location.href;
-            const whatsappNumber = '@Model.WhatsAppNumber'.replace(/[+\s]/g, '');
-            $('#whatsappLink').attr('href', 'https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(currentUrl));
+            // WhatsApp Link Updater
+            function updateWhatsAppLink() {
+                const currentUrl = window.location.href;
+                const whatsappNumber = '@Model.WhatsAppNumber'.replace(/[+\s]/g, '');
+                const text = `مرحباً، أنا مهتم بهذا العقار: ${currentUrl}`;
+                $('#whatsappLink').attr('href', `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`);
+            }
+            updateWhatsAppLink();
 
-            // Wishlist toggle
+            // Wishlist Logic
             $('#wishlistBtn').on('click', function() {
-                const realEstateId = $(this).data('realestate-id');
-                const isInWishlist = $(this).hasClass('btn-danger');
-                const url = isInWishlist ? 
-                    '/RealEstate/RemoveFromWishlist/' + realEstateId : 
-                    '/RealEstate/AddToWishlist/' + realEstateId;
+                const btn = $(this);
+                const id = btn.data('realestate-id');
+                const isAdded = btn.hasClass('btn-danger');
+                const url = isAdded ? `/RealEstate/RemoveFromWishlist/${id}` : `/RealEstate/AddToWishlist/${id}`;
 
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    success: function(response) {
-                        if (response.isSuccess) {
-                            if (isInWishlist) {
-                                $('#wishlistBtn').removeClass('btn-danger').addClass('btn-outline-danger');
-                                $('#wishlistBtn i').removeClass('bi-heart-fill').addClass('bi-heart');
-                                $('#wishlistText').text('إضافة إلى المفضلة');
-                            } else {
-                                $('#wishlistBtn').removeClass('btn-outline-danger').addClass('btn-danger');
-                                $('#wishlistBtn i').removeClass('bi-heart').addClass('bi-heart-fill');
-                                $('#wishlistText').text('إزالة من المفضلة');
-                            }
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'نجح!',
-                                text: response.message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
+                $.post(url, function(response) {
+                    if (response.isSuccess) {
+                        if (isAdded) {
+                            btn.removeClass('btn-danger').addClass('btn-outline-danger');
+                            btn.find('i').removeClass('fa-solid').addClass('fa-regular');
+                            $('#wishlistText').text('إضافة للمفضلة');
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'خطأ',
-                                text: response.message
-                            });
+                            btn.removeClass('btn-outline-danger').addClass('btn-danger');
+                            btn.find('i').removeClass('fa-regular').addClass('fa-solid');
+                            $('#wishlistText').text('إزالة من المفضلة');
                         }
-                    },
-                    error: function() {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'خطأ',
-                            text: 'حدث خطأ أثناء الاتصال بالخادم'
+                        
+                        // Update Navbar Count
+                        if (response.count !== undefined) {
+                            $('#wishlistCount').text(response.count);
+                        }
+                        
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
                         });
+                        
+                        Toast.fire({
+                            icon: 'success',
+                            title: response.message
+                        });
+                    } else {
+                        if(response.message.includes("تسجيل الدخول")) {
+                             window.location.href = '/Account/Login';
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'خطأ', text: response.message });
+                        }
                     }
                 });
             });

@@ -1,103 +1,186 @@
-﻿@model IEnumerable<FindMeHome.Dtos.RealEstateDto>
+﻿
+@model IEnumerable<FindMeHome.Dtos.RealEstateDto>
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
 
 @{
-    ViewData["Title"] = "الصفحة الرئيسية";
+    ViewData["Title"] = Localizer["DiscoverNewHome"];
 }
 
-<div class="container-fluid mt-4">
-    <div class="row">
-        <!-- الشريط الجانبي للبحث -->
-        <aside class="col-lg-3 col-md-4 mb-4">
-            <div class="card shadow-sm p-3 position-sticky" style="top: 90px; z-index: 100;">
-                <h5 class="fw-bold mb-3 text-center">🔎 بحث متقدم</h5>
+<div class="container-fluid py-5 bg-light">
+    <div class="row g-4">
+        <!-- Sidebar Filter -->
+        <aside class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 100px; z-index: 90;">
+                <div class="d-flex align-items-center mb-4">
+                    <i class="fa-solid fa-filter text-primary me-2 fs-4"></i>
+                    <h5 class="fw-bold m-0">@Localizer["FilterResults"]</h5>
+                </div>
+                
                 <form asp-controller="RealEstate" asp-action="AdvancedSearch" method="get">
+                    <!-- Search Query -->
                     <div class="mb-3">
-                        <label class="form-label">السعر من</label>
-                        <input type="number" class="form-control" name="priceFrom" placeholder="مثلاً 500000" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">السعر إلى</label>
-                        <input type="number" class="form-control" name="priceTo" placeholder="مثلاً 2000000" />
+                        <label class="form-label fw-bold text-muted small">@Localizer["GeneralSearch"]</label>
+                        <input type="text" class="form-control rounded-3 bg-light border-0" name="query" value="@ViewBag.Query" placeholder="@Localizer["SearchPlaceholder"]" />
                     </div>
 
+                    <!-- City & Neighborhood -->
                     <div class="mb-3">
-                        <label class="form-label">المساحة من</label>
-                        <input type="number" class="form-control" name="areaFrom" placeholder="مثلاً 100" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">المساحة إلى</label>
-                        <input type="number" class="form-control" name="areaTo" placeholder="مثلاً 250" />
+                        <label class="form-label fw-bold text-muted small">@Localizer["Location"]</label>
+                        <input type="text" class="form-control rounded-3 bg-light border-0 mb-2" name="city" value="@ViewBag.City" placeholder="@Localizer["City"]" />
+                        <input type="text" class="form-control rounded-3 bg-light border-0" name="neighborhood" value="@ViewBag.Neighborhood" placeholder="@Localizer["Neighborhood"]" />
                     </div>
 
-                   @*  <div class="mb-3">
-                        <label class="form-label">المنطقة</label>
-                        <select class="form-select" name="neighborhoods" multiple>
-                            <option value="مدينة نصر">مدينة نصر</option>
-                            <option value="المعادي">المعادي</option>
-                            <option value="الزمالك">الزمالك</option>
-                            <option value="6 أكتوبر">6 أكتوبر</option>
-                            <option value="التجمع">التجمع</option>
+                    <!-- Price Range -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted small">@Localizer["PriceRange"]</label>
+                        <div class="d-flex gap-2">
+                            <input type="number" class="form-control rounded-3 bg-light border-0" name="priceFrom" value="@ViewBag.PriceFrom" placeholder="@Localizer["From"]" />
+                            <input type="number" class="form-control rounded-3 bg-light border-0" name="priceTo" value="@ViewBag.PriceTo" placeholder="@Localizer["To"]" />
+                        </div>
+                    </div>
+
+                    <!-- Area Range -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted small">@Localizer["Area"]</label>
+                        <div class="d-flex gap-2">
+                            <input type="number" class="form-control rounded-3 bg-light border-0" name="areaFrom" value="@ViewBag.AreaFrom" placeholder="@Localizer["From"]" />
+                            <input type="number" class="form-control rounded-3 bg-light border-0" name="areaTo" value="@ViewBag.AreaTo" placeholder="@Localizer["To"]" />
+                        </div>
+                    </div>
+
+                    <!-- Rooms & Bathrooms -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted small">@Localizer["RoomsAndBathrooms"]</label>
+                        <div class="d-flex gap-2">
+                            <input type="number" class="form-control rounded-3 bg-light border-0" name="rooms" value="@ViewBag.Rooms" placeholder="@Localizer["Rooms"]" />
+                            <input type="number" class="form-control rounded-3 bg-light border-0" name="bathrooms" value="@ViewBag.Bathrooms" placeholder="@Localizer["Bathrooms"]" />
+                        </div>
+                    </div>
+
+                    <!-- Unit Type -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted small">@Localizer["UnitType"]</label>
+                        <select class="form-select rounded-3 bg-light border-0" name="unitType" asp-items="Html.GetEnumSelectList<FindMeHome.Enums.UnitType>()">
+                            <option value="">@Localizer["All"]</option>
                         </select>
-                        <small class="text-muted">يمكنك اختيار أكثر من منطقة</small>
-                    </div> *@
+                    </div>
 
-                    <button type="submit" class="btn btn-dark w-100">بحث</button>
+                    <!-- Furnished Checkbox -->
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" name="isFurnished" value="true" id="checkFurnished" @(ViewBag.IsFurnished == true ? "checked" : "")>
+                        <label class="form-check-label small fw-bold" for="checkFurnished">
+                            @Localizer["FurnishedOption"]
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold py-2 shadow-sm hover-scale">
+                        <i class="fa-solid fa-magnifying-glass me-2"></i> @Localizer["AdvancedSearch"]
+                    </button>
+                    <a asp-action="Index" class="btn btn-link w-100 text-decoration-none text-muted small mt-2">@Localizer["Reset"]</a>
                 </form>
             </div>
         </aside>
 
-        <!-- عرض العقارات -->
-        <section class="col-lg-9 col-md-8">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="fw-bold">🏠 العقارات المتاحة</h4>
-                <div class="d-flex gap-2">
-                    <a asp-controller="RealEstate" asp-action="Wishlist"
-                       class="btn btn-outline-warning btn-lg shadow-sm">
-                        <i class="bi bi-heart"></i> قائمة المفضلة
-                    </a>
-                    <a asp-controller="RealEstate" asp-action="Create"
-                       class="btn btn-success btn-lg shadow-sm">
-                        <i class="bi bi-plus-circle"></i> إضافة عقار جديد
-                    </a>
+        <!-- Listings -->
+        <section class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1">@Localizer["FeaturedProperties"]</h2>
+                    <p class="text-muted m-0">@string.Format(Localizer["FindPropertyText"], Model.Count())</p>
                 </div>
+                <!-- Wishlist button removed as requested -->
             </div>
+
             <div class="row g-4">
                 @foreach (var item in Model)
                 {
-                    <div class="col-lg-4 col-md-4 col-sm-12">
-                        <div class="card shadow-sm h-100">
-                            <img src="@(item.Images?.FirstOrDefault()?.FilePath ?? "/images/test1.png")"
-                                 class="card-img-top" alt="صورة العقار" style="height: 220px; object-fit: cover;">
-                            <div class="card-body">
-                                <h5 class="card-title fw-bold">@item.Title</h5>
-                                <p class="card-text text-muted">@item.Address - @item.City</p>
-                                <p class="card-text mb-1"><strong>💰 السعر:</strong> @item.Price.ToString("N0") جنيه</p>
-                                <p class="card-text mb-1"><strong>📏 المساحة:</strong> @item.Area م²</p>
-                                <p class="card-text mb-1"><strong>🏠 النوع:</strong> @item.UnitType</p>
-                                <p class="card-text mb-1"><strong>📍 المنطقة:</strong> @item.Neighborhood</p>
-                                <p class="card-text mb-1"><strong>🛏️ الغرف:</strong> @item.Rooms | <strong>🚿 الحمامات:</strong> @item.Bathrooms</p>
-                                @if (item.CanBeFurnished)
-                                {
-                                    <p class="card-text mb-2"><span class="badge bg-success">🪑 متاح للبيع مفروش</span></p>
+                    <div class="col-xl-4 col-md-6">
+                        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden property-card">
+                            <!-- Image Section -->
+                            <div class="position-relative image-wrapper">
+                                <img src="@(item.Images?.FirstOrDefault()?.FilePath ?? "/images/test1.png")" 
+                                     class="card-img-top h-100 w-100 object-fit-cover" 
+                                     alt="@item.Title">
+                                
+                                <!-- Badges -->
+                                <div class="position-absolute top-0 start-0 p-3 d-flex gap-2" style="z-index: 10;">
+                                    <span class="badge bg-dark bg-opacity-75 backdrop-blur rounded-pill px-3 py-2">
+                                        @item.UnitType
+                                    </span>
+                                    @if (item.CanBeFurnished)
+                                    {
+                                        <span class="badge bg-success bg-opacity-75 backdrop-blur rounded-pill px-3 py-2">
+                                            <i class="fa-solid fa-couch me-1"></i> @Localizer["Furnished"]
+                                        </span>
+                                    }
+                                </div>
+
+                                <!-- Wishlist Button -->
+                                @{
+                                    var wishlistIds = ViewBag.WishlistIds as List<int> ?? new List<int>();
+                                    var isInWishlist = wishlistIds.Contains(item.Id);
+                                    var heartClass = isInWishlist ? "fa-solid fa-heart text-danger" : "fa-regular fa-heart text-dark";
                                 }
-                                else
-                                {
-                                    <p class="card-text mb-2" style="padding:12px 0"></p>
-                                    
-                                }
-                                <div class="d-flex gap-2 mt-3">
-                                    <a asp-controller="RealEstate" asp-action="Details" asp-route-id="@item.Id"
-                                       class="btn btn-outline-dark btn-sm flex-grow-1">عرض التفاصيل</a>
+                                <button type="button" class="btn btn-light rounded-circle position-absolute top-0 end-0 m-3 shadow-sm wishlist-btn d-flex align-items-center justify-content-center" 
+                                        style="width: 40px; height: 40px; z-index: 100;"
+                                        data-id="@item.Id">
+                                    <i class="@heartClass fs-5" id="heart-@item.Id"></i>
+                                </button>
+
+                                <!-- Overlay -->
+                                <div class="overlay d-flex align-items-center justify-content-center gap-3">
+                                    <a asp-controller="RealEstate" asp-action="Details" asp-route-id="@item.Id" 
+                                       class="btn btn-light rounded-pill px-4 fw-bold shadow hover-scale">
+                                        <i class="fa-solid fa-eye me-2"></i> @Localizer["Details"]
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Content Section -->
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="card-title fw-bold text-truncate mb-0" style="max-width: 70%;">@item.Title</h5>
+                                    <h5 class="text-primary fw-bold mb-0">@item.Price.ToString("N0") <small class="fs-6 text-muted">ج.م</small></h5>
+                                </div>
+                                
+                                <p class="text-muted small mb-3">
+                                    <i class="fa-solid fa-location-dot me-1 text-secondary"></i> @item.Neighborhood, @item.City
+                                </p>
+
+                                <!-- Features -->
+                                <div class="d-flex justify-content-between bg-light rounded-3 p-3 mb-3">
+                                    <div class="text-center">
+                                        <i class="fa-solid fa-bed text-muted mb-1 d-block"></i>
+                                        <span class="fw-bold small">@item.Rooms @Localizer["Rooms"]</span>
+                                    </div>
+                                    <div class="vr opacity-25"></div>
+                                    <div class="text-center">
+                                        <i class="fa-solid fa-bath text-muted mb-1 d-block"></i>
+                                        <span class="fw-bold small">@item.Bathrooms @Localizer["Bathrooms"]</span>
+                                    </div>
+                                    <div class="vr opacity-25"></div>
+                                    <div class="text-center">
+                                        <i class="fa-solid fa-ruler-combined text-muted mb-1 d-block"></i>
+                                        <span class="fw-bold small">@item.Area @Localizer["Area"]</span>
+                                    </div>
+                                </div>
+
+                                <!-- Actions -->
+                                <div class="d-flex gap-2">
                                     @if (!string.IsNullOrEmpty(item.WhatsAppNumber))
                                     {
-                                       
                                         var detailsUrl = Url.Action("Details", "RealEstate", new { id = item.Id }, Context.Request.Scheme);
                                         <a href="https://wa.me/@(item.WhatsAppNumber.Replace("+", "").Replace(" ", ""))?text=@Uri.EscapeDataString(detailsUrl)" 
                                            target="_blank" 
-                                           class="btn btn-success btn-sm">
-                                            <i class="fa-brands fa-whatsapp"></i> واتساب
+                                           class="btn btn-success w-100 rounded-3 fw-bold">
+                                            <i class="fa-brands fa-whatsapp me-2"></i> @Localizer["WhatsApp"]
                                         </a>
                                     }
+                                    <a asp-controller="RealEstate" asp-action="Details" asp-route-id="@item.Id" 
+                                       class="btn btn-outline-dark w-100 rounded-3 fw-bold">
+                                        @Localizer["More"]
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -107,3 +190,97 @@
         </section>
     </div>
 </div>
+
+<style>
+    .property-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .property-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+    }
+
+    .image-wrapper {
+        height: 250px;
+        overflow: hidden;
+    }
+
+    .image-wrapper img {
+        transition: transform 0.5s ease;
+    }
+
+    .property-card:hover .image-wrapper img {
+        transform: scale(1.1);
+    }
+
+    .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 5; /* Ensure overlay is below wishlist button */
+    }
+
+    .property-card:hover .overlay {
+        opacity: 1;
+    }
+
+    .backdrop-blur {
+        backdrop-filter: blur(5px);
+    }
+
+    .hover-scale {
+        transition: transform 0.2s;
+    }
+    
+    .hover-scale:hover {
+        transform: scale(1.05);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(document).on('click', '.wishlist-btn', function (e) {
+                
+                e.preventDefault();
+                e.stopPropagation(); // Stop bubbling just in case
+                
+                var btn = $(this);
+                var id = btn.data('id');
+                var icon = btn.find('i');
+                var isAdded = icon.hasClass('fa-solid');
+                var url = isAdded ? '/RealEstate/RemoveFromWishlist/' + id : '/RealEstate/AddToWishlist/' + id;
+
+                console.log('Wishlist button clicked', id);
+                $.post(url, function (response) {
+                    console.log('Response:', response);
+                    if (response.isSuccess) {
+                        if (isAdded) {
+                            icon.removeClass('fa-solid fa-heart text-danger').addClass('fa-regular fa-heart text-dark');
+                        } else {
+                            icon.removeClass('fa-regular fa-heart text-dark').addClass('fa-solid fa-heart text-danger');
+                        }
+                        
+                        // Update Navbar Count
+                        if (response.count !== undefined) {
+                            $('#wishlistCount').text(response.count);
+                        }
+                    } else {
+                        console.error('Error message:', response.message);
+                        alert(response.message);
+                        if (response.message.includes("تسجيل الدخول")) {
+                            window.location.href = '/Account/Login';
+                        }
+                    }
+                }).fail(function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                    console.log('Response Text:', xhr.responseText);
+                    alert('حدث خطأ أثناء الاتصال بالخادم');
+                });
+            });
+        });
+    </script>
+}

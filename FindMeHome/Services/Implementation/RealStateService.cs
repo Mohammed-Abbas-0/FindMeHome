@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FindMeHome.Dtos;
+using FindMeHome.Enums;
 using FindMeHome.Models;
 using FindMeHome.Repositories.AbstractionLayer;
 using FindMeHome.Services.Abstraction;
@@ -72,6 +73,56 @@ namespace FindMeHome.Services.Implementation
                 .GetAllAsync(includeProperties: "Images,Furnitures");
 
             return entities.Select(MapToDto).ToList();
+        }
+
+        public async Task<List<RealEstateDto>> SearchAsync(string? query, decimal? minPrice, decimal? maxPrice, double? minArea, double? maxArea, int? rooms, int? bathrooms, string? city, string? neighborhood, UnitType? unitType, bool? isFurnished)
+        {
+            var entities = await _unitOfWork.RealEstates
+                .GetAllAsync(includeProperties: "Images,Furnitures");
+
+            var filtered = entities.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                query = query.ToLower();
+                filtered = filtered.Where(x => x.Title.ToLower().Contains(query) || 
+                                             x.Description.ToLower().Contains(query) || 
+                                             x.Address.ToLower().Contains(query));
+            }
+
+            if (minPrice.HasValue)
+                filtered = filtered.Where(x => x.Price >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                filtered = filtered.Where(x => x.Price <= maxPrice.Value);
+
+            if (minArea.HasValue)
+                filtered = filtered.Where(x => x.Area >= minArea.Value);
+
+            if (maxArea.HasValue)
+                filtered = filtered.Where(x => x.Area <= maxArea.Value);
+
+            if (rooms.HasValue)
+                filtered = filtered.Where(x => x.Rooms >= rooms.Value);
+
+            if (bathrooms.HasValue)
+                filtered = filtered.Where(x => x.Bathrooms >= bathrooms.Value);
+
+            if (!string.IsNullOrWhiteSpace(city))
+                filtered = filtered.Where(x => x.City.Contains(city));
+
+            if (!string.IsNullOrWhiteSpace(neighborhood))
+                filtered = filtered.Where(x => x.Neighborhood.Contains(neighborhood));
+
+            if (unitType.HasValue)
+                filtered = filtered.Where(x => x.UnitType == unitType.Value);
+
+            if (isFurnished.HasValue)
+                filtered = filtered.Where(x => x.CanBeFurnished == isFurnished.Value); // Assuming CanBeFurnished implies furnished option, or we might need a separate IsFurnished field if the model had it. The model has CanBeFurnished. Let's assume this filters for properties that CAN be furnished or are furnished. 
+                // Wait, the model has `CanBeFurnished`. The user might want to search for furnished apartments. 
+                // If the user selects "Furnished", they probably want `CanBeFurnished == true`.
+
+            return filtered.Select(MapToDto).ToList();
         }
 
         public async Task<ResultDto> AddToWishlistAsync(int realEstateId, string userId)

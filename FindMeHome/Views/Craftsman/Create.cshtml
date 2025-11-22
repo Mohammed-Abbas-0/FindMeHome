@@ -1,0 +1,76 @@
+@model FindMeHome.Dtos.CraftsmanDto
+
+@{
+    ViewData["Title"] = "إضافة حرفي جديد";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4 text-center border-0">
+                    <h4 class="fw-bold m-0">إضافة حرفي جديد</h4>
+                    <p class="small opacity-75 m-0 mt-1">ساهم في توسيع دليل الخدمات</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="Name" class="form-label fw-bold text-muted">الاسم بالكامل</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 rounded-end-3"><i class="fa-solid fa-user text-muted"></i></span>
+                                <input asp-for="Name" class="form-control bg-light border-start-0 rounded-start-3 py-2" placeholder="مثال: أحمد محمد" />
+                            </div>
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Profession" class="form-label fw-bold text-muted">المهنة / التخصص</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 rounded-end-3"><i class="fa-solid fa-briefcase text-muted"></i></span>
+                                <select asp-for="Profession" class="form-select bg-light border-start-0 rounded-start-3 py-2">
+                                    <option value="">اختر المهنة...</option>
+                                    <option value="مبيض محارة">مبيض محارة</option>
+                                    <option value="جبسن بورد">جبسن بورد</option>
+                                    <option value="رخام">رخام</option>
+                                    <option value="كهربائي">كهربائي</option>
+                                    <option value="الوميتال">الوميتال</option>
+                                    <option value="نجار باب وشباك">نجار باب وشباك</option>
+                                    <option value="بلاط وسيراميك">بلاط وسيراميك</option>
+                                    <option value="لحام حديد">لحام حديد</option>
+                                    <option value="نقاش">نقاش</option>
+                                    <option value="سباك">سباك</option>
+                                    <option value="أخرى">أخرى</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="Profession" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="PhoneNumber" class="form-label fw-bold text-muted">رقم الهاتف</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 rounded-end-3"><i class="fa-solid fa-phone text-muted"></i></span>
+                                <input asp-for="PhoneNumber" class="form-control bg-light border-start-0 rounded-start-3 py-2" placeholder="01xxxxxxxxx" />
+                            </div>
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold shadow-sm hover-scale">
+                                <i class="fa-solid fa-save me-2"></i> حفظ البيانات
+                            </button>
+                            <a asp-action="Index" class="btn btn-light rounded-pill py-3 fw-bold text-muted">
+                                إلغاء
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

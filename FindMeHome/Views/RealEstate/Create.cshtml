@@ -5,172 +5,231 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<div class="container mt-5 mb-5" dir="rtl">
-    <div class="card shadow-lg border-0">
-        <div class="card-header bg-primary text-white text-center py-3 rounded-top">
-            <h4 class="mb-0">🏠 إضافة عقار جديد</h4>
-        </div>
-
-        <div class="card-body p-4">
-            <form asp-action="Create" asp-controller="RealEstate" method="post" enctype="multipart/form-data">
-                <div class="row g-3">
-
-                    <!-- العنوان -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">عنوان العقار</label>
-                        <input name="Title" class="form-control" placeholder="مثلاً شقة مميزة بالتجمع الخامس" required />
-                        <span asp-validation-for="Title" class="text-danger"></span>
-                    </div>
-
-                    <!-- السعر -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">السعر</label>
-                        <input type="number" name="Price" class="form-control" placeholder="مثلاً 850000" step="0.01" min="1" required />
-                        <span asp-validation-for="Price" class="text-danger"></span>
-                    </div>
-
-                    <!-- المدينة -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">المدينة</label>
-                        <input name="City" class="form-control" placeholder="مثلاً القاهرة" required />
-                    </div>
-
-                    <!-- العنوان -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">العنوان بالتفصيل</label>
-                        <input name="Address" class="form-control" placeholder="مثلاً شارع التسعين الجنوبي" required />
-                    </div>
-
-                    <!-- المساحة -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">المساحة (م²)</label>
-                        <input type="number" name="Area" class="form-control" placeholder="مثلاً 120" step="0.01" min="1" required />
-                    </div>
-
-                    <!-- نوع العقار -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">نوع العرض</label>
-                        <select name="ApartmentType" class="form-select" required>
-                            <option value="">-- اختر نوع العرض --</option>
-                            <option value="ForSale">للبيع</option>
-                            <option value="ForRent">للإيجار</option>
-                        </select>
-                    </div>
-
-                    <!-- هل مفروش -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">هل العقار متاح للبيع مفروش؟</label>
-                        <div class="form-check">
-                            <input id="CanBeFurnished" name="CanBeFurnished" class="form-check-input" type="checkbox" value="true" />
-                            <label class="form-check-label" asp-for="CanBeFurnished">نعم، العقار متاح للبيع مفروش مع إمكانية إضافة أثاث إضافي</label>
-                        </div>
-                        <small class="text-muted">إذا قمت بتحديد هذا الخيار، يمكنك إضافة قطع الأثاث المتاحة للبيع مع العقار</small>
-                    </div>
-                    <!-- نوع الوحدة -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">نوع الوحدة</label>
-                        <select name="UnitType" class="form-select" required>
-                            <option value="">-- اختر نوع الوحدة --</option>
-                            <option value="Residential">سكني</option>
-                            <option value="Commercial">تجاري</option>
-                        </select>
-                    </div>
-                    <!-- 🪑 قسم الأثاث -->
-                    <div id="furnitureSection" class="col-12 mt-4" style="display:none;">
-                        <div class="card shadow-sm border-primary">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="fw-bold mb-0">🪑 إضافة الأثاث المتاح للبيع</h5>
-                                <small>يمكنك إضافة قطع الأثاث المتاحة للبيع مع العقار، وسيظهر للمشتري الخيار لإضافتها للسعر الأساسي</small>
-                            </div>
-                            <div class="card-body">
-                                <div id="furnitureList">
-                                    <!-- سيتم إضافة قطع الأثاث هنا ديناميكياً -->
-                                </div>
-                                <div class="text-end mt-3">
-                                    <button type="button" id="addFurnitureBtn" class="btn btn-outline-primary">
-                                        <i class="bi bi-plus-circle"></i> إضافة قطعة أثاث
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                   
-
-                    <!-- رقم الواتساب -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">📱 رقم الواتساب</label>
-                        <input type="tel" name="WhatsAppNumber" class="form-control" placeholder="مثلاً 201234567890" required />
-                        <small class="text-muted">رقم الواتساب للتواصل مع المشترين</small>
-                    </div>
-
-                    <!-- الوصف -->
-                    <div class="col-md-12">
-                        <label class="form-label fw-bold">الوصف</label>
-                        <textarea name="Description" class="form-control" rows="3" placeholder="وصف تفصيلي للعقار..."></textarea>
-                    </div>
-
-                    <!-- عدد الغرف -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">عدد الغرف</label>
-                        <input type="number" name="Rooms" class="form-control" min="1" value="1" required />
-                    </div>
-
-                    <!-- عدد الحمامات -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">عدد الحمامات</label>
-                        <input type="number" name="Bathrooms" class="form-control" min="1" value="1" required />
-                    </div>
-
-                    <!-- المنطقة -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">المنطقة</label>
-                        <input type="text" name="Neighborhood" class="form-control" placeholder="مثلاً التجمع الخامس" required />
-                    </div>
-
-                   
-
-                    <!-- 🗺️ موقع العقار -->
-                    <div class="col-12 mt-4">
-                        <label class="form-label fw-bold">📍 موقع العقار</label>
-                        <div class="card shadow-sm border-0 p-3 bg-light">
-                            <div id="map" style="height: 300px; border-radius: 12px; overflow: hidden;"></div>
-                            <small class="text-muted">اضغط على الخريطة لتحديد الموقع بدقة.</small>
-                        </div>
-                    </div>
-
-                    <!-- العنوان الناتج -->
-                    <div class="col-md-12 mt-3">
-                        <label class="form-label fw-bold">📌 العنوان الناتج من الخريطة</label>
-                        <input type="text" id="LocationAddress" name="LocationAddress" class="form-control" readonly placeholder="سيظهر العنوان هنا بعد اختيار الموقع..." />
-                    </div>
-
-                    <!-- الإحداثيات -->
-                    <input type="hidden" id="Latitude" name="Latitude" />
-                    <input type="hidden" id="Longitude" name="Longitude" />
-
-                    <!-- صور العقار -->
-                    <div class="col-md-12 mt-4">
-                        <label class="form-label fw-bold">📸 صور العقار</label>
-                        <div class="upload-box border rounded-3 p-4 text-center bg-light" style="cursor:pointer;">
-                            <i class="bi bi-cloud-upload fs-2 text-primary"></i>
-                            <p class="mb-2">اضغط هنا لاختيار الصور أو اسحبها هنا</p>
-                            <input type="file" name="Images" multiple class="form-control d-none" id="propertyImages" />
-                            <div id="previewContainer" class="d-flex flex-wrap justify-content-center mt-3 gap-2"></div>
-                        </div>
-                    </div>
-
-                    <!-- زر الحفظ -->
-                    <div class="col-12 text-center mt-4">
-                        <button type="submit" class="btn btn-success px-5 py-2 fw-bold">💾 حفظ العقار</button>
-                        <a asp-action="Index" asp-controller="RealEstate" class="btn btn-outline-secondary px-4 py-2 ms-2">↩️ رجوع</a>
-                    </div>
+<div class="container py-5" dir="rtl">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-gradient-primary text-white text-center py-4 border-0" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+                    <h3 class="mb-1 fw-bold"><i class="fa-solid fa-house-chimney-medical me-2"></i> إضافة عقار جديد</h3>
+                    <p class="mb-0 opacity-75">أدخل تفاصيل عقارك لنشره على المنصة</p>
                 </div>
-            </form>
+
+                <div class="card-body p-5 bg-light">
+                    <form asp-action="Create" asp-controller="RealEstate" method="post" enctype="multipart/form-data" id="createForm">
+                        
+                        <!-- Basic Info Section -->
+                        <div class="bg-white p-4 rounded-4 shadow-sm mb-4">
+                            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fa-solid fa-circle-info me-2"></i> المعلومات الأساسية</h5>
+                            <div class="row g-4">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold text-muted">عنوان الإعلان</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-heading text-primary"></i></span>
+                                        <input name="Title" class="form-control bg-light border-0 py-2" placeholder="مثلاً: شقة فاخرة بالتجمع الخامس تطل على حديقة" required />
+                                    </div>
+                                    <span asp-validation-for="Title" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted">السعر (جنيه)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-money-bill-wave text-success"></i></span>
+                                        <input type="number" name="Price" class="form-control bg-light border-0 py-2" placeholder="0.00" step="0.01" min="1" required />
+                                    </div>
+                                    <span asp-validation-for="Price" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted">المساحة (م²)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-ruler-combined text-warning"></i></span>
+                                        <input type="number" name="Area" class="form-control bg-light border-0 py-2" placeholder="0" step="0.01" min="1" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted">نوع العرض</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-tag text-info"></i></span>
+                                        <select name="ApartmentType" class="form-select bg-light border-0 py-2" required>
+                                            <option value="">-- اختر --</option>
+                                            <option value="ForSale">للبيع</option>
+                                            <option value="ForRent">للإيجار</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted">نوع الوحدة</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-building text-secondary"></i></span>
+                                        <select name="UnitType" class="form-select bg-light border-0 py-2" required>
+                                            <option value="">-- اختر --</option>
+                                            <option value="Residential">سكني</option>
+                                            <option value="Commercial">تجاري</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Details Section -->
+                        <div class="bg-white p-4 rounded-4 shadow-sm mb-4">
+                            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fa-solid fa-list-check me-2"></i> التفاصيل والمواصفات</h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted">عدد الغرف</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-bed text-primary"></i></span>
+                                        <input type="number" name="Rooms" class="form-control bg-light border-0 py-2" min="1" value="1" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted">عدد الحمامات</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-bath text-info"></i></span>
+                                        <input type="number" name="Bathrooms" class="form-control bg-light border-0 py-2" min="1" value="1" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-muted">وصف العقار</label>
+                                    <textarea name="Description" class="form-control bg-light border-0 rounded-3" rows="4" placeholder="اكتب وصفاً جذاباً للعقار يبرز مميزاته..."></textarea>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-check form-switch p-0 d-flex align-items-center gap-3 bg-light p-3 rounded-3">
+                                        <input id="CanBeFurnished" name="CanBeFurnished" class="form-check-input ms-0" type="checkbox" value="true" style="width: 3em; height: 1.5em;" />
+                                        <div>
+                                            <label class="form-check-label fw-bold mb-0" for="CanBeFurnished">متاح للبيع مفروش</label>
+                                            <small class="d-block text-muted">فعل هذا الخيار إذا كنت ترغب في بيع الأثاث مع العقار</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Furniture Section -->
+                            <div id="furnitureSection" class="mt-4" style="display:none;">
+                                <div class="card border-primary border-opacity-25 bg-primary bg-opacity-10">
+                                    <div class="card-body">
+                                        <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-couch me-2"></i> قائمة الأثاث</h6>
+                                        <div id="furnitureList"></div>
+                                        <button type="button" id="addFurnitureBtn" class="btn btn-outline-primary w-100 border-2 border-dashed py-2 mt-2">
+                                            <i class="fa-solid fa-plus me-2"></i> إضافة قطعة أثاث
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Section -->
+                        <div class="bg-white p-4 rounded-4 shadow-sm mb-4">
+                            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fa-solid fa-map-location-dot me-2"></i> الموقع والعنوان</h5>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted">المدينة</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-city text-secondary"></i></span>
+                                        <input name="City" class="form-control bg-light border-0 py-2" placeholder="القاهرة" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted">المنطقة / الحي</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="fa-solid fa-map-pin text-danger"></i></span>
+                                        <input name="Neighborhood" class="form-control bg-light border-0 py-2" placeholder="التجمع الخامس" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-muted">العنوان بالتفصيل</label>
+                                    <input name="Address" class="form-control bg-light border-0 py-2" placeholder="اسم الشارع، رقم العمارة، الدور..." required />
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-muted">حدد الموقع على الخريطة</label>
+                                    <div class="card border-0 shadow-sm">
+                                        <div id="map" style="height: 350px; border-radius: 12px; z-index: 1;"></div>
+                                    </div>
+                                    <input type="text" id="LocationAddress" name="LocationAddress" class="form-control mt-2 bg-light border-0 small text-muted" readonly placeholder="العنوان المختار من الخريطة..." />
+                                    <input type="hidden" id="Latitude" name="Latitude" />
+                                    <input type="hidden" id="Longitude" name="Longitude" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact & Media Section -->
+                        <div class="bg-white p-4 rounded-4 shadow-sm mb-4">
+                            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2"><i class="fa-solid fa-images me-2"></i> الصور والتواصل</h5>
+                            <div class="row g-4">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold text-muted">رقم الواتساب للتواصل</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="fa-brands fa-whatsapp text-success fs-5"></i></span>
+                                        <input type="tel" name="WhatsAppNumber" class="form-control bg-light border-0 py-2" placeholder="201xxxxxxxxx" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-muted">صور العقار</label>
+                                    <div class="upload-box border-2 border-dashed rounded-4 p-5 text-center bg-light position-relative overflow-hidden transition-all" style="cursor:pointer; border-color: #dee2e6;">
+                                        <div class="content">
+                                            <i class="fa-solid fa-cloud-arrow-up fs-1 text-primary mb-3"></i>
+                                            <h6 class="fw-bold mb-1">اضغط لرفع الصور</h6>
+                                            <p class="text-muted small mb-0">أو اسحب الملفات هنا</p>
+                                        </div>
+                                        <input type="file" name="Images" multiple class="form-control position-absolute top-0 start-0 w-100 h-100 opacity-0" id="propertyImages" style="cursor:pointer;" />
+                                    </div>
+                                    <div id="previewContainer" class="d-flex flex-wrap justify-content-center mt-3 gap-3"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex gap-3 justify-content-center mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill fw-bold shadow hover-scale">
+                                <i class="fa-solid fa-check me-2"></i> نشر العقار
+                            </button>
+                            <a asp-action="Index" asp-controller="RealEstate" class="btn btn-light btn-lg px-5 rounded-pill fw-bold shadow-sm hover-scale">
+                                <i class="fa-solid fa-xmark me-2"></i> إلغاء
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- 🌍 خريطة جوجل -->
+<style>
+    .border-dashed {
+        border-style: dashed !important;
+    }
+    
+    .hover-scale {
+        transition: transform 0.2s ease;
+    }
+    
+    .hover-scale:hover {
+        transform: scale(1.05);
+    }
+
+    .upload-box:hover {
+        background-color: #e9ecef !important;
+        border-color: #0d6efd !important;
+    }
+
+    .form-control:focus, .form-select:focus {
+        box-shadow: none;
+        border: 2px solid #86b7fe !important;
+        background-color: #fff !important;
+    }
+</style>
+
+<!-- Map Script -->
 <script>
     var map = L.map('map').setView([30.0444, 31.2357], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -207,217 +266,148 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // ✅ Ajax Form Submit
         $(document).ready(function() {
+            // Form Submit Logic
+            $("#createForm").on("submit", function (e) {
+                e.preventDefault();
+                const form = $(this);
+                const formData = new FormData(this);
 
-               $("form").on("submit", function (e) {
-            e.preventDefault();
+                // Validation logic for furniture
+                const isFurnished = $("#CanBeFurnished").is(":checked");
+                const furnitureItems = $(".furniture-item");
 
-            const form = $(this);
-            const formData = new FormData(this);
-
-            // ✅ التحقق من مفروشات
-            const isFurnished = $("#CanBeFurnished").is(":checked");
-            const furnitureItems = $(".furniture-item");
-
-            if (isFurnished && furnitureItems.length > 0) {
-                let valid = true;
-                let emptyItems = [];
-
-                furnitureItems.each(function (index) {
-                    const name = $(this).find("input[name*='Name']").val();
-                    const price = $(this).find("input[name*='Price']").val();
-                    const imageInput = $(this).find("input[name*='Image']")[0];
-                    const image = imageInput ? imageInput.files[0] : null;
-
-                    if (!name || !price || !image) {
-                        valid = false;
-                        emptyItems.push(index + 1);
-                    }
-                });
-
-                if (!valid) {
-                    Swal.fire({
-                        icon: "warning",
-                        title: "الرجاء تعبئة جميع بيانات الأثاث",
-                        text: "تأكد من إدخال الاسم والسعر وصورة لكل قطعة أثاث قبل الحفظ"
+                if (isFurnished && furnitureItems.length > 0) {
+                    let valid = true;
+                    furnitureItems.each(function () {
+                        const name = $(this).find("input[name*='Name']").val();
+                        const price = $(this).find("input[name*='Price']").val();
+                        const imageInput = $(this).find("input[name*='Image']")[0];
+                        if (!name || !price || (!imageInput.files[0] && !$(this).find('.img-preview').attr('src'))) valid = false;
                     });
+
+                    if (!valid) {
+                        Swal.fire({ icon: "warning", title: "بيانات ناقصة", text: "يرجى تعبئة جميع بيانات الأثاث" });
+                        return;
+                    }
+                } else if (isFurnished && furnitureItems.length === 0) {
+                    Swal.fire({ icon: "info", title: "تنبيه", text: "يرجى إضافة قطع أثاث أو إلغاء خيار 'مفروش'" });
                     return;
                 }
-            } else if (isFurnished && furnitureItems.length === 0) {
-                Swal.fire({
-                    icon: "info",
-                    title: "يرجى إضافة أثاث",
-                    text: "إذا كان العقار مفروش، يرجى إضافة قطع الأثاث المتاحة"
-                });
-                return;
-            }
 
-            // 🔄 بعد التحقق نعمل الـ AJAX
-            $.ajax({
-                url: form.attr("action"),
-                type: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                beforeSend: function () {
-                    Swal.fire({
-                        title: "جارٍ الحفظ...",
-                        text: "يرجى الانتظار لحين إتمام العملية",
-                        icon: "info",
-                        allowOutsideClick: false,
-                        showConfirmButton: false,
-                        didOpen: () => Swal.showLoading()
-                    });
-                },
-                success: function (response) {
-                    Swal.close();
-                    if (response.isSuccess) {
+                $.ajax({
+                    url: form.attr("action"),
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function () {
                         Swal.fire({
-                            icon: "success",
-                            title: "تم الحفظ بنجاح ✅",
-                            text: response.message,
-                            confirmButtonText: "موافق"
-                        }).then(() => window.location.href = "/RealEstate/Index");
-                    } else {
-                        Swal.fire({
-                            icon: "error",
-                            title: "خطأ ❌",
-                            text: response.message || "حدث خطأ أثناء الحفظ"
+                            title: "جارٍ النشر...",
+                            text: "يرجى الانتظار",
+                            allowOutsideClick: false,
+                            didOpen: () => Swal.showLoading()
                         });
+                    },
+                    success: function (response) {
+                        if (response.isSuccess) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "تم النشر بنجاح!",
+                                text: response.message,
+                                confirmButtonText: "عرض العقارات"
+                            }).then(() => window.location.href = "/RealEstate/Index");
+                        } else {
+                            Swal.fire({ icon: "error", title: "خطأ", text: response.message });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({ icon: "error", title: "خطأ", text: "حدث خطأ في الاتصال بالخادم" });
                     }
-                },
-                error: function (xhr) {
-                    Swal.close();
-                    Swal.fire({
-                        icon: "error",
-                        title: "خطأ في الخادم ❌",
-                        text: "حدث خطأ أثناء الاتصال بالخادم"
-                    });
-                    console.error(xhr.responseText);
-                }
+                });
             });
-        });
-        });
-    </script>
 
-    <script>
-        const checkbox = document.getElementById("CanBeFurnished");
-        const furnitureSection = document.getElementById("furnitureSection");
-        const list = document.getElementById("furnitureList");
-        const addBtn = document.getElementById("addFurnitureBtn");
+            // Furniture Logic
+            const checkbox = document.getElementById("CanBeFurnished");
+            const furnitureSection = document.getElementById("furnitureSection");
+            const list = document.getElementById("furnitureList");
+            let furnitureIndex = 0;
 
-        checkbox.addEventListener("change", () => {
-            furnitureSection.style.display = checkbox.checked ? "block" : "none";
-            if (checkbox.checked && list.children.length === 0) {
-                // إضافة أول قطعة أثاث تلقائياً
-                addFurnitureItem(0);
+            checkbox.addEventListener("change", () => {
+                furnitureSection.style.display = checkbox.checked ? "block" : "none";
+                if (checkbox.checked && list.children.length === 0) addFurnitureItem(0);
+            });
+
+            function addFurnitureItem(index) {
+                const item = document.createElement("div");
+                item.classList.add("card", "p-3", "mb-3", "furniture-item", "shadow-sm", "border-0", "bg-white");
+                item.innerHTML = `
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">اسم القطعة</label>
+                            <input type="text" name="Furnitures[${index}].Name" class="form-control bg-light border-0" placeholder="مثلاً: تلفاز" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">السعر</label>
+                            <input type="number" name="Furnitures[${index}].Price" class="form-control bg-light border-0" placeholder="0.00" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">الصورة</label>
+                            <input type="file" name="Furnitures[${index}].Image" accept="image/*" class="form-control bg-light border-0 furniture-image-input" required />
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-danger btn-sm remove-furniture w-100 rounded-3"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-center">
+                        <img class="img-preview rounded-3 shadow-sm" style="max-height:100px; display:none;" />
+                    </div>
+                `;
+                list.appendChild(item);
+                furnitureIndex++;
             }
-        });
 
-        let furnitureIndex = 0;
-        
-        function addFurnitureItem(index) {
-            const item = document.createElement("div");
-            item.classList.add("card", "p-3", "mb-3", "furniture-item", "shadow-sm", "border");
-            item.innerHTML = `
-                <div class="row g-3 align-items-start">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">اسم الأثاث</label>
-                        <input type="text" name="Furnitures[${index}].Name" class="form-control" placeholder="مثلاً: تلفاز LED" required />
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">السعر (جنيه)</label>
-                        <input type="number" name="Furnitures[${index}].Price" class="form-control" placeholder="مثلاً: 5000" step="0.01" min="1" required />
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">صورة الأثاث</label>
-                        <input type="file" name="Furnitures[${index}].Image" accept="image/*" class="form-control furniture-image-input" required />
-                    </div>
-                    <div class="col-md-1">
-                        <label class="form-label">&nbsp;</label>
-                        <button type="button" class="btn btn-danger remove-furniture w-100" title="حذف">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-12 text-center">
-                        <img class="img-preview img-thumbnail" style="max-height:150px; max-width:200px; display:none; border: 2px solid #ddd; border-radius: 8px;" />
-                    </div>
-                </div>
-            `;
-            list.appendChild(item);
-            furnitureIndex++;
-        }
+            $("#addFurnitureBtn").click(() => addFurnitureItem(furnitureIndex));
 
-        addBtn.addEventListener("click", () => {
-            addFurnitureItem(furnitureIndex);
-        });
-
-        list.addEventListener("click", e => {
-            if (e.target.closest(".remove-furniture")) {
-                e.target.closest(".furniture-item").remove();
-                // إعادة ترقيم العناصر
+            $(list).on("click", ".remove-furniture", function() {
+                $(this).closest(".furniture-item").remove();
                 updateFurnitureIndexes();
-            }
-        });
+            });
 
-        list.addEventListener("change", e => {
-            if (e.target.classList.contains("furniture-image-input")) {
-                const file = e.target.files[0];
-                const img = e.target.closest(".furniture-item").querySelector(".img-preview");
+            $(list).on("change", ".furniture-image-input", function() {
+                const file = this.files[0];
+                const img = $(this).closest(".furniture-item").find(".img-preview");
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
-                        img.src = e.target.result;
-                        img.style.display = "block";
-                    };
+                    reader.onload = e => { img.attr("src", e.target.result).show(); };
                     reader.readAsDataURL(file);
                 } else {
-                    img.style.display = "none";
+                    img.hide();
                 }
-            }
-        });
-
-        function updateFurnitureIndexes() {
-            const items = list.querySelectorAll(".furniture-item");
-            items.forEach((item, index) => {
-                item.querySelectorAll("input, select").forEach(input => {
-                    if (input.name) {
-                        input.name = input.name.replace(/Furnitures\[\d+\]/, `Furnitures[${index}]`);
-                    }
-                });
             });
-            furnitureIndex = items.length;
-        }
 
-        // إذا كان checkbox محدد مسبقاً، أضف قطعة أثاث أولى
-        if (checkbox.checked) {
-            addFurnitureItem(0);
-        }
+            function updateFurnitureIndexes() {
+                $(".furniture-item").each(function(i) {
+                    $(this).find("input").each(function() {
+                        if (this.name) this.name = this.name.replace(/Furnitures\[\d+\]/, `Furnitures[${i}]`);
+                    });
+                });
+                furnitureIndex = $(".furniture-item").length;
+            }
 
-        // تصميم رفع الصور
-        const uploadBox = document.querySelector(".upload-box");
-        const fileInput = document.getElementById("propertyImages");
-        const previewContainer = document.getElementById("previewContainer");
-
-        uploadBox.addEventListener("click", () => fileInput.click());
-        fileInput.addEventListener("change", e => {
-            previewContainer.innerHTML = "";
-            [...e.target.files].forEach(file => {
-                const reader = new FileReader();
-                reader.onload = e2 => {
-                    const img = document.createElement("img");
-                    img.src = e2.target.result;
-                    img.classList.add("img-thumbnail");
-                    img.style.maxHeight = "120px";
-                    previewContainer.appendChild(img);
-                };
-                reader.readAsDataURL(file);
+            // Image Preview
+            $("#propertyImages").change(function() {
+                const container = $("#previewContainer");
+                container.empty();
+                [...this.files].forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        container.append(`<img src="${e.target.result}" class="rounded-3 shadow-sm object-fit-cover" style="width: 100px; height: 100px;">`);
+                    };
+                    reader.readAsDataURL(file);
+                });
             });
         });
     </script>
-
     @await Html.PartialAsync("_ValidationScriptsPartial")
 }

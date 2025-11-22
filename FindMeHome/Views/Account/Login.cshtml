@@ -1,0 +1,54 @@
+@model FindMeHome.Dtos.LoginDto
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
+
+@{
+    ViewData["Title"] = Localizer["LoginTitle"];
+}
+
+<div class="auth-container">
+    <div class="col-md-5 col-lg-4">
+        <div class="card auth-card border-0">
+            <div class="auth-header">
+                <div class="mb-3">
+                    <i class="fa-solid fa-circle-user fa-3x text-white-50"></i>
+                </div>
+                <h2 class="fw-bold mb-0">@Localizer["LoginTitle"]</h2>
+                <p class="mb-0 opacity-75 mt-2">@Localizer["WelcomeBack"]</p>
+            </div>
+            <div class="card-body auth-body">
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4 border-0 bg-danger bg-opacity-10 text-danger" role="alert"></div>
+
+                    <div class="form-floating form-floating-custom mb-3 position-relative">
+                        <input asp-for="Email" class="form-control" placeholder="name@example.com" />
+                        <label asp-for="Email">@Localizer["Email"]</label>
+                        <i class="fa-solid fa-envelope input-icon"></i>
+                        <span asp-validation-for="Email" class="text-danger small ms-2"></span>
+                    </div>
+
+                    <div class="form-floating form-floating-custom mb-4 position-relative">
+                        <input asp-for="Password" class="form-control" type="password" placeholder="Password" />
+                        <label asp-for="Password">@Localizer["Password"]</label>
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <span asp-validation-for="Password" class="text-danger small ms-2"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-auth text-white">
+                            @Localizer["LoginTitle"] <i class="fa-solid fa-arrow-left me-2"></i>
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted mb-0">@Localizer["NoAccount"] <a asp-action="Register" class="text-primary fw-bold text-decoration-none">@Localizer["CreateAccount"]</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

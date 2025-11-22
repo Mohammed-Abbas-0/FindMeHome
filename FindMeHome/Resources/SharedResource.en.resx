@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="ServicesAndCraftsmen" xml:space="preserve">
+    <value>Services &amp; Craftsmen</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="AdvancedSearch" xml:space="preserve">
+    <value>Advanced Search</value>
+  </data>
+  <data name="AddProperty" xml:space="preserve">
+    <value>Add Property</value>
+  </data>
+  <data name="Profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="MyProperties" xml:space="preserve">
+    <value>My Properties</value>
+  </data>
+  <data name="Wishlist" xml:space="preserve">
+    <value>Wishlist</value>
+  </data>
+  <data name="ContactUs" xml:space="preserve">
+    <value>Contact Us</value>
+  </data>
+  <data name="FAQ" xml:space="preserve">
+    <value>FAQ</value>
+  </data>
+  <data name="PrivacyPolicy" xml:space="preserve">
+    <value>Privacy Policy</value>
+  </data>
+  <data name="FooterDescription" xml:space="preserve">
+    <value>Your #1 platform for finding real estate in Egypt. We help you find your dream home easily and safely.</value>
+  </data>
+  <data name="QuickLinks" xml:space="preserve">
+    <value>Quick Links</value>
+  </data>
+  <data name="Help" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="Newsletter" xml:space="preserve">
+    <value>Newsletter</value>
+  </data>
+  <data name="Subscribe" xml:space="preserve">
+    <value>Subscribe</value>
+  </data>
+  <data name="EmailPlaceholder" xml:space="preserve">
+    <value>Your Email</value>
+  </data>
+  <data name="RightsReserved" xml:space="preserve">
+    <value>All Rights Reserved</value>
+  </data>
+  <data name="FilterResults" xml:space="preserve">
+    <value>Filter Results</value>
+  </data>
+  <data name="GeneralSearch" xml:space="preserve">
+    <value>General Search</value>
+  </data>
+  <data name="SearchPlaceholder" xml:space="preserve">
+    <value>Search for property...</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="City" xml:space="preserve">
+    <value>City</value>
+  </data>
+  <data name="Neighborhood" xml:space="preserve">
+    <value>Neighborhood</value>
+  </data>
+  <data name="PriceRange" xml:space="preserve">
+    <value>Price Range (EGP)</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="Area" xml:space="preserve">
+    <value>Area (m²)</value>
+  </data>
+  <data name="RoomsAndBathrooms" xml:space="preserve">
+    <value>Rooms &amp; Bathrooms</value>
+  </data>
+  <data name="Rooms" xml:space="preserve">
+    <value>Rooms</value>
+  </data>
+  <data name="Bathrooms" xml:space="preserve">
+    <value>Bathrooms</value>
+  </data>
+  <data name="UnitType" xml:space="preserve">
+    <value>Unit Type</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="FurnishedOption" xml:space="preserve">
+    <value>Furnished / Can be furnished</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="FeaturedProperties" xml:space="preserve">
+    <value>Featured Properties</value>
+  </data>
+  <data name="FindPropertyText" xml:space="preserve">
+    <value>Find your suitable property among {0} options</value>
+  </data>
+  <data name="Furnished" xml:space="preserve">
+    <value>Furnished</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="WhatsApp" xml:space="preserve">
+    <value>WhatsApp</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="DiscoverNewHome" xml:space="preserve">
+    <value>Discover Your New Home</value>
+  </data>
+  <data name="WelcomeBack" xml:space="preserve">
+    <value>Welcome back to Baytak</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="NoAccount" xml:space="preserve">
+    <value>Don't have an account?</value>
+  </data>
+  <data name="CreateAccount" xml:space="preserve">
+    <value>Create new account</value>
+  </data>
+  <data name="JoinUs" xml:space="preserve">
+    <value>Join us and find your dream home</value>
+  </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>First Name</value>
+  </data>
+  <data name="LastName" xml:space="preserve">
+    <value>Last Name</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="AlreadyHaveAccount" xml:space="preserve">
+    <value>Already have an account?</value>
+  </data>
+  <data name="SignUp" xml:space="preserve">
+    <value>Sign Up</value>
+  </data>
+  <data name="LoginTitle" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="CreateAccountTitle" xml:space="preserve">
+    <value>Create New Account</value>
+  </data>
+</root>
