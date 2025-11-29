@@ -1,0 +1,47 @@
+@model IEnumerable<FindMeHome.Models.ApplicationUser>
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">@Localizer["PendingSellerRequests"]</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">@Localizer["NoPendingRequests"]</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>@Localizer["Name"]</th>
+                        <th>@Localizer["Email"]</th>
+                        <th>@Localizer["Actions"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.FirstName @user.LastName</td>
+                            <td>@user.Email</td>
+                            <td>
+                                <form asp-action="ApproveSeller" method="post">
+                                    <input type="hidden" name="userId" value="@user.Id" />
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fa-solid fa-check me-1"></i> @Localizer["Approve"]
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

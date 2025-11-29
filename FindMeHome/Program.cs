@@ -19,7 +19,7 @@ builder.Services.AddDbContext<AppDBContext>(options =>
 // Mapper
 builder.Services.AddAutoMapper(typeof(MappingHelper));
 
-builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IRepositories<>), typeof(Repositories<>));
 builder.Services.AddScoped<IRealStateService, RealStateService>();
 // Localization
@@ -101,10 +101,11 @@ app.MapControllerRoute(
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<AppDBContext>();
+    var context = services.GetRequiredService<AppDBContext>();  
     // Ensure database is created/migrated
     // context.Database.Migrate(); 
     await FindMeHome.Data.CraftsmanSeeder.SeedAsync(context);
+    await FindMeHome.Data.RoleSeeder.SeedAsync(scope.ServiceProvider);
 }
 
 app.Run();

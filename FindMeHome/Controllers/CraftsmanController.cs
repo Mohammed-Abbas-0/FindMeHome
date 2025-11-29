@@ -1,6 +1,7 @@
 using FindMeHome.Dtos;
 using FindMeHome.Services.Abstraction;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FindMeHome.Controllers
 {
@@ -20,12 +21,14 @@ namespace FindMeHome.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(CraftsmanDto dto)
         {
             if (!ModelState.IsValid)

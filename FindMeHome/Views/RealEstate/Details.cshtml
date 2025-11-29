@@ -30,7 +30,7 @@
                             for (int i = 0; i < Model.Images.Count; i++)
                             {
                                 <div class="carousel-item @(i == 0 ? "active" : "")">
-                                    <img src="@Model.Images[i].FilePath" class="d-block w-100 object-fit-cover" style="height: 500px;" alt="صورة العقار">
+                                    <img src="@Model.Images[i].ImageUrl" class="d-block w-100 object-fit-cover" style="height: 500px;" alt="صورة العقار">
                                 </div>
                             }
                         }

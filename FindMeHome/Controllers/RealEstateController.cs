@@ -4,6 +4,7 @@ using FindMeHome.Models;
 using FindMeHome.Services.Abstraction;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FindMeHome.Controllers
 {
@@ -23,7 +24,7 @@ namespace FindMeHome.Controllers
         public async Task<IActionResult> Index()
         {
             var realEstates = await _realStateService.GetAllAsync();
-            
+
             var userId = _userManager.GetUserId(User);
             if (userId != null)
             {
@@ -71,18 +72,19 @@ namespace FindMeHome.Controllers
         }
 
         [HttpGet("Create")]
+        [Authorize(Roles = "Admin,Seller")]
         public async Task<IActionResult> Create()
         {
             return View();
         }
 
-        
-
         public IActionResult Privacy()
         {
             return View();
         }
+
         [HttpPost("Create")]
+        [Authorize(Roles = "Admin,Seller")]
         public async Task<IActionResult> CreateAsync([FromForm] CreateRealEstateDto createDto)
         {
             if (!ModelState.IsValid)
@@ -91,7 +93,10 @@ namespace FindMeHome.Controllers
             }
             try
             {
-                var result = await _realStateService.CreateAsync(createDto);
+                var userId = _userManager.GetUserId(User);
+                if (userId == null) return Json(new { isSuccess = false, message = "❌ يجب تسجيل الدخول أولاً" });
+
+                var result = await _realStateService.CreateAsync(createDto, userId);
 
                 return Json(new
                 {
@@ -99,7 +104,7 @@ namespace FindMeHome.Controllers
                     message = result.Message
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Json(new
                 {
@@ -131,7 +136,7 @@ namespace FindMeHome.Controllers
             if (userId == null) return Json(new { isSuccess = false, message = "يجب تسجيل الدخول أولاً" });
 
             var result = await _realStateService.AddToWishlistAsync(id, userId);
-            
+
             // Get updated count
             var wishlist = await _realStateService.GetWishlistAsync(userId);
             var count = wishlist.Count;
@@ -151,7 +156,7 @@ namespace FindMeHome.Controllers
             if (userId == null) return Json(new { isSuccess = false, message = "يجب تسجيل الدخول أولاً" });
 
             var result = await _realStateService.RemoveFromWishlistAsync(id, userId);
-            
+
             // Get updated count
             var wishlist = await _realStateService.GetWishlistAsync(userId);
             var count = wishlist.Count;
@@ -184,5 +189,15 @@ namespace FindMeHome.Controllers
             return Json(new { count = wishlist.Count() });
         }
 
+        [HttpGet("MyProperties")]
+        [Authorize(Roles = "Seller,Admin")]
+        public async Task<IActionResult> MyProperties()
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null) return RedirectToAction("Login", "Account");
+
+            var properties = await _realStateService.GetByUserIdAsync(userId);
+            return View(properties);
+        }
     }
 }

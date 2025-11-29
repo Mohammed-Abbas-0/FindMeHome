@@ -56,7 +56,7 @@ namespace FindMeHome.Dtos
         bool IsActive,
         string? WhatsAppNumber,
         List<RealEstateImageDto>? Images
-        //List<ReviewDto>? Reviews
+    //List<ReviewDto>? Reviews
     );
     public record FurnitureDto
     (
@@ -71,7 +71,7 @@ namespace FindMeHome.Dtos
     (
         int Id,
         string FileName,
-        string FilePath
+        string ImageUrl
     );
 
 

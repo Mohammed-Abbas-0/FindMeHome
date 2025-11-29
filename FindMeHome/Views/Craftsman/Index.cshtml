@@ -10,9 +10,12 @@
             <h2 class="fw-bold text-primary mb-2">دليل الحرفيين والخدمات</h2>
             <p class="text-muted">تواصل مع أفضل الحرفيين والفنيين الموثوقين</p>
         </div>
-        <a asp-action="Create" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
-            <i class="fa-solid fa-plus me-2"></i> إضافة حرفي
-        </a>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                <i class="fa-solid fa-plus me-2"></i> إضافة حرفي
+            </a>
+        }
     </div>
 
     @if (TempData["Success"] != null)
@@ -30,11 +33,12 @@
                 <div class="card border-0 shadow-sm h-100 rounded-4 hover-scale transition-all">
                     <div class="card-body p-4 text-center">
                         <div class="mb-4">
-                            <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle" style="width: 80px; height: 80px;">
+                            <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle"
+                                style="width: 80px; height: 80px;">
                                 <i class="fa-solid fa-user-gear fs-2"></i>
                             </div>
                         </div>
-                        
+
                         <h5 class="fw-bold mb-1">@item.Name</h5>
                         <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3 py-2 mb-3">
                             @item.Profession
@@ -44,7 +48,8 @@
                             <a href="tel:@item.PhoneNumber" class="btn btn-outline-primary rounded-3 fw-bold">
                                 <i class="fa-solid fa-phone me-2"></i> @item.PhoneNumber
                             </a>
-                            <a href="https://wa.me/2@item.PhoneNumber" target="_blank" class="btn btn-success rounded-3 fw-bold">
+                            <a href="https://wa.me/2@item.PhoneNumber" target="_blank"
+                                class="btn btn-success rounded-3 fw-bold">
                                 <i class="fa-brands fa-whatsapp me-2"></i> واتساب
                             </a>
                         </div>
@@ -59,9 +64,9 @@
     .hover-scale {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    
+
     .hover-scale:hover {
         transform: translateY(-5px);
-        box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175) !important;
     }
 </style>

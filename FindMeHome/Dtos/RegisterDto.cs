@@ -19,5 +19,7 @@ namespace FindMeHome.Dtos
 
         [Required, StringLength(256)]
         public string Password { get; set; }
+
+        public bool IsSeller { get; set; }
     }
 }

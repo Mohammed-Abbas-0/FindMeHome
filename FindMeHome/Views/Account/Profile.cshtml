@@ -1,0 +1,111 @@
+@model FindMeHome.Dtos.ProfileDto
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
+
+@{
+    ViewData["Title"] = Localizer["Profile"];
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-transparent border-0 pt-4 pb-0">
+                    <h3 class="fw-bold text-primary"><i class="fa-solid fa-user-pen me-2"></i> @Localizer["Profile"]
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form asp-action="Profile" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="text-center mb-4">
+                            <div class="position-relative d-inline-block">
+                                <img src="@(string.IsNullOrEmpty(Model.ProfilePictureUrl) ? "/images/default-profile.png" : Model.ProfilePictureUrl)"
+                                    alt="Profile Picture" class="rounded-circle img-thumbnail"
+                                    style="width: 150px; height: 150px; object-fit: cover;">
+                                <label for="ProfilePicture"
+                                    class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle"
+                                    style="width: 32px; height: 32px; padding: 4px;">
+                                    <i class="fa-solid fa-camera"></i>
+                                </label>
+                                <input asp-for="ProfilePicture" type="file" class="d-none" accept="image/*"
+                                    onchange="previewImage(this)">
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="FirstName" class="form-control" placeholder="First Name" />
+                                    <label asp-for="FirstName">@Localizer["FirstName"]</label>
+                                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="LastName" class="form-control" placeholder="Last Name" />
+                                    <label asp-for="LastName">@Localizer["LastName"]</label>
+                                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="Email" class="form-control" placeholder="Email" readonly disabled />
+                                    <label asp-for="Email">@Localizer["Email"]</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="PhoneNumber" class="form-control" placeholder="Phone Number" />
+                                    <label asp-for="PhoneNumber">@Localizer["WhatsAppNumber"]</label>
+                                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <textarea asp-for="Bio" class="form-control" placeholder="Bio"
+                                        style="height: 100px"></textarea>
+                                    <label asp-for="Bio">@Localizer["PropertyDescription"] (Bio)</label>
+                                    <span asp-validation-for="Bio" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-end">
+                            <button type="submit" class="btn btn-primary px-4 rounded-pill">
+                                <i class="fa-solid fa-save me-2"></i> @Localizer["Submit"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $(input).prev().prev().attr('src', e.target.result);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}

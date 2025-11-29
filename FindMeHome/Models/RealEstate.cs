@@ -34,6 +34,11 @@ namespace FindMeHome.Models
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
 
+        // Foreign Key to User
+        public string? UserId { get; set; }
+        public ApplicationUser? User { get; set; }
+
+
         // 🔗 علاقات مستقبلية (تعليقها حاليًا):
         // public int AgentId { get; set; }                     // المفتاح الأجنبي للوكيل
         // public User Agent { get; set; }                      // العلاقة مع جدول المستخدمين

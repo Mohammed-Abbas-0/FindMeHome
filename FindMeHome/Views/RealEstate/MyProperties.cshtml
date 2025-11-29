@@ -1,0 +1,176 @@
+@model IEnumerable<FindMeHome.Dtos.RealEstateDto>
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
+
+@{
+    ViewData["Title"] = Localizer["MyProperties"];
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary"><i class="fa-solid fa-building-user me-2"></i> @Localizer["MyProperties"]</h2>
+        <a asp-controller="RealEstate" asp-action="Create" class="btn btn-success rounded-pill px-4">
+            <i class="fa-solid fa-plus me-2"></i> @Localizer["AddProperty"]
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <div class="empty-state-container">
+                <!-- Animated House Icon -->
+                <div class="empty-house-icon mb-4">
+                    <i class="fa-solid fa-house-circle-exclamation"></i>
+                </div>
+
+                <!-- Fun Message -->
+                <div class="empty-message">
+                    <h3 class="fw-bold text-primary mb-3">
+                        🏡 لم تقم بإضافة أي عقارات بعد
+                    </h3>
+                    <p class="text-muted fs-5 mb-4">
+                        ابدأ بإضافة عقارك الأول الآن! 🚀
+                    </p>
+
+                    <!-- Call to Action Button -->
+                    <a asp-controller="RealEstate" asp-action="Create"
+                        class="btn btn-primary btn-lg rounded-pill px-5 shadow-lg">
+                        <i class="fa-solid fa-plus-circle me-2"></i>
+                        أضف عقارك الأول
+                    </a>
+
+                    <!-- Fun Decorative Elements -->
+                    <div class="mt-5 d-flex justify-content-center gap-4 flex-wrap">
+                        <div class="feature-badge">
+                            <i class="fa-solid fa-camera text-info fs-4"></i>
+                            <small class="d-block mt-2 text-muted">صور واضحة</small>
+                        </div>
+                        <div class="feature-badge">
+                            <i class="fa-solid fa-map-location-dot text-success fs-4"></i>
+                            <small class="d-block mt-2 text-muted">موقع دقيق</small>
+                        </div>
+                        <div class="feature-badge">
+                            <i class="fa-solid fa-hand-holding-dollar text-warning fs-4"></i>
+                            <small class="d-block mt-2 text-muted">سعر مناسب</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <style>
+            .empty-state-container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 3rem 1rem;
+            }
+
+            .empty-house-icon {
+                font-size: 8rem;
+                color: #e3f2fd;
+                animation: bounce 2s infinite;
+            }
+
+            @@keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-20px); }
+            }
+
+            .empty-message h3 {
+                animation: fadeInDown 0.6s ease-out;
+            }
+
+            .empty-message p {
+                animation: fadeInUp 0.8s ease-out;
+            }
+
+            @@keyframes fadeInDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @@keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .feature-badge {
+                padding: 1rem;
+                background: #f8f9fa;
+                border-radius: 15px;
+                transition: all 0.3s ease;
+                min-width: 120px;
+            }
+
+            .feature-badge:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                background: white;
+            }
+
+            .btn-primary:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 15px 35px rgba(13, 110, 253, 0.3);
+            }
+        </style>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden property-card">
+                        <div class="position-relative">
+                            <img src="@(item.Images?.FirstOrDefault()?.ImageUrl ?? "/images/placeholder.jpg")"
+                                class="card-img-top" alt="@item.Title" style="height: 200px; object-fit: cover;">
+                            <span class="badge bg-@(item.IsActive ? "success" : "secondary") position-absolute top-0 end-0 m-3">
+                                @(item.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold text-truncate">@item.Title</h5>
+                            <p class="card-text text-muted small mb-2"><i class="fa-solid fa-location-dot me-1"></i> @item.City,
+                                @item.Neighborhood</p>
+                            <h6 class="text-primary fw-bold">@item.Price.ToString("N0") @Localizer["Currency"]</h6>
+
+                            <hr class="my-3 opacity-25">
+
+                            <div class="d-flex justify-content-between text-muted small">
+                                <span><i class="fa-solid fa-bed me-1"></i> @item.Rooms</span>
+                                <span><i class="fa-solid fa-bath me-1"></i> @item.Bathrooms</span>
+                                <span><i class="fa-solid fa-ruler-combined me-1"></i> @item.Area m²</span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 pb-3 pt-0">
+                            <div class="d-grid gap-2 d-md-flex">
+                                <a asp-action="Details" asp-route-id="@item.Id"
+                                    class="btn btn-outline-primary btn-sm flex-grow-1 rounded-pill">
+                                    <i class="fa-solid fa-eye me-1"></i> @Localizer["Details"]
+                                </a>
+                                <!-- Edit and Delete buttons can be implemented later -->
+                                <button class="btn btn-outline-secondary btn-sm flex-grow-1 rounded-pill" disabled
+                                    title="Coming Soon">
+                                    <i class="fa-solid fa-pen me-1"></i> @Localizer["Edit"]
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -197,11 +197,14 @@
                     }
 
                     <!-- Add Property Button -->
-                    @if (!(currentController == "RealEstate" && currentAction == "Create"))
+                    @if (User.IsInRole("Seller") || User.IsInRole("Admin"))
                     {
-                        <a asp-controller="RealEstate" asp-action="Create" class="btn btn-add-property">
-                            <i class="fa-solid fa-plus me-2"></i> @Localizer["AddProperty"]
-                        </a>
+                        @if (!(currentController == "RealEstate" && currentAction == "Create"))
+                        {
+                            <a asp-controller="RealEstate" asp-action="Create" class="btn btn-add-property">
+                                <i class="fa-solid fa-plus me-2"></i> @Localizer["AddProperty"]
+                            </a>
+                        }
                     }
 
                     <!-- Auth Links -->
@@ -217,8 +220,15 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 mt-2 p-2">
                                     <li><a class="dropdown-item rounded-3" asp-controller="Account" asp-action="Profile"><i class="fa-solid fa-id-card me-2 text-muted"></i> @Localizer["Profile"]</a></li>
-                                    <li><a class="dropdown-item rounded-3" asp-controller="RealEstate" asp-action="MyProperties"><i class="fa-solid fa-building-user me-2 text-muted"></i> @Localizer["MyProperties"]</a></li>
+                                    @if (User.IsInRole("Seller") || User.IsInRole("Admin"))
+                                    {
+                                        <li><a class="dropdown-item rounded-3" asp-controller="RealEstate" asp-action="MyProperties"><i class="fa-solid fa-building-user me-2 text-muted"></i> @Localizer["MyProperties"]</a></li>
+                                    }
                                     <li><a class="dropdown-item rounded-3" asp-controller="RealEstate" asp-action="Wishlist"><i class="fa-solid fa-heart me-2 text-muted"></i> @Localizer["Wishlist"]</a></li>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li><a class="dropdown-item rounded-3" asp-controller="Admin" asp-action="Index"><i class="fa-solid fa-user-shield me-2 text-muted"></i> @Localizer["AdminDashboard"]</a></li>
+                                    }
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
@@ -269,7 +279,10 @@
                     <ul class="list-unstyled text-muted small">
                         <li class="mb-2"><a href="#" class="text-decoration-none text-muted">@Localizer["Home"]</a></li>
                         <li class="mb-2"><a href="#" class="text-decoration-none text-muted">@Localizer["AdvancedSearch"]</a></li>
-                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">@Localizer["AddProperty"]</a></li>
+                        @if (User.IsInRole("Seller") || User.IsInRole("Admin"))
+                        {
+                            <li class="mb-2"><a asp-controller="RealEstate" asp-action="Create" class="text-decoration-none text-muted">@Localizer["AddProperty"]</a></li>
+                        }
                     </ul>
                 </div>
                 <div class="col-lg-2 col-6">

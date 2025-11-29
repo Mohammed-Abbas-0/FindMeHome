@@ -19,7 +19,7 @@ namespace FindMeHome.Services.Implementation
 
         #region Public Methods
 
-        public async Task<ResultDto> CreateAsync(CreateRealEstateDto dto)
+        public async Task<ResultDto> CreateAsync(CreateRealEstateDto dto, string userId)
         {
             var validation = ValidateCreateRealEstateDto(dto);
             if (!validation.IsSuccess)
@@ -41,7 +41,8 @@ namespace FindMeHome.Services.Implementation
                 UnitType = dto.UnitType,
                 WhatsAppNumber = dto.WhatsAppNumber,
                 IsActive = true,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                UserId = userId
             };
 
             await SaveImages(dto, entity);
@@ -75,6 +76,14 @@ namespace FindMeHome.Services.Implementation
             return entities.Select(MapToDto).ToList();
         }
 
+        public async Task<List<RealEstateDto>> GetByUserIdAsync(string userId)
+        {
+            var entities = await _unitOfWork.RealEstates
+                .FindAsync(e => e.UserId == userId, includeProperties: "Images,Furnitures");
+
+            return entities.Select(MapToDto).ToList();
+        }
+
         public async Task<List<RealEstateDto>> SearchAsync(string? query, decimal? minPrice, decimal? maxPrice, double? minArea, double? maxArea, int? rooms, int? bathrooms, string? city, string? neighborhood, UnitType? unitType, bool? isFurnished)
         {
             var entities = await _unitOfWork.RealEstates
@@ -85,8 +94,8 @@ namespace FindMeHome.Services.Implementation
             if (!string.IsNullOrWhiteSpace(query))
             {
                 query = query.ToLower();
-                filtered = filtered.Where(x => x.Title.ToLower().Contains(query) || 
-                                             x.Description.ToLower().Contains(query) || 
+                filtered = filtered.Where(x => x.Title.ToLower().Contains(query) ||
+                                             x.Description.ToLower().Contains(query) ||
                                              x.Address.ToLower().Contains(query));
             }
 
@@ -119,8 +128,8 @@ namespace FindMeHome.Services.Implementation
 
             if (isFurnished.HasValue)
                 filtered = filtered.Where(x => x.CanBeFurnished == isFurnished.Value); // Assuming CanBeFurnished implies furnished option, or we might need a separate IsFurnished field if the model had it. The model has CanBeFurnished. Let's assume this filters for properties that CAN be furnished or are furnished. 
-                // Wait, the model has `CanBeFurnished`. The user might want to search for furnished apartments. 
-                // If the user selects "Furnished", they probably want `CanBeFurnished == true`.
+                                                                                       // Wait, the model has `CanBeFurnished`. The user might want to search for furnished apartments. 
+                                                                                       // If the user selects "Furnished", they probably want `CanBeFurnished == true`.
 
             return filtered.Select(MapToDto).ToList();
         }
@@ -317,7 +326,7 @@ namespace FindMeHome.Services.Implementation
                 entity.Images?.Select(img => new RealEstateImageDto(img.Id, Path.GetFileName(img.ImageUrl), img.ImageUrl)).ToList()
             );
         }
-            
+
         #endregion
     }
 }

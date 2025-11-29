@@ -10,5 +10,10 @@ namespace FindMeHome.Models
 
         [Required, MaxLength(50)]
         public string LastName { get; set; }
+
+        public bool IsSellerRequest { get; set; }
+
+        public string? ProfilePictureUrl { get; set; }
+        public string? Bio { get; set; }
     }
 }

@@ -285,4 +285,73 @@
   <data name="Cancel" xml:space="preserve">
     <value>إلغاء</value>
   </data>
+  <data name="RegisterAsSeller" xml:space="preserve">
+    <value>تسجيل كبائع</value>
+  </data>
+  <data name="PendingSellerRequests" xml:space="preserve">
+    <value>طلبات البائعين المعلقة</value>
+  </data>
+  <data name="NoPendingRequests" xml:space="preserve">
+    <value>لا توجد طلبات معلقة</value>
+  </data>
+  <data name="Approve" xml:space="preserve">
+    <value>قبول</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>الإجراءات</value>
+  </data>
+  <data name="ForgotPassword" xml:space="preserve">
+    <value>نسيت كلمة المرور</value>
+  </data>
+  <data name="EnterEmailToReset" xml:space="preserve">
+    <value>أدخل بريدك الإلكتروني لإعادة تعيين كلمة المرور</value>
+  </data>
+  <data name="Submit" xml:space="preserve">
+    <value>إرسال</value>
+  </data>
+  <data name="CheckEmail" xml:space="preserve">
+    <value>تفقد بريدك الإلكتروني</value>
+  </data>
+  <data name="ResetLinkSent" xml:space="preserve">
+    <value>تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.</value>
+  </data>
+  <data name="CheckSpamFolder" xml:space="preserve">
+    <value>إذا لم تجد الرسالة، يرجى التحقق من مجلد الرسائل غير المرغوب فيها (Spam).</value>
+  </data>
+  <data name="ResetPassword" xml:space="preserve">
+    <value>إعادة تعيين كلمة المرور</value>
+  </data>
+  <data name="EnterNewPassword" xml:space="preserve">
+    <value>أدخل كلمة المرور الجديدة</value>
+  </data>
+  <data name="NewPassword" xml:space="preserve">
+    <value>كلمة المرور الجديدة</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>تأكيد كلمة المرور</value>
+  </data>
+  <data name="PasswordResetSuccess" xml:space="preserve">
+    <value>تم إعادة تعيين كلمة المرور بنجاح</value>
+  </data>
+  <data name="PasswordResetDone" xml:space="preserve">
+    <value>تم تغيير كلمة المرور الخاصة بك بنجاح. يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.</value>
+  </data>
+  <data name="AdminDashboard" xml:space="preserve">
+    <value>لوحة تحكم المسؤول</value>
+  </data>
+  <data name="NoPropertiesYet" xml:space="preserve">
+    <value>لم تقم بإضافة أي عقارات بعد</value>
+  </data>
+  <data name="StartAddingProperties" xml:space="preserve">
+    <value>ابدأ بإضافة عقارك الأول الآن!</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Currency" xml:space="preserve">
+    <value>ج.م</value>
+  </data>
 </root>

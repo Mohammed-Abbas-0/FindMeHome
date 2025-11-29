@@ -13,6 +13,7 @@
     </div>
 
     @if (Model == null || !Model.Any())
+
     {
         <div class="alert alert-info text-center">
             <i class="bi bi-info-circle fs-1"></i>
@@ -20,15 +21,18 @@
             <a asp-controller="RealEstate" asp-action="Index" class="btn btn-primary">تصفح العقارات</a>
         </div>
     }
+
     else
+
     {
         <div class="row g-4">
             @foreach (var item in Model)
+
             {
                 <div class="col-lg-4 col-md-6 col-sm-12">
                     <div class="card shadow-sm h-100">
-                        <img src="@(item.Images?.FirstOrDefault()?.FilePath ?? "/images/test1.png")"
-                             class="card-img-top" alt="صورة العقار" style="height: 250px; object-fit: cover;">
+                        <img src="@(item.Images?.FirstOrDefault()?.ImageUrl ?? "/images/test1.png")" class="card-img-top"
+                            alt="صورة العقار" style="height: 250px; object-fit: cover;">
                         <div class="card-body">
                             <h5 class="card-title fw-bold">@item.Title</h5>
                             <p class="card-text text-muted">@item.Address - @item.City</p>
@@ -36,17 +40,19 @@
                             <p class="card-text mb-1"><strong>📏 المساحة:</strong> @item.Area م²</p>
                             <p class="card-text mb-1"><strong>🏠 النوع:</strong> @item.UnitType</p>
                             <p class="card-text mb-1"><strong>📍 المنطقة:</strong> @item.Neighborhood</p>
-                            <p class="card-text mb-1"><strong>🛏️ الغرف:</strong> @item.Rooms | <strong>🚿 الحمامات:</strong> @item.Bathrooms</p>
+                            <p class="card-text mb-1"><strong>🛏️ الغرف:</strong> @item.Rooms | <strong>🚿 الحمامات:</strong>
+                                @item.Bathrooms</p>
                             <div class="d-flex gap-2 mt-3">
                                 <a asp-controller="RealEstate" asp-action="Details" asp-route-id="@item.Id"
-                                   class="btn btn-outline-primary btn-sm flex-grow-1">عرض التفاصيل</a>
+                                    class="btn btn-outline-primary btn-sm flex-grow-1">عرض التفاصيل</a>
                                 @if (!string.IsNullOrEmpty(item.WhatsAppNumber))
+
                                 {
-                                    var detailsUrl = Url.Action("Details", "RealEstate", new { id = item.Id }, Context.Request.Scheme);
-                                    
-                                    <a href="https://wa.me/@(item.WhatsAppNumber.Replace("+", "").Replace(" ", ""))?text=@Uri.EscapeDataString(detailsUrl)" 
-                                       target="_blank" 
-                                       class="btn btn-success btn-sm">
+                                    var detailsUrl = Url.Action("Details", "RealEstate", new { id = item.Id },
+                                    Context.Request.Scheme);
+
+                                    <a href="https://wa.me/@(item.WhatsAppNumber.Replace("+", "").Replace(" ", ""))?text=@Uri.EscapeDataString(detailsUrl)"
+                                        target="_blank" class="btn btn-success btn-sm">
                                         <i class="bi bi-whatsapp"></i> واتساب
                                     </a>
                                 }
