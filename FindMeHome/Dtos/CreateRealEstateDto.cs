@@ -52,8 +52,8 @@ namespace FindMeHome.Dtos
         public List<IFormFile>? Images { get; set; } = new List<IFormFile>();
 
         public string? LocationAddress { get; set; }
-        public double? Latitude { get; set; }
-        public double? Longitude { get; set; }
+        //public double? Latitude { get; set; }
+        //public double? Longitude { get; set; }
     }
 }
 

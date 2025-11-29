@@ -73,7 +73,7 @@ namespace FindMeHome.Controllers
 
         [HttpGet("Create")]
         [Authorize(Roles = "Admin,Seller")]
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
             return View();
         }

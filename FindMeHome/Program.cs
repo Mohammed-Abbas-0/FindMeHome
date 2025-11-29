@@ -1,15 +1,14 @@
 ﻿using FindMeHome.AppContext;
 using FindMeHome.Mappers;
+using FindMeHome.Models;
 using FindMeHome.Repositories.AbstractionLayer;
 using FindMeHome.Repositories.ImplementationLayer;
 using FindMeHome.Services.Abstraction;
 using FindMeHome.Services.Implementation;
-using FindMeHome.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,11 +100,11 @@ app.MapControllerRoute(
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<AppDBContext>();  
+    var context = services.GetRequiredService<AppDBContext>();
     // Ensure database is created/migrated
     // context.Database.Migrate(); 
     await FindMeHome.Data.CraftsmanSeeder.SeedAsync(context);
-    await FindMeHome.Data.RoleSeeder.SeedAsync(scope.ServiceProvider);
+    await FindMeHome.Data.AppRoleSeeder.SeedAsync(scope.ServiceProvider);
 }
 
 app.Run();

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace FindMeHome.Data
 {
-    public static class RoleSeeder
+    public static class AppRoleSeeder
     {
         public static async Task SeedAsync(IServiceProvider serviceProvider)
         {

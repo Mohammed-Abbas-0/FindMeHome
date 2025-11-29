@@ -1,0 +1,121 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> Localizer
+
+<div class="modal fade" id="legalGuidelinesModal" tabindex="-1" aria-labelledby="legalGuidelinesModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div
+                class="modal-header bg-primary text-white border-0 p-4 d-flex justify-content-between align-items-center">
+                <h5 class="modal-title fw-bold d-flex align-items-center flex-grow-1" id="legalGuidelinesModalLabel">
+                    <i class="fa-solid fa-scale-balanced me-2 fs-3"></i>
+                    دليل الإرشادات القانونية العقارية
+                </h5>
+                <button type="button" class="btn-close btn-close-white m-0" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="row g-0">
+                    <!-- Sidebar / Navigation (Optional or just nice header image) -->
+                    <div class="col-12 bg-light p-4 border-bottom">
+                        <p class="text-muted mb-0 text-center fw-bold">
+                            <i class="fa-solid fa-circle-info me-1 text-primary"></i>
+                            نصائح هامة لضمان حقوقك عند البيع والشراء أو الإيجار
+                        </p>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="col-12 p-4" style="max-height: 60vh; overflow-y: auto;">
+
+                        <!-- Section 1: Personal ID -->
+                        <div class="guideline-section mb-4">
+                            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                                <i class="fa-solid fa-id-card me-2"></i> ١. أوراق إثبات الشخصية
+                            </h6>
+                            <ul class="list-unstyled pe-3">
+                                <li class="mb-2"><i class="fa-solid fa-check text-success me-2 ms-2"></i> بطاقة الرقم
+                                    القومي سارية للطرفين.</li>
+                                <li class="mb-2"><i class="fa-solid fa-check text-success me-2 ms-2"></i> سند ملكية
+                                    (العقد المسجل).</li>
+                                <li class="mb-2"><i class="fa-solid fa-check text-success me-2 ms-2"></i> التوكيلات (إن
+                                    وجدت).</li>
+                            </ul>
+                        </div>
+
+                        <!-- Section 2: Property Docs -->
+                        <div class="guideline-section mb-4">
+                            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                                <i class="fa-solid fa-file-contract me-2"></i> ٢. أوراق الشقة أو العقار
+                            </h6>
+                            <ul class="list-unstyled pe-3">
+                                <li class="mb-2"><i class="fa-solid fa-check text-success me-2 ms-2"></i> رخصة المباني.
+                                </li>
+                                <li class="mb-2"><i class="fa-solid fa-check text-success me-2 ms-2"></i> عقد الأرض.
+                                </li>
+                                <li class="mb-2"><i class="fa-solid fa-check text-success me-2 ms-2"></i> إيصالات
+                                    المرافق (كهرباء، مياه، غاز).</li>
+                            </ul>
+                        </div>
+
+                        <!-- Section 3: Sale Contract -->
+                        <div class="guideline-section mb-4">
+                            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                                <i class="fa-solid fa-handshake me-2"></i> ٣. عند كتابة عقد البيع
+                            </h6>
+                            <ul class="list-unstyled pe-3">
+                                <li class="mb-2"><i class="fa-solid fa-pen-fancy text-success me-2 ms-2"></i> كتابة عقد
+                                    ابتدائي وعقد نهائي موضح به الثمن.</li>
+                                <li class="mb-2"><i class="fa-solid fa-pen-fancy text-success me-2 ms-2"></i> عمل توكيل
+                                    بالبيع للنفس أو للغير في الشهر العقاري.</li>
+                                <li class="mb-2"><i class="fa-solid fa-pen-fancy text-success me-2 ms-2"></i> رفع دعوى
+                                    (صحة توقيع) لضمان الحقوق.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Section 4: Rental -->
+                        <div class="guideline-section mb-4">
+                            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                                <i class="fa-solid fa-key me-2"></i> ٤. في حالة الإيجار (قانون جديد)
+                            </h6>
+                            <div class="alert alert-light border-primary border-opacity-25 rounded-3">
+                                <p class="mb-2 fw-bold"><i class="fa-solid fa-user-shield me-2"></i> المستندات المطلوبة:
+                                </p>
+                                <ul class="list-unstyled pe-3 mb-3">
+                                    <li class="mb-1"><i class="fa-solid fa-angle-left text-primary me-2 ms-2"></i> صورة
+                                        البطاقة للمالك والمستأجر.</li>
+                                    <li class="mb-1"><i class="fa-solid fa-angle-left text-primary me-2 ms-2"></i> سند
+                                        ملكية المؤجر (للتأكد من أنه صاحب الشقة أو وكيل عنه).</li>
+                                </ul>
+
+                                <p class="mb-2 fw-bold"><i class="fa-solid fa-file-signature me-2"></i> بنود العقد
+                                    الهامة:</p>
+                                <ul class="list-unstyled pe-3 mb-3">
+                                    <li class="mb-1"><i class="fa-solid fa-angle-left text-primary me-2 ms-2"></i>
+                                        القيمة الإيجارية الشهرية.</li>
+                                    <li class="mb-1"><i class="fa-solid fa-angle-left text-primary me-2 ms-2"></i> مقدم
+                                        الإيجار والتأمين (وشروط استرداده).</li>
+                                    <li class="mb-1"><i class="fa-solid fa-angle-left text-primary me-2 ms-2"></i> الغرض
+                                        من الإيجار (سكني / إداري).</li>
+                                    <li class="mb-1"><i class="fa-solid fa-angle-left text-primary me-2 ms-2"></i>
+                                        الزيادة السنوية (نسبتها وموعدها).</li>
+                                </ul>
+
+                                <p class="mb-0 fw-bold"><i class="fa-solid fa-stamp me-2"></i> التوثيق:</p>
+                                <ul class="list-unstyled pe-3 mb-0">
+                                    <li class="mb-0"><i class="fa-solid fa-angle-left text-primary me-2 ms-2"></i> عمل
+                                        "إثبات تاريخ" للعقد في الشهر العقاري أو "تصديق على التوقيعات".</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light p-3 justify-content-center">
+                <button type="button" class="btn btn-primary rounded-pill px-5 fw-bold" data-bs-dismiss="modal">فهمت،
+                    شكراً</button>
+            </div>
+        </div>
+    </div>
+</div>
