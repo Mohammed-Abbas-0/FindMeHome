@@ -2,6 +2,8 @@ using FindMeHome.Dtos;
 using FindMeHome.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Localization;
 using System.Threading.Tasks;
 
 namespace FindMeHome.Controllers
@@ -10,11 +12,13 @@ namespace FindMeHome.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IStringLocalizer<SharedResource> localizer)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _localizer = localizer;
         }
 
         [HttpGet]
@@ -182,7 +186,8 @@ namespace FindMeHome.Controllers
                 Username = user.UserName,
                 PhoneNumber = user.PhoneNumber,
                 Bio = user.Bio,
-                ProfilePictureUrl = user.ProfilePictureUrl
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                VerificationStatus = user.VerificationStatus
             };
 
             return View(model);
@@ -204,25 +209,20 @@ namespace FindMeHome.Controllers
 
             if (model.ProfilePicture != null && model.ProfilePicture.Length > 0)
             {
-                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.ProfilePicture.FileName)}";
-                var folderPath = Path.Combine("wwwroot", "uploads", "profiles");
-                var fullPath = Path.Combine(folderPath, fileName);
-
-                if (!Directory.Exists(folderPath))
-                    Directory.CreateDirectory(folderPath);
-
-                using (var stream = new FileStream(fullPath, FileMode.Create))
-                {
-                    await model.ProfilePicture.CopyToAsync(stream);
-                }
-
-                user.ProfilePictureUrl = $"/uploads/profiles/{fileName}";
+                user.ProfilePictureUrl = await SaveProfilePicture(model.ProfilePicture);
             }
 
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             {
-                TempData["SuccessMessage"] = "Profile updated successfully!";
+                if (model.ProfilePicture != null)
+                {
+                    TempData["SuccessMessage"] = _localizer["ProfilePictureUpdatedSuccess"].Value;
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = _localizer["ProfileUpdatedSuccess"].Value;
+                }
                 return RedirectToAction("Profile");
             }
 
@@ -230,6 +230,68 @@ namespace FindMeHome.Controllers
                 ModelState.AddModelError("", error.Description);
 
             return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateProfilePicture(IFormFile profilePicture)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+
+            if (profilePicture != null && profilePicture.Length > 0)
+            {
+                try
+                {
+                    user.ProfilePictureUrl = await SaveProfilePicture(profilePicture);
+                    await _userManager.UpdateAsync(user);
+                    return Json(new { success = true, message = _localizer["ProfilePictureUpdatedSuccess"].Value, newUrl = user.ProfilePictureUrl });
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { success = false, message = string.Format(_localizer["ErrorUploadingImage"].Value, ex.Message) });
+                }
+            }
+
+            return Json(new { success = false, message = _localizer["NoImageSelected"].Value });
+        }
+
+        private async Task<string> SaveProfilePicture(IFormFile file)
+        {
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var folderPath = Path.Combine("wwwroot", "uploads", "profiles");
+            var fullPath = Path.Combine(folderPath, fileName);
+
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return $"/uploads/profiles/{fileName}";
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Seller")]
+        public async Task<IActionResult> RequestVerification()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            if (user.VerificationStatus == FindMeHome.Enums.VerificationStatus.None ||
+                user.VerificationStatus == FindMeHome.Enums.VerificationStatus.Rejected)
+            {
+                user.VerificationStatus = FindMeHome.Enums.VerificationStatus.Pending;
+                await _userManager.UpdateAsync(user);
+                TempData["SuccessMessage"] = _localizer["VerificationRequestSent"].Value;
+            }
+            else if (user.VerificationStatus == FindMeHome.Enums.VerificationStatus.Pending)
+            {
+                TempData["InfoMessage"] = _localizer["VerificationRequestPending"].Value;
+            }
+
+            return RedirectToAction("Profile");
         }
     }
 }

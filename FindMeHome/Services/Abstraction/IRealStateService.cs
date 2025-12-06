@@ -14,5 +14,9 @@ namespace FindMeHome.Services.Abstraction
         Task<ResultDto> RemoveFromWishlistAsync(int realEstateId, string userId);
         Task<bool> IsInWishlistAsync(int realEstateId, string userId);
         Task<List<RealEstateDto>> GetWishlistAsync(string userId);
+        Task<ResultDto> LikePropertyAsync(int realEstateId, string userId);
+        Task<ResultDto> UnlikePropertyAsync(int realEstateId, string userId);
+        Task<bool> IsLikedByUserAsync(int realEstateId, string userId);
+        Task<int> GetLikesCountAsync(int realEstateId);
     }
 }

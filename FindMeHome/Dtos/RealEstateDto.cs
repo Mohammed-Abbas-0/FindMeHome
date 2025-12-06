@@ -55,7 +55,8 @@ namespace FindMeHome.Dtos
         DateTime? ExpirationDate,
         bool IsActive,
         string? WhatsAppNumber,
-        List<RealEstateImageDto>? Images
+        List<RealEstateImageDto>? Images,
+        int LikesCount
     //List<ReviewDto>? Reviews
     );
     public record FurnitureDto

@@ -354,4 +354,67 @@
   <data name="Currency" xml:space="preserve">
     <value>ج.م</value>
   </data>
+  <data name="ProfilePicture" xml:space="preserve">
+    <value>الصورة الشخصية</value>
+  </data>
+  <data name="RequiredField" xml:space="preserve">
+    <value>{0} مطلوب.</value>
+  </data>
+  <data name="ProfileUpdatedSuccess" xml:space="preserve">
+    <value>تم تحديث البيانات الشخصية بنجاح!</value>
+  </data>
+  <data name="ProfilePictureUpdatedSuccess" xml:space="preserve">
+    <value>تم تغيير الصورة الشخصية بنجاح وحفظها!</value>
+  </data>
+  <data name="VerificationRequestSent" xml:space="preserve">
+    <value>تم إرسال طلب التوثيق بنجاح! سيقوم الأدمن بمراجعته قريباً.</value>
+  </data>
+  <data name="VerificationRequestPending" xml:space="preserve">
+    <value>طلبك قيد المراجعة حالياً.</value>
+  </data>
+  <data name="ErrorUploadingImage" xml:space="preserve">
+    <value>حدث خطأ أثناء رفع الصورة: {0}</value>
+  </data>
+  <data name="NoImageSelected" xml:space="preserve">
+    <value>لم يتم اختيار صورة.</value>
+  </data>
+  <data name="ServerError" xml:space="preserve">
+    <value>حدث خطأ أثناء الاتصال بالسيرفر.</value>
+  </data>
+  <data name="SaveChanges" xml:space="preserve">
+    <value>حفظ التغييرات</value>
+  </data>
+  <data name="AboutMe" xml:space="preserve">
+    <value>نبذة عني</value>
+  </data>
+  <data name="PersonalInformation" xml:space="preserve">
+    <value>المعلومات الشخصية</value>
+  </data>
+  <data name="VerificationStatus" xml:space="preserve">
+    <value>حالة التوثيق</value>
+  </data>
+  <data name="GetVerifiedDescription" xml:space="preserve">
+    <value>احصل على شارة التوثيق لزيادة الثقة والمصداقية</value>
+  </data>
+  <data name="Verified" xml:space="preserve">
+    <value>موثق</value>
+  </data>
+  <data name="PendingReview" xml:space="preserve">
+    <value>قيد المراجعة</value>
+  </data>
+  <data name="Rejected" xml:space="preserve">
+    <value>مرفوض</value>
+  </data>
+  <data name="RequestAgain" xml:space="preserve">
+    <value>طلب مرة أخرى</value>
+  </data>
+  <data name="RequestVerification" xml:space="preserve">
+    <value>طلب التوثيق</value>
+  </data>
+  <data name="VerifiedSeller" xml:space="preserve">
+    <value>بائع موثق</value>
+  </data>
+  <data name="EmailCannotBeChanged" xml:space="preserve">
+    <value>لا يمكن تغيير البريد الإلكتروني</value>
+  </data>
 </root>

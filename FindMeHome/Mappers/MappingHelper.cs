@@ -9,7 +9,7 @@ namespace FindMeHome.Mappers
         public MappingHelper()
         {
             // ✅ RealEstate ⇄ RealEstateDto
-            CreateMap<RealEstate, RealEstateDto>();
+            // CreateMap<RealEstate, RealEstateDto>();
             //    .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
             //    .ForMember(dest => dest.Furnitures, opt => opt.MapFrom(src => src.Furnitures))
             //    //.ForMember(dest => dest.Reviews, opt => opt.MapFrom(src => src.Reviews))

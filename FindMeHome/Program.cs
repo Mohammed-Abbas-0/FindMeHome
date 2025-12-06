@@ -27,7 +27,11 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 // 🟢 MVC مع Runtime Compilation (لو كنت ضايفها)
 builder.Services.AddControllersWithViews()
     .AddViewLocalization(Microsoft.AspNetCore.Mvc.Razor.LanguageViewLocationExpanderFormat.Suffix)
-    .AddDataAnnotationsLocalization()
+    .AddDataAnnotationsLocalization(options =>
+    {
+        options.DataAnnotationLocalizerProvider = (type, factory) =>
+            factory.Create(typeof(FindMeHome.SharedResource));
+    })
     .AddRazorRuntimeCompilation();
 
 // Identity

@@ -15,5 +15,7 @@ namespace FindMeHome.Models
 
         public string? ProfilePictureUrl { get; set; }
         public string? Bio { get; set; }
+
+        public FindMeHome.Enums.VerificationStatus VerificationStatus { get; set; } = FindMeHome.Enums.VerificationStatus.None;
     }
 }

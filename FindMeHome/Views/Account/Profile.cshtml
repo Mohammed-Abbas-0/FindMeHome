@@ -4,94 +4,299 @@
 
 @{
     ViewData["Title"] = Localizer["Profile"];
+    var isSeller = User.IsInRole("Seller");
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-header bg-transparent border-0 pt-4 pb-0">
-                    <h3 class="fw-bold text-primary"><i class="fa-solid fa-user-pen me-2"></i> @Localizer["Profile"]
-                    </h3>
-                </div>
-                <div class="card-body p-4">
-                    @if (TempData["SuccessMessage"] != null)
-                    {
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            @TempData["SuccessMessage"]
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<style>
+    .profile-header {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .cover-photo {
+        height: 250px;
+        background: linear-gradient(135deg, var(--primary-color), #0099ff);
+        border-radius: 0 0 20px 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cover-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0.1;
+        background-image: radial-gradient(#fff 2px, transparent 2px);
+        background-size: 30px 30px;
+    }
+
+    .profile-avatar-container {
+        position: relative;
+        margin-top: -75px;
+        text-align: center;
+        z-index: 10;
+    }
+
+    .profile-avatar {
+        width: 140px;
+        height: 140px;
+        border: 5px solid #fff;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        object-fit: cover;
+        background-color: #fff;
+    }
+
+    .verification-badge {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: #fff;
+        border-radius: 50%;
+        padding: 2px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        z-index: 11;
+    }
+
+    .profile-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .form-floating>.form-control:focus~label,
+    .form-floating>.form-control:not(:placeholder-shown)~label {
+        color: var(--primary-color);
+        font-weight: bold;
+    }
+
+    .form-control {
+        border-radius: 12px;
+        border: 1px solid #eee;
+        padding: 1rem 0.75rem;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+    }
+
+    .btn-upload {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 12;
+    }
+
+    .btn-upload:hover {
+        transform: scale(1.1);
+    }
+</style>
+
+<div class="container-fluid px-0">
+    <!-- Header Section -->
+    <div class="profile-header">
+        <div class="cover-photo">
+            <div class="cover-pattern"></div>
+        </div>
+
+        <div class="profile-avatar-container">
+            <div class="position-relative d-inline-block">
+                <img src="@(string.IsNullOrEmpty(Model.ProfilePictureUrl) ? $"https://ui-avatars.com/api/?name={Model.FirstName}+{Model.LastName}&background=0d6efd&color=fff&size=150" : Model.ProfilePictureUrl)"
+                    alt="@Localizer["ProfilePicture"]" class="rounded-circle profile-avatar" id="profileImagePreview">
+
+                <label for="ProfilePicture"
+                    class="btn btn-primary rounded-circle position-absolute bottom-0 end-0 btn-upload shadow">
+                    <i class="fa-solid fa-camera"></i>
+                </label>
+
+                @if (Model.VerificationStatus == FindMeHome.Enums.VerificationStatus.Verified)
+                {
+                    <div class="verification-badge" title="@Localizer["VerifiedSeller"]">
+                        <i class="fa-solid fa-circle-check text-primary fs-4"></i>
+                    </div>
+                }
+            </div>
+
+            <h3 class="mt-3 fw-bold mb-1">
+                @Model.FirstName @Model.LastName
+                @if (Model.VerificationStatus == FindMeHome.Enums.VerificationStatus.Verified)
+                {
+                    <i class="fa-solid fa-circle-check text-primary small align-middle ms-1"
+                        title="@Localizer["VerifiedSeller"]"></i>
+                }
+            </h3>
+            <p class="text-muted mb-0">@Model.Email</p>
+            @if (Model.VerificationStatus == FindMeHome.Enums.VerificationStatus.Verified)
+            {
+                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 mt-2">
+                    <i class="fa-solid fa-store me-1"></i> @Localizer["VerifiedSeller"]
+                </span>
+            }
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm border-0 mb-4"
+                        role="alert">
+                        <i class="fa-solid fa-circle-check me-2"></i> @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["InfoMessage"] != null)
+                {
+                    <div class="alert alert-info alert-dismissible fade show rounded-4 shadow-sm border-0 mb-4"
+                        role="alert">
+                        <i class="fa-solid fa-circle-info me-2"></i> @TempData["InfoMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <!-- Verification Status Section -->
+                @if (isSeller)
+                {
+                    <div class="card profile-card mb-4 border-0">
+                        <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                            <div>
+                                <h5 class="fw-bold text-primary mb-1">
+                                    <i class="fa-solid fa-shield-halved me-2"></i>@Localizer["VerificationStatus"]
+                                </h5>
+                                <p class="text-muted mb-0 small">@Localizer["GetVerifiedDescription"]</p>
+                            </div>
+
+                            @if (Model.VerificationStatus == FindMeHome.Enums.VerificationStatus.Verified)
+                            {
+                                <span class="badge bg-success rounded-pill px-3 py-2">
+                                    <i class="fa-solid fa-check-circle me-1"></i> @Localizer["Verified"]
+                                </span>
+                            }
+                            else if (Model.VerificationStatus == FindMeHome.Enums.VerificationStatus.Pending)
+                            {
+                                <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                                    <i class="fa-solid fa-clock me-1"></i> @Localizer["PendingReview"]
+                                </span>
+                            }
+                            else if (Model.VerificationStatus == FindMeHome.Enums.VerificationStatus.Rejected)
+                            {
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-danger rounded-pill px-3 py-2">
+                                        <i class="fa-solid fa-circle-xmark me-1"></i> @Localizer["Rejected"]
+                                    </span>
+                                    <form asp-action="RequestVerification" method="post">
+                                        <button type="submit" class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
+                                            @Localizer["RequestAgain"]
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <form asp-action="RequestVerification" method="post">
+                                    <button type="submit" class="btn btn-outline-primary rounded-pill px-4 fw-bold hover-scale">
+                                        <i class="fa-solid fa-certificate me-2"></i> @Localizer["RequestVerification"]
+                                    </button>
+                                </form>
+                            }
                         </div>
-                    }
+                    </div>
+                }
 
-                    <form asp-action="Profile" method="post" enctype="multipart/form-data">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <form asp-action="Profile" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input asp-for="ProfilePicture" type="file" class="d-none" accept="image/*"
+                        onchange="previewImage(this)">
 
-                        <div class="text-center mb-4">
-                            <div class="position-relative d-inline-block">
-                                <img src="@(string.IsNullOrEmpty(Model.ProfilePictureUrl) ? "/images/default-profile.png" : Model.ProfilePictureUrl)"
-                                    alt="Profile Picture" class="rounded-circle img-thumbnail"
-                                    style="width: 150px; height: 150px; object-fit: cover;">
-                                <label for="ProfilePicture"
-                                    class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle"
-                                    style="width: 32px; height: 32px; padding: 4px;">
-                                    <i class="fa-solid fa-camera"></i>
-                                </label>
-                                <input asp-for="ProfilePicture" type="file" class="d-none" accept="image/*"
-                                    onchange="previewImage(this)">
-                            </div>
-                        </div>
+                    <!-- Personal Information -->
+                    <div class="card profile-card mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold text-primary mb-4">
+                                <i class="fa-solid fa-user-gear me-2"></i>@Localizer["PersonalInformation"]
+                            </h5>
 
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    <input asp-for="FirstName" class="form-control" placeholder="First Name" />
-                                    <label asp-for="FirstName">@Localizer["FirstName"]</label>
-                                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input asp-for="FirstName" class="form-control bg-light"
+                                            placeholder="@Localizer["FirstName"]" />
+                                        <label asp-for="FirstName">@Localizer["FirstName"]</label>
+                                        <span asp-validation-for="FirstName" class="text-danger small"></span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    <input asp-for="LastName" class="form-control" placeholder="Last Name" />
-                                    <label asp-for="LastName">@Localizer["LastName"]</label>
-                                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input asp-for="LastName" class="form-control bg-light"
+                                            placeholder="@Localizer["LastName"]" />
+                                        <label asp-for="LastName">@Localizer["LastName"]</label>
+                                        <span asp-validation-for="LastName" class="text-danger small"></span>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    <input asp-for="Email" class="form-control" placeholder="Email" readonly disabled />
-                                    <label asp-for="Email">@Localizer["Email"]</label>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input asp-for="Email" class="form-control bg-white" placeholder="@Localizer["Email"]"
+                                            readonly disabled />
+                                        <label asp-for="Email">@Localizer["Email"]</label>
+                                        <div class="form-text"><i class="fa-solid fa-lock me-1"></i>
+                                            @Localizer["EmailCannotBeChanged"]</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    <input asp-for="PhoneNumber" class="form-control" placeholder="Phone Number" />
-                                    <label asp-for="PhoneNumber">@Localizer["WhatsAppNumber"]</label>
-                                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <div class="form-floating">
-                                    <textarea asp-for="Bio" class="form-control" placeholder="Bio"
-                                        style="height: 100px"></textarea>
-                                    <label asp-for="Bio">@Localizer["PropertyDescription"] (Bio)</label>
-                                    <span asp-validation-for="Bio" class="text-danger small"></span>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input asp-for="PhoneNumber" class="form-control bg-light"
+                                            placeholder="@Localizer["WhatsAppNumber"]" />
+                                        <label asp-for="PhoneNumber">@Localizer["WhatsAppNumber"]</label>
+                                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="mt-4 text-end">
-                            <button type="submit" class="btn btn-primary px-4 rounded-pill">
-                                <i class="fa-solid fa-save me-2"></i> @Localizer["Submit"]
-                            </button>
+                    <!-- Bio / About -->
+                    <div class="card profile-card mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold text-primary mb-4">
+                                <i class="fa-solid fa-pen-nib me-2"></i>@Localizer["AboutMe"]
+                            </h5>
+
+                            <div class="form-floating">
+                                <textarea asp-for="Bio" class="form-control bg-light" placeholder="@Localizer["AboutMe"]"
+                                    style="height: 120px"></textarea>
+                                <label asp-for="Bio">@Localizer["AboutMe"]</label>
+                                <span asp-validation-for="Bio" class="text-danger small"></span>
+                            </div>
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-3 justify-content-end">
+                        <a asp-controller="RealEstate" asp-action="Index"
+                            class="btn btn-light rounded-pill px-4 fw-bold">
+                            @Localizer["Cancel"]
+                        </a>
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm hover-scale">
+                            <i class="fa-solid fa-save me-2"></i> @Localizer["SaveChanges"]
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
 
 @section Scripts {
     @{
@@ -100,12 +305,67 @@
     <script>
         function previewImage(input) {
             if (input.files && input.files[0]) {
+                var file = input.files[0];
                 var reader = new FileReader();
+
+                // 1. Immediate Local Preview
                 reader.onload = function (e) {
-                    $(input).prev().prev().attr('src', e.target.result);
+                    $('#profileImagePreview').attr('src', e.target.result);
                 }
-                reader.readAsDataURL(input.files[0]);
+                reader.readAsDataURL(file);
+
+                // 2. Auto-Upload via AJAX
+                var formData = new FormData();
+                formData.append('profilePicture', file);
+
+                // Show loading state (optional, maybe a spinner overlay)
+                // $('#profileImagePreview').css('opacity', '0.5');
+
+                $.ajax({
+                    url: '@Url.Action("UpdateProfilePicture", "Account")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        // $('#profileImagePreview').css('opacity', '1');
+                        if (response.success) {
+                            showToast('success', response.message);
+                        } else {
+                            showToast('error', response.message);
+                        }
+                    },
+                    error: function () {
+                        // $('#profileImagePreview').css('opacity', '1');
+                        showToast('error', '@Localizer["ServerError"]');
+                    }
+                });
             }
+        }
+
+        function showToast(type, message) {
+            var icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark';
+            var color = type === 'success' ? 'success' : 'danger';
+
+            var toastHtml = `
+                    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+                        <div class="toast align-items-center text-white bg-${color} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    <i class="fa-solid ${icon} me-2"></i> ${message}
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" onclick="$(this).closest('.toast').remove()"></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            $('body').append(toastHtml);
+
+            // Auto remove after 3 seconds
+            setTimeout(function () {
+                $('.toast-container').fadeOut(function () { $(this).remove(); });
+            }, 3000);
         }
     </script>
 }

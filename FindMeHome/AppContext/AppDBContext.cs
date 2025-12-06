@@ -20,6 +20,7 @@ namespace FindMeHome.AppContext
         public DbSet<Furniture> Furnitures { get; set; }
         public DbSet<Wishlist> Wishlists { get; set; }
         public DbSet<Craftsman> Craftsmen { get; set; }
+        public DbSet<PropertyLike> PropertyLikes { get; set; }
 
     }
 }

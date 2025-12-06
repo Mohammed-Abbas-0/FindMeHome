@@ -33,6 +33,7 @@ namespace FindMeHome.Models
         public ICollection<RealEstateImage> Images { get; set; } = new List<RealEstateImage>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
+        public ICollection<PropertyLike> Likes { get; set; } = new List<PropertyLike>();
 
         // Foreign Key to User
         public string? UserId { get; set; }

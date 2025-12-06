@@ -186,13 +186,27 @@
                         </select>
                     </form>
 
+@using FindMeHome.Services.Abstraction
+@using FindMeHome.Models
+@using Microsoft.AspNetCore.Identity
+@inject IRealStateService _realStateService
+@inject UserManager<ApplicationUser> _userManager
+
                     <!-- Wishlist Icon -->
                     @if (User.Identity.IsAuthenticated)
                     {
+                        var userId = _userManager.GetUserId(User);
+                        var wishlistCount = 0;
+                        if (userId != null)
+                        {
+                            var wishlist = await _realStateService.GetWishlistAsync(userId);
+                            wishlistCount = wishlist.Count();
+                        }
+
                         <a asp-controller="RealEstate" asp-action="Wishlist" class="position-relative text-dark me-2" style="font-size: 1.2rem;">
                             <i class="fa-regular fa-heart"></i>
                             <span id="wishlistCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; padding: 0.25em 0.4em;">
-                                0
+                                @wishlistCount
                             </span>
                         </a>
                     }
@@ -275,32 +289,6 @@
                         <a href="#" class="text-secondary fs-5"><i class="fa-brands fa-instagram"></i></a>
                     </div>
                 </div>
-                <div class="col-lg-2 col-6">
-                    <h6 class="fw-bold mb-3">@Localizer["QuickLinks"]</h6>
-                    <ul class="list-unstyled text-muted small">
-                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">@Localizer["Home"]</a></li>
-                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">@Localizer["AdvancedSearch"]</a></li>
-                        @if (User.IsInRole("Seller") || User.IsInRole("Admin"))
-                        {
-                            <li class="mb-2"><a asp-controller="RealEstate" asp-action="Create" class="text-decoration-none text-muted">@Localizer["AddProperty"]</a></li>
-                        }
-                    </ul>
-                </div>
-                <div class="col-lg-2 col-6">
-                    <h6 class="fw-bold mb-3">@Localizer["Help"]</h6>
-                    <ul class="list-unstyled text-muted small">
-                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">@Localizer["ContactUs"]</a></li>
-                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">@Localizer["FAQ"]</a></li>
-                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted">@Localizer["PrivacyPolicy"]</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-4">
-                    <h6 class="fw-bold mb-3">@Localizer["Newsletter"]</h6>
-                    <form class="d-flex gap-2">
-                        <input type="email" class="form-control rounded-pill" placeholder="@Localizer["EmailPlaceholder"]">
-                        <button class="btn btn-primary rounded-pill px-4">@Localizer["Subscribe"]</button>
-                    </form>
-                </div>
             </div>
             <div class="text-center mt-5 pt-3 border-top text-muted small">
                 &copy; @DateTime.Now.Year - @Localizer["BrandName"] - @Localizer["RightsReserved"]
@@ -313,8 +301,8 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         $(document).ready(function() {
-            // Update wishlist count on load
-            updateWishlistCount();
+            // Update wishlist count on load - REMOVED (Server-side rendered)
+            // updateWishlistCount();
 
             function updateWishlistCount() {
                 $.get('/RealEstate/GetWishlistCount', function(data) {

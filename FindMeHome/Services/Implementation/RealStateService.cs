@@ -10,11 +10,9 @@ namespace FindMeHome.Services.Implementation
     public class RealStateService : IRealStateService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        public RealStateService(IUnitOfWork unitOfWork, IMapper mapper)
+        public RealStateService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
         }
 
         #region Public Methods
@@ -60,7 +58,7 @@ namespace FindMeHome.Services.Implementation
         public async Task<RealEstateDto?> GetByIdAsync(int id)
         {
             var entity = await _unitOfWork.RealEstates
-                .GetByIdAsync(id, includeProperties: "Images,Furnitures");
+                .GetByIdAsync(id, includeProperties: "Images,Furnitures,Likes");
 
             if (entity == null)
                 return null;
@@ -71,7 +69,7 @@ namespace FindMeHome.Services.Implementation
         public async Task<List<RealEstateDto>> GetAllAsync()
         {
             var entities = await _unitOfWork.RealEstates
-                .GetAllAsync(includeProperties: "Images,Furnitures");
+                .GetAllAsync(includeProperties: "Images,Furnitures,Likes");
 
             return entities.Select(MapToDto).ToList();
         }
@@ -79,7 +77,7 @@ namespace FindMeHome.Services.Implementation
         public async Task<List<RealEstateDto>> GetByUserIdAsync(string userId)
         {
             var entities = await _unitOfWork.RealEstates
-                .FindAsync(e => e.UserId == userId, includeProperties: "Images,Furnitures");
+                .FindAsync(e => e.UserId == userId, includeProperties: "Images,Furnitures,Likes");
 
             return entities.Select(MapToDto).ToList();
         }
@@ -87,7 +85,7 @@ namespace FindMeHome.Services.Implementation
         public async Task<List<RealEstateDto>> SearchAsync(string? query, decimal? minPrice, decimal? maxPrice, double? minArea, double? maxArea, int? rooms, int? bathrooms, string? city, string? neighborhood, UnitType? unitType, bool? isFurnished)
         {
             var entities = await _unitOfWork.RealEstates
-                .GetAllAsync(includeProperties: "Images,Furnitures");
+                .GetAllAsync(includeProperties: "Images,Furnitures,Likes");
 
             var filtered = entities.AsQueryable();
 
@@ -189,6 +187,63 @@ namespace FindMeHome.Services.Implementation
 
             return wishlists.Select(w => MapToDto(w.RealEstate)).ToList();
         }
+
+        public async Task<ResultDto> LikePropertyAsync(int realEstateId, string userId)
+        {
+            var exists = await _unitOfWork.PropertyLikes
+                .FindAsync(l => l.RealEstateId == realEstateId && l.UserId == userId);
+
+            if (exists.Any())
+                return ResultDto.Failure("لقد أعجبت بهذا العقار بالفعل");
+
+            var realEstate = await _unitOfWork.RealEstates.GetByIdAsync(realEstateId);
+            if (realEstate == null)
+                return ResultDto.Failure("العقار غير موجود");
+
+            var like = new PropertyLike
+            {
+                RealEstateId = realEstateId,
+                UserId = userId,
+                LikedAt = DateTime.Now
+            };
+
+            await _unitOfWork.PropertyLikes.AddAsync(like);
+            await _unitOfWork.CompleteAsync();
+
+            return ResultDto.Success("تم الإعجاب بالعقار بنجاح ❤️");
+        }
+
+        public async Task<ResultDto> UnlikePropertyAsync(int realEstateId, string userId)
+        {
+            var like = await _unitOfWork.PropertyLikes
+                .FindAsync(l => l.RealEstateId == realEstateId && l.UserId == userId);
+
+            var item = like.FirstOrDefault();
+            if (item == null)
+                return ResultDto.Failure("لم تقم بالإعجاب بهذا العقار من قبل");
+
+            _unitOfWork.PropertyLikes.Remove(item);
+            await _unitOfWork.CompleteAsync();
+
+            return ResultDto.Success("تم إلغاء الإعجاب بالعقار");
+        }
+
+        public async Task<bool> IsLikedByUserAsync(int realEstateId, string userId)
+        {
+            var like = await _unitOfWork.PropertyLikes
+                .FindAsync(l => l.RealEstateId == realEstateId && l.UserId == userId);
+
+            return like.Any();
+        }
+
+        public async Task<int> GetLikesCountAsync(int realEstateId)
+        {
+            var likes = await _unitOfWork.PropertyLikes
+                .FindAsync(l => l.RealEstateId == realEstateId);
+
+            return likes.Count();
+        }
+
 
         #endregion
 
@@ -323,7 +378,8 @@ namespace FindMeHome.Services.Implementation
                 entity.ExpirationDate,
                 entity.IsActive,
                 entity.WhatsAppNumber,
-                entity.Images?.Select(img => new RealEstateImageDto(img.Id, Path.GetFileName(img.ImageUrl), img.ImageUrl)).ToList()
+                entity.Images?.Select(img => new RealEstateImageDto(img.Id, Path.GetFileName(img.ImageUrl), img.ImageUrl)).ToList(),
+                entity.Likes != null ? entity.Likes.Count : 0
             );
         }
 

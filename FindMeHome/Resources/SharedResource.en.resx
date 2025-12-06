@@ -282,4 +282,67 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="ProfilePicture" xml:space="preserve">
+    <value>Profile Picture</value>
+  </data>
+  <data name="RequiredField" xml:space="preserve">
+    <value>{0} is required.</value>
+  </data>
+  <data name="ProfileUpdatedSuccess" xml:space="preserve">
+    <value>Profile updated successfully!</value>
+  </data>
+  <data name="ProfilePictureUpdatedSuccess" xml:space="preserve">
+    <value>Profile picture updated and saved successfully!</value>
+  </data>
+  <data name="VerificationRequestSent" xml:space="preserve">
+    <value>Verification request sent successfully! Admin will review it soon.</value>
+  </data>
+  <data name="VerificationRequestPending" xml:space="preserve">
+    <value>Your request is currently under review.</value>
+  </data>
+  <data name="ErrorUploadingImage" xml:space="preserve">
+    <value>Error uploading image: {0}</value>
+  </data>
+  <data name="NoImageSelected" xml:space="preserve">
+    <value>No image selected.</value>
+  </data>
+  <data name="ServerError" xml:space="preserve">
+    <value>Server error occurred.</value>
+  </data>
+  <data name="SaveChanges" xml:space="preserve">
+    <value>Save Changes</value>
+  </data>
+  <data name="AboutMe" xml:space="preserve">
+    <value>About Me</value>
+  </data>
+  <data name="PersonalInformation" xml:space="preserve">
+    <value>Personal Information</value>
+  </data>
+  <data name="VerificationStatus" xml:space="preserve">
+    <value>Verification Status</value>
+  </data>
+  <data name="GetVerifiedDescription" xml:space="preserve">
+    <value>Get verified to increase trust and credibility</value>
+  </data>
+  <data name="Verified" xml:space="preserve">
+    <value>Verified</value>
+  </data>
+  <data name="PendingReview" xml:space="preserve">
+    <value>Pending Review</value>
+  </data>
+  <data name="Rejected" xml:space="preserve">
+    <value>Rejected</value>
+  </data>
+  <data name="RequestAgain" xml:space="preserve">
+    <value>Request Again</value>
+  </data>
+  <data name="RequestVerification" xml:space="preserve">
+    <value>Request Verification</value>
+  </data>
+  <data name="VerifiedSeller" xml:space="preserve">
+    <value>Verified Seller</value>
+  </data>
+  <data name="EmailCannotBeChanged" xml:space="preserve">
+    <value>Email cannot be changed</value>
+  </data>
 </root>

@@ -30,10 +30,22 @@ namespace FindMeHome.Controllers
             {
                 var wishlist = await _realStateService.GetWishlistAsync(userId);
                 ViewBag.WishlistIds = wishlist.Select(w => w.Id).ToList();
+
+                // Get liked property IDs
+                var likedIds = new List<int>();
+                foreach (var estate in realEstates)
+                {
+                    if (await _realStateService.IsLikedByUserAsync(estate.Id, userId))
+                    {
+                        likedIds.Add(estate.Id);
+                    }
+                }
+                ViewBag.LikedIds = likedIds;
             }
             else
             {
                 ViewBag.WishlistIds = new List<int>();
+                ViewBag.LikedIds = new List<int>();
             }
 
             return View(realEstates);
@@ -49,10 +61,22 @@ namespace FindMeHome.Controllers
             {
                 var wishlist = await _realStateService.GetWishlistAsync(userId);
                 ViewBag.WishlistIds = wishlist.Select(w => w.Id).ToList();
+
+                // Get liked property IDs
+                var likedIds = new List<int>();
+                foreach (var estate in results)
+                {
+                    if (await _realStateService.IsLikedByUserAsync(estate.Id, userId))
+                    {
+                        likedIds.Add(estate.Id);
+                    }
+                }
+                ViewBag.LikedIds = likedIds;
             }
             else
             {
                 ViewBag.WishlistIds = new List<int>();
+                ViewBag.LikedIds = new List<int>();
             }
 
             // Preserve filter values in ViewBag to repopulate the form
@@ -187,6 +211,51 @@ namespace FindMeHome.Controllers
 
             var wishlist = await _realStateService.GetWishlistAsync(userId);
             return Json(new { count = wishlist.Count() });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LikeProperty(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null) return Json(new { isSuccess = false, message = "يجب تسجيل الدخول أولاً" });
+
+            var result = await _realStateService.LikePropertyAsync(id, userId);
+
+            // Get updated count
+            var count = await _realStateService.GetLikesCountAsync(id);
+
+            return Json(new
+            {
+                isSuccess = result.IsSuccess,
+                message = result.Message,
+                count = count
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UnlikeProperty(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null) return Json(new { isSuccess = false, message = "يجب تسجيل الدخول أولاً" });
+
+            var result = await _realStateService.UnlikePropertyAsync(id, userId);
+
+            // Get updated count
+            var count = await _realStateService.GetLikesCountAsync(id);
+
+            return Json(new
+            {
+                isSuccess = result.IsSuccess,
+                message = result.Message,
+                count = count
+            });
+        }
+
+        [HttpGet("GetLikesCount/{id}")]
+        public async Task<IActionResult> GetLikesCount(int id)
+        {
+            var count = await _realStateService.GetLikesCountAsync(id);
+            return Json(new { count = count });
         }
 
         [HttpGet("MyProperties")]

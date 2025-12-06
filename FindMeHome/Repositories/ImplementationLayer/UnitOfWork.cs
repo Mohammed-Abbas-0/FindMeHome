@@ -12,6 +12,7 @@ namespace FindMeHome.Repositories.ImplementationLayer
         public IRepositories<Furniture> Furnitures { get; }
         public IRepositories<Wishlist> Wishlists { get; }
         public IRepositories<Review> Reviews { get; }
+        public IRepositories<PropertyLike> PropertyLikes { get; }
 
         public UnitOfWork(AppDBContext context)
         {
@@ -21,6 +22,7 @@ namespace FindMeHome.Repositories.ImplementationLayer
             Furnitures = new Repositories<Furniture>(_context);
             Wishlists = new Repositories<Wishlist>(_context);
             Reviews = new Repositories<Review>(_context);
+            PropertyLikes = new Repositories<PropertyLike>(_context);
         }
 
         public async Task<int> CompleteAsync() => await _context.SaveChangesAsync();

@@ -131,7 +131,7 @@
                                 <!-- Overlay -->
                                 <div class="overlay d-flex align-items-center justify-content-center gap-3">
                                     <a asp-controller="RealEstate" asp-action="Details" asp-route-id="@item.Id" 
-                                       class="btn btn-light rounded-pill px-4 fw-bold shadow hover-scale">
+                                        class="btn btn-light rounded-pill px-4 fw-bold shadow hover-scale">
                                         <i class="fa-solid fa-eye me-2"></i> @Localizer["Details"]
                                     </a>
                                 </div>
@@ -141,6 +141,7 @@
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <h5 class="card-title fw-bold text-truncate mb-0" style="max-width: 70%;">@item.Title</h5>
+                                    <br />
                                     <h5 class="text-primary fw-bold mb-0">@item.Price.ToString("N0") <small class="fs-6 text-muted">ج.م</small></h5>
                                 </div>
                                 
@@ -166,19 +167,36 @@
                                     </div>
                                 </div>
 
+                                <!-- Likes Section -->
+                                @{
+                                    var likedIds = ViewBag.LikedIds as List<int> ?? new List<int>();
+                                    var isLiked = likedIds.Contains(item.Id);
+                                    var likeHeartClass = isLiked ? "fa-solid fa-heart text-danger" : "fa-regular fa-heart text-muted";
+                                }
+                                <div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom">
+                                    <button type="button" class="btn btn-sm btn-light rounded-circle like-btn d-flex align-items-center justify-content-center" 
+                                            style="width: 36px; height: 36px;"
+                                            data-id="@item.Id">
+                                        <i class="@likeHeartClass fs-5" id="like-heart-@item.Id"></i>
+                                    </button>
+                                    <span class="text-muted small">
+                                        <span id="likes-count-@item.Id">@item.LikesCount</span> إعجاب
+                                    </span>
+                                </div>
+
                                 <!-- Actions -->
                                 <div class="d-flex gap-2">
                                     @if (!string.IsNullOrEmpty(item.WhatsAppNumber))
                                     {
                                         var detailsUrl = Url.Action("Details", "RealEstate", new { id = item.Id }, Context.Request.Scheme);
                                         <a href="https://wa.me/@(item.WhatsAppNumber.Replace("+", "").Replace(" ", ""))?text=@Uri.EscapeDataString(detailsUrl)" 
-                                           target="_blank" 
-                                           class="btn btn-success w-100 rounded-3 fw-bold">
+                                            target="_blank" 
+                                            class="btn btn-success w-100 rounded-3 fw-bold">
                                             <i class="fa-brands fa-whatsapp me-2"></i> @Localizer["WhatsApp"]
                                         </a>
                                     }
                                     <a asp-controller="RealEstate" asp-action="Details" asp-route-id="@item.Id" 
-                                       class="btn btn-outline-dark w-100 rounded-3 fw-bold">
+                                        class="btn btn-outline-dark w-100 rounded-3 fw-bold">
                                         @Localizer["More"]
                                     </a>
                                 </div>
@@ -316,15 +334,46 @@
             box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
         }
     }
+
+    /* Like Button Animation */
+    .animate-like {
+        animation: likeAnimation 0.6s ease-in-out;
+    }
+
+    @@keyframes likeAnimation {
+        0% {
+            transform: scale(1);
+        }
+        25% {
+            transform: scale(1.3) rotate(-10deg);
+        }
+        50% {
+            transform: scale(1.4) rotate(10deg);
+        }
+        75% {
+            transform: scale(1.2) rotate(-5deg);
+        }
+        100% {
+            transform: scale(1) rotate(0deg);
+        }
+    }
+
+    .like-btn {
+        transition: all 0.2s ease;
+    }
+
+    .like-btn:hover {
+        transform: scale(1.1);
+    }
 </style>
 
 @section Scripts {
     <script>
         $(document).ready(function () {
+            // Wishlist button functionality
             $(document).on('click', '.wishlist-btn', function (e) {
-                
                 e.preventDefault();
-                e.stopPropagation(); // Stop bubbling just in case
+                e.stopPropagation();
                 
                 var btn = $(this);
                 var id = btn.data('id');
@@ -359,6 +408,52 @@
                     alert('حدث خطأ أثناء الاتصال بالخادم');
                 });
             });
+
+            // Like button functionality
+            $(document).on('click', '.like-btn', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var btn = $(this);
+                var id = btn.data('id');
+                var icon = $('#like-heart-' + id);
+                var isLiked = icon.hasClass('fa-solid');
+                var url = isLiked ? '/RealEstate/UnlikeProperty/' + id : '/RealEstate/LikeProperty/' + id;
+                
+                console.log('Like button clicked', id);
+                $.post(url, function (response) {
+                    console.log('Response:', response);
+                    if (response.isSuccess) {
+                        if (isLiked) {
+                            icon.removeClass('fa-solid fa-heart text-danger').addClass('fa-regular fa-heart text-muted');
+                        } else {
+                            icon.removeClass('fa-regular fa-heart text-muted').addClass('fa-solid fa-heart text-danger');
+                            // Add animation
+                            icon.addClass('animate-like');
+                            setTimeout(function() {
+                                icon.removeClass('animate-like');
+                            }, 600);
+                        }
+                        
+                        // Update likes count
+                        if (response.count !== undefined) {
+                            $('#likes-count-' + id).text(response.count);
+                        }
+                    } else {
+                        console.error('Error message:', response.message);
+                        alert(response.message);
+                        if (response.message.includes("تسجيل الدخول")) {
+                            window.location.href = '/Account/Login';
+                        }
+                    }
+                }).fail(function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                    console.log('Response Text:', xhr.responseText);
+                    alert('حدث خطأ أثناء الاتصال بالخادم');
+                });
+            });
+
+            // Load likes count loop removed as it is now handled server-side
         });
     </script>
 }

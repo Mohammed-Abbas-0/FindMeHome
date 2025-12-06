@@ -9,9 +9,7 @@
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-primary"><i class="fa-solid fa-building-user me-2"></i> @Localizer["MyProperties"]</h2>
-        <a asp-controller="RealEstate" asp-action="Create" class="btn btn-success rounded-pill px-4">
-            <i class="fa-solid fa-plus me-2"></i> @Localizer["AddProperty"]
-        </a>
+
     </div>
 
     @if (!Model.Any())
@@ -73,8 +71,15 @@
             }
 
             @@keyframes bounce {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-20px); }
+
+                0%,
+                100% {
+                    transform: translateY(0);
+                }
+
+                50% {
+                    transform: translateY(-20px);
+                }
             }
 
             .empty-message h3 {
@@ -90,6 +95,7 @@
                     opacity: 0;
                     transform: translateY(-20px);
                 }
+
                 to {
                     opacity: 1;
                     transform: translateY(0);
@@ -101,6 +107,7 @@
                     opacity: 0;
                     transform: translateY(20px);
                 }
+
                 to {
                     opacity: 1;
                     transform: translateY(0);
@@ -117,7 +124,7 @@
 
             .feature-badge:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
                 background: white;
             }
 
@@ -135,8 +142,13 @@
                 <div class="col-md-6 col-lg-4">
                     <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden property-card">
                         <div class="position-relative">
-                            <img src="@(item.Images?.FirstOrDefault()?.ImageUrl ?? "/images/placeholder.jpg")"
-                                class="card-img-top" alt="@item.Title" style="height: 200px; object-fit: cover;">
+                            @{
+                                var imageUrl = item.Images != null && item.Images.Any()
+                                ? item.Images.First().ImageUrl
+                                : "/images/placeholder.jpg";
+                            }
+                            <img src="@imageUrl" class="card-img-top" alt="@item.Title"
+                                style="height: 200px; object-fit: cover;">
                             <span class="badge bg-@(item.IsActive ? "success" : "secondary") position-absolute top-0 end-0 m-3">
                                 @(item.IsActive ? "Active" : "Inactive")
                             </span>
