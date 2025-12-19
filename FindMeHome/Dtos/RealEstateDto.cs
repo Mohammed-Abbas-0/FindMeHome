@@ -56,8 +56,19 @@ namespace FindMeHome.Dtos
         bool IsActive,
         string? WhatsAppNumber,
         List<RealEstateImageDto>? Images,
-        int LikesCount
+        int LikesCount,
+        PropertyStatus Status,
+        string? UserId,
+        UserDto? User,
+        DateTime? UpdatedAt
     //List<ReviewDto>? Reviews
+    );
+
+    public record UserDto(
+        string? FirstName,
+        string? LastName,
+        string? Email,
+        string? ProfilePictureUrl
     );
     public record FurnitureDto
     (

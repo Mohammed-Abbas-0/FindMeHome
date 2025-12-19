@@ -417,4 +417,73 @@
   <data name="EmailCannotBeChanged" xml:space="preserve">
     <value>لا يمكن تغيير البريد الإلكتروني</value>
   </data>
+  <data name="EditProperty" xml:space="preserve">
+    <value>تعديل العقار</value>
+  </data>
+  <data name="DeleteProperty" xml:space="preserve">
+    <value>حذف العقار</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>تأكيد الحذف</value>
+  </data>
+  <data name="DeleteConfirmationMessage" xml:space="preserve">
+    <value>هل أنت متأكد أنك تريد حذف هذا العقار؟ لا يمكن التراجع عن هذا الإجراء.</value>
+  </data>
+  <data name="YesDelete" xml:space="preserve">
+    <value>نعم، احذفه!</value>
+  </data>
+  <data name="Deleted" xml:space="preserve">
+    <value>تم الحذف!</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>خطأ</value>
+  </data>
+  <data name="EditPropertyTitle" xml:space="preserve">
+    <value>تعديل العقار</value>
+  </data>
+  <data name="EditPropertySubtitle" xml:space="preserve">
+    <value>قم بتحديث تفاصيل عقارك</value>
+  </data>
+  <data name="UploadNewImages" xml:space="preserve">
+    <value>رفع صور جديدة</value>
+  </data>
+  <data name="CurrentImages" xml:space="preserve">
+    <value>الصور الحالية</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="LocationSearchPlaceholder" xml:space="preserve">
+    <value>ابحث بالمدينة أو الحي...</value>
+  </data>
+  <data name="Status_Active" xml:space="preserve">
+    <value>نشط</value>
+  </data>
+  <data name="Status_Pending" xml:space="preserve">
+    <value>معلق</value>
+  </data>
+  <data name="Status_PendingApproval" xml:space="preserve">
+    <value>بانتظار الموافقة</value>
+  </data>
+  <data name="Status_PendingDeletion" xml:space="preserve">
+    <value>بانتظار الحذف</value>
+  </data>
+  <data name="Status_Deleted" xml:space="preserve">
+    <value>محذوف</value>
+  </data>
+  <data name="Status_Expired" xml:space="preserve">
+    <value>منتهي</value>
+  </data>
+  <data name="Status_Sold" xml:space="preserve">
+    <value>مباع</value>
+  </data>
+  <data name="Status_Rejected" xml:space="preserve">
+    <value>مرفوض</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>السابق</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>التالي</value>
+  </data>
 </root>

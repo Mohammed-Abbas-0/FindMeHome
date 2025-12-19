@@ -1,5 +1,5 @@
 ﻿
-@model IEnumerable<FindMeHome.Dtos.RealEstateDto>
+@model FindMeHome.Dtos.PagedResultDto<FindMeHome.Dtos.RealEstateDto>
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<SharedResource> Localizer
 
@@ -24,19 +24,22 @@
                         <input type="text" class="form-control rounded-3 bg-light border-0" name="query" value="@ViewBag.Query" placeholder="@Localizer["SearchPlaceholder"]" />
                     </div>
 
-                    <!-- City & Neighborhood -->
-                    <div class="mb-3">
+                    <!-- Location Autocomplete -->
+                    <div class="mb-3 position-relative">
                         <label class="form-label fw-bold text-muted small">@Localizer["Location"]</label>
-                        <input type="text" class="form-control rounded-3 bg-light border-0 mb-2" name="city" value="@ViewBag.City" placeholder="@Localizer["City"]" />
-                        <input type="text" class="form-control rounded-3 bg-light border-0" name="neighborhood" value="@ViewBag.Neighborhood" placeholder="@Localizer["Neighborhood"]" />
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0"><i class="fa-solid fa-map-marker-alt text-danger"></i></span>
+                            <input type="text" id="locationInput" class="form-control rounded-3 bg-light border-0" name="location" value="@ViewBag.Location" placeholder="@Localizer["LocationSearchPlaceholder"]" autocomplete="off" />
+                        </div>
+                        <ul id="locationSuggestions" class="list-group position-absolute w-100 shadow-sm mt-1" style="z-index: 1000; display: none; max-height: 200px; overflow-y: auto;"></ul>
                     </div>
 
                     <!-- Price Range -->
                     <div class="mb-3">
                         <label class="form-label fw-bold text-muted small">@Localizer["PriceRange"]</label>
                         <div class="d-flex gap-2">
-                            <input type="number" class="form-control rounded-3 bg-light border-0" name="priceFrom" value="@ViewBag.PriceFrom" placeholder="@Localizer["From"]" />
-                            <input type="number" class="form-control rounded-3 bg-light border-0" name="priceTo" value="@ViewBag.PriceTo" placeholder="@Localizer["To"]" />
+                            <input type="number" class="form-control rounded-3 bg-light border-0" name="priceFrom" value="@(ViewBag.PriceFrom != null ? ((decimal)ViewBag.PriceFrom).ToString("G0") : "")" placeholder="@Localizer["From"]" />
+                            <input type="number" class="form-control rounded-3 bg-light border-0" name="priceTo" value="@(ViewBag.PriceTo != null ? ((decimal)ViewBag.PriceTo).ToString("G0") : "")" placeholder="@Localizer["To"]" />
                         </div>
                     </div>
 
@@ -87,13 +90,13 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2 class="fw-bold mb-1">@Localizer["FeaturedProperties"]</h2>
-                    <p class="text-muted m-0">@string.Format(Localizer["FindPropertyText"], Model.Count())</p>
+                    <p class="text-muted m-0">@string.Format(Localizer["FindPropertyText"], Model.TotalCount)</p>
                 </div>
                 <!-- Wishlist button removed as requested -->
             </div>
 
             <div class="row g-4">
-                @foreach (var item in Model)
+                @foreach (var item in Model.Items)
                 {
                     <div class="col-xl-4 col-md-6">
                         <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden property-card">
@@ -141,8 +144,7 @@
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <h5 class="card-title fw-bold text-truncate mb-0" style="max-width: 70%;">@item.Title</h5>
-                                    <br />
-                                    <h5 class="text-primary fw-bold mb-0">@item.Price.ToString("N0") <small class="fs-6 text-muted">ج.م</small></h5>
+                                    <h5 class="text-primary fw-bold mb-0">@item.Price.ToString("#,##0", System.Globalization.CultureInfo.InvariantCulture) <small class="fs-6 text-muted">ج.م</small></h5>
                                 </div>
                                 
                                 <p class="text-muted small mb-3">
@@ -205,6 +207,78 @@
                     </div>
                 }
             </div>
+            </div>
+            
+            <!-- Pagination -->
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Page navigation" class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                            <a class="page-link rounded-pill px-3 mx-1" 
+                               asp-action="@(ViewContext.RouteData.Values["action"])" 
+                               asp-route-page="@(Model.PageNumber - 1)"
+                               asp-route-query="@ViewBag.Query"
+                               asp-route-priceFrom="@ViewBag.PriceFrom"
+                               asp-route-priceTo="@ViewBag.PriceTo"
+                               asp-route-areaFrom="@ViewBag.AreaFrom"
+                               asp-route-areaTo="@ViewBag.AreaTo"
+                               asp-route-rooms="@ViewBag.Rooms"
+                               asp-route-bathrooms="@ViewBag.Bathrooms"
+                               asp-route-unitType="@ViewBag.UnitType"
+                               asp-route-isFurnished="@ViewBag.IsFurnished"
+                               asp-route-city="@ViewBag.City"
+                               asp-route-neighborhood="@ViewBag.Neighborhood"
+                               asp-route-location="@ViewBag.Location">
+                                <i class="fa-solid fa-chevron-right"></i> @Localizer["Previous"]
+                            </a>
+                        </li>
+                        
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                <a class="page-link rounded-pill px-3 mx-1" 
+                                   asp-action="@(ViewContext.RouteData.Values["action"])" 
+                                   asp-route-page="@i"
+                                   asp-route-query="@ViewBag.Query"
+                                   asp-route-priceFrom="@ViewBag.PriceFrom"
+                                   asp-route-priceTo="@ViewBag.PriceTo"
+                                   asp-route-areaFrom="@ViewBag.AreaFrom"
+                                   asp-route-areaTo="@ViewBag.AreaTo"
+                                   asp-route-rooms="@ViewBag.Rooms"
+                                   asp-route-bathrooms="@ViewBag.Bathrooms"
+                                   asp-route-unitType="@ViewBag.UnitType"
+                                   asp-route-isFurnished="@ViewBag.IsFurnished"
+                                   asp-route-city="@ViewBag.City"
+                                   asp-route-neighborhood="@ViewBag.Neighborhood"
+                                   asp-route-location="@ViewBag.Location">
+                                    @i
+                                </a>
+                            </li>
+                        }
+
+                        <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                            <a class="page-link rounded-pill px-3 mx-1" 
+                               asp-action="@(ViewContext.RouteData.Values["action"])" 
+                               asp-route-page="@(Model.PageNumber + 1)"
+                               asp-route-query="@ViewBag.Query"
+                               asp-route-priceFrom="@ViewBag.PriceFrom"
+                               asp-route-priceTo="@ViewBag.PriceTo"
+                               asp-route-areaFrom="@ViewBag.AreaFrom"
+                               asp-route-areaTo="@ViewBag.AreaTo"
+                               asp-route-rooms="@ViewBag.Rooms"
+                               asp-route-bathrooms="@ViewBag.Bathrooms"
+                               asp-route-unitType="@ViewBag.UnitType"
+                               asp-route-isFurnished="@ViewBag.IsFurnished"
+                               asp-route-city="@ViewBag.City"
+                               asp-route-neighborhood="@ViewBag.Neighborhood"
+                               asp-route-location="@ViewBag.Location">
+                                @Localizer["Next"] <i class="fa-solid fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
         </section>
     </div>
 </div>
@@ -370,6 +444,60 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            // Location Autocomplete
+            const locationInput = $('#locationInput');
+            const suggestionsList = $('#locationSuggestions');
+            let debounceTimer;
+
+            locationInput.on('input', function() {
+                const term = $(this).val();
+                clearTimeout(debounceTimer);
+
+                if (term.length < 2) {
+                    suggestionsList.hide();
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    $.get('/RealEstate/GetLocations', { term: term }, function(data) {
+                        suggestionsList.empty();
+                        if (data && data.length > 0) {
+                            data.forEach(item => {
+                                const icon = item.type === 'City' ? 'fa-city' : 'fa-map-pin';
+                                const badgeClass = item.type === 'City' ? 'bg-primary' : 'bg-secondary';
+                                const typeLabel = item.type === 'City' ? '@Localizer["City"]' : '@Localizer["Neighborhood"]';
+                                
+                                suggestionsList.append(`
+                                    <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" style="cursor: pointer;">
+                                        <div>
+                                            <i class="fa-solid ${icon} me-2 text-muted"></i>
+                                            <span class="fw-bold">${item.name}</span>
+                                            <small class="text-muted ms-2">(${typeLabel})</small>
+                                        </div>
+                                        <span class="badge ${badgeClass} rounded-pill">${item.count}</span>
+                                    </li>
+                                `);
+                            });
+                            suggestionsList.show();
+                        } else {
+                            suggestionsList.hide();
+                        }
+                    });
+                }, 300);
+            });
+
+            suggestionsList.on('click', 'li', function() {
+                const text = $(this).find('.fw-bold').text();
+                locationInput.val(text);
+                suggestionsList.hide();
+            });
+
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#locationInput').length && !$(e.target).closest('#locationSuggestions').length) {
+                    suggestionsList.hide();
+                }
+            });
+
             // Wishlist button functionality
             $(document).on('click', '.wishlist-btn', function (e) {
                 e.preventDefault();

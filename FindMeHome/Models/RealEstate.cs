@@ -27,8 +27,11 @@ namespace FindMeHome.Models
         public UnitType UnitType { get; set; }                     // سكني أو تجاري (Enum)
 
         public DateTime CreatedAt { get; set; } = DateTime.Now; // تاريخ الإضافة
+        public DateTime? UpdatedAt { get; set; }               // تاريخ التعديل
+        public DateTime? DeletedAt { get; set; }               // تاريخ الحذف
         public DateTime? ExpirationDate { get; set; }          // تاريخ انتهاء الإعلان
-        public bool IsActive { get; set; } = true;             // حالة الإعلان (نشط أو منتهي)
+        public bool IsActive { get; set; } = true;             // حالة الإعلان (نشط أو منتهي) - Deprecated in favor of Status? Or kept for simple filtered? Let's keep for now.
+        public PropertyStatus Status { get; set; } = PropertyStatus.Active; // حالة العقار
         public string? WhatsAppNumber { get; set; }            // رقم الواتساب للتواصل
         public ICollection<RealEstateImage> Images { get; set; } = new List<RealEstateImage>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();

@@ -102,7 +102,7 @@
                                     <div class="card-body d-flex align-items-center gap-3">
                                         <div class="form-check m-0">
                                             <input class="form-check-input furniture-checkbox fs-5" type="checkbox" 
-                                                   value="@furniture.Price" 
+                                                   value="@furniture.Price?.ToString(System.Globalization.CultureInfo.InvariantCulture)" 
                                                    id="furniture_@furniture.Id"
                                                    data-furniture-name="@furniture.Name">
                                         </div>
@@ -112,7 +112,7 @@
                                         }
                                         <div class="flex-grow-1">
                                             <h6 class="fw-bold mb-1">@furniture.Name</h6>
-                                            <span class="badge bg-success bg-opacity-10 text-success">+@furniture.Price?.ToString("N0") ج.م</span>
+                                            <span class="badge bg-success bg-opacity-10 text-success">+@furniture.Price?.ToString("#,##0", System.Globalization.CultureInfo.InvariantCulture) ج.م</span>
                                         </div>
                                     </div>
                                 </label>
@@ -127,7 +127,7 @@
         <div class="col-lg-4">
             <div class="card border-0 shadow-lg rounded-4 p-4 sticky-top" style="top: 100px;">
                 <h5 class="fw-bold text-muted mb-2">السعر الإجمالي</h5>
-                <h2 class="fw-bold text-primary mb-4" id="totalPrice">@basePrice.ToString("N0") <small class="fs-5 text-muted">ج.م</small></h2>
+                <h2 class="fw-bold text-primary mb-4" id="totalPrice">@basePrice.ToString("#,##0", System.Globalization.CultureInfo.InvariantCulture) <small class="fs-5 text-muted">ج.م</small></h2>
 
                 <div class="d-grid gap-3">
                     @if (!string.IsNullOrEmpty(Model.WhatsAppNumber))
@@ -189,26 +189,49 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
-            const basePrice = @basePrice;
+            // Use InvariantCulture to avoid comma/dot issues in JS
+            const basePrice = @Model.Price.ToString(System.Globalization.CultureInfo.InvariantCulture);
             
             // Price Calculation
             $('.furniture-checkbox').on('change', function() {
                 let selectedFurniturePrice = 0;
                 $('.furniture-checkbox:checked').each(function() {
+                    // Ensure we parse the float correctly regardless of UI display
                     selectedFurniturePrice += parseFloat($(this).val());
                 });
 
                 const totalPrice = basePrice + selectedFurniturePrice;
-                $('#totalPrice').html(totalPrice.toLocaleString('ar-EG') + ' <small class="fs-5 text-muted">ج.م</small>');
                 
+                // Update Price Display
+                const formattedPrice = new Intl.NumberFormat('en-US').format(totalPrice);
+                $('#totalPrice').html(formattedPrice + ' <small class="fs-5 text-muted">ج.م</small>');
+                
+                // Optional: visual feedback
+                if (selectedFurniturePrice > 0) {
+                     $('#totalPrice').addClass('text-success').removeClass('text-primary');
+                } else {
+                     $('#totalPrice').addClass('text-primary').removeClass('text-success');
+                }
+
                 updateWhatsAppLink();
             });
 
             // WhatsApp Link Updater
             function updateWhatsAppLink() {
                 const currentUrl = window.location.href;
-                const whatsappNumber = '@Model.WhatsAppNumber'.replace(/[+\s]/g, '');
-                const text = `مرحباً، أنا مهتم بهذا العقار: ${currentUrl}`;
+                // Remove + and spaces from phone number
+                const whatsappNumber = '@(Model.WhatsAppNumber?.Replace("+", "").Replace(" ", "") ?? "")';
+                
+                let selectedFurniture = [];
+                $('.furniture-checkbox:checked').each(function() {
+                    selectedFurniture.push($(this).data('furniture-name'));
+                });
+                
+                let text = `مرحباً، أنا مهتم بهذا العقار: ${currentUrl}`;
+                if (selectedFurniture.length > 0) {
+                    text += `\n مع الأثاث التالي: ${selectedFurniture.join(", ")}`;
+                }
+                
                 $('#whatsappLink').attr('href', `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`);
             }
             updateWhatsAppLink();

@@ -1,5 +1,6 @@
 @model IEnumerable<FindMeHome.Dtos.RealEstateDto>
 @using Microsoft.Extensions.Localization
+@using FindMeHome.Enums
 @inject IStringLocalizer<SharedResource> Localizer
 
 @{
@@ -149,15 +150,28 @@
                             }
                             <img src="@imageUrl" class="card-img-top" alt="@item.Title"
                                 style="height: 200px; object-fit: cover;">
-                            <span class="badge bg-@(item.IsActive ? "success" : "secondary") position-absolute top-0 end-0 m-3">
-                                @(item.IsActive ? "Active" : "Inactive")
+                            @{
+                                var statusColor = item.Status switch
+                                {
+                                    PropertyStatus.Active => "success",
+                                    PropertyStatus.Pending or PropertyStatus.PendingApproval => "warning",
+                                    PropertyStatus.PendingDeletion => "danger",
+                                    PropertyStatus.Deleted => "dark",
+                                    PropertyStatus.Expired => "secondary",
+                                    _ => "secondary"
+                                };
+                                var statusText = item.Status.ToString();
+                            }
+                            <span class="badge bg-@statusColor position-absolute top-0 end-0 m-3">
+                                @Localizer[$"Status_{item.Status}"]
                             </span>
                         </div>
                         <div class="card-body">
                             <h5 class="card-title fw-bold text-truncate">@item.Title</h5>
                             <p class="card-text text-muted small mb-2"><i class="fa-solid fa-location-dot me-1"></i> @item.City,
                                 @item.Neighborhood</p>
-                            <h6 class="text-primary fw-bold">@item.Price.ToString("N0") @Localizer["Currency"]</h6>
+                            <h6 class="text-primary fw-bold">@item.Price.ToString("#,##0",
+                        System.Globalization.CultureInfo.InvariantCulture) @Localizer["Currency"]</h6>
 
                             <hr class="my-3 opacity-25">
 
@@ -173,10 +187,13 @@
                                     class="btn btn-outline-primary btn-sm flex-grow-1 rounded-pill">
                                     <i class="fa-solid fa-eye me-1"></i> @Localizer["Details"]
                                 </a>
-                                <!-- Edit and Delete buttons can be implemented later -->
-                                <button class="btn btn-outline-secondary btn-sm flex-grow-1 rounded-pill" disabled
-                                    title="Coming Soon">
+                                <a asp-action="Edit" asp-route-id="@item.Id"
+                                    class="btn btn-outline-secondary btn-sm flex-grow-1 rounded-pill">
                                     <i class="fa-solid fa-pen me-1"></i> @Localizer["Edit"]
+                                </a>
+                                <button class="btn btn-outline-danger btn-sm flex-grow-1 rounded-pill"
+                                    onclick="confirmDelete(@item.Id)">
+                                    <i class="fa-solid fa-trash me-1"></i> @Localizer["Delete"]
                                 </button>
                             </div>
                         </div>
@@ -184,5 +201,53 @@
                 </div>
             }
         </div>
+
+        <!-- Delete Confirmation Script -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            function confirmDelete(id) {
+                Swal.fire({
+                    title: '@Localizer["ConfirmDelete"]',
+                    text: "@Localizer["DeleteConfirmationMessage"]",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: '@Localizer["YesDelete"]',
+                    cancelButtonText: '@Localizer["Cancel"]'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/RealEstate/Delete/' + id,
+                            type: 'POST',
+                            success: function (response) {
+                                if (response.isSuccess) {
+                                    Swal.fire(
+                                        '@Localizer["Deleted"]',
+                                        response.message,
+                                        'success'
+                                    ).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire(
+                                        '@Localizer["Error"]',
+                                        response.message,
+                                        'error'
+                                    );
+                                }
+                            },
+                            error: function () {
+                                Swal.fire(
+                                    '@Localizer["Error"]',
+                                    '@Localizer["ServerError"]',
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                })
+            }
+        </script>
     }
 </div>

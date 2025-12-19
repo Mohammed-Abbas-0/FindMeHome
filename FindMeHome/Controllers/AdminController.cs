@@ -1,4 +1,5 @@
 using FindMeHome.Models;
+using FindMeHome.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,12 @@ namespace FindMeHome.Controllers
     public class AdminController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly FindMeHome.Services.Abstraction.IRealStateService _realStateService;
 
-        public AdminController(UserManager<ApplicationUser> userManager)
+        public AdminController(UserManager<ApplicationUser> userManager, FindMeHome.Services.Abstraction.IRealStateService realStateService)
         {
             _userManager = userManager;
+            _realStateService = realStateService;
         }
 
         public async Task<IActionResult> Index()
@@ -47,7 +50,6 @@ namespace FindMeHome.Controllers
 
             foreach (var user in pendingVerification)
             {
-                // Avoid duplicates if user is in both lists (though unlikely to be pending seller AND pending verification simultaneously in normal flow, but possible)
                 if (!requests.Any(r => r.UserId == user.Id && r.Type == FindMeHome.ViewModels.RequestType.SellerRegistration))
                 {
                     requests.Add(new FindMeHome.ViewModels.AdminRequestViewModel
@@ -59,19 +61,27 @@ namespace FindMeHome.Controllers
                         ProfilePictureUrl = user.ProfilePictureUrl
                     });
                 }
-                else if (requests.Any(r => r.UserId == user.Id))
+            }
+
+            // 3. Pending Property Requests (Edit / Delete)
+            var pendingProperties = await _realStateService.GetPendingPropertiesAsync();
+            foreach (var prop in pendingProperties)
+            {
+                var requestType = prop.Status == FindMeHome.Enums.PropertyStatus.PendingDeletion
+                    ? FindMeHome.ViewModels.RequestType.PropertyDeletion
+                    : FindMeHome.ViewModels.RequestType.PropertyEdit;
+
+                requests.Add(new FindMeHome.ViewModels.AdminRequestViewModel
                 {
-                    // If user is already in list as SellerRegistration, we might want to show both or just one. 
-                    // For now, let's add it as a separate request type if they are distinct actions.
-                    requests.Add(new FindMeHome.ViewModels.AdminRequestViewModel
-                    {
-                        UserId = user.Id,
-                        FullName = $"{user.FirstName} {user.LastName}",
-                        Email = user.Email,
-                        Type = FindMeHome.ViewModels.RequestType.Verification,
-                        ProfilePictureUrl = user.ProfilePictureUrl
-                    });
-                }
+                    UserId = prop.UserId ?? "",
+                    FullName = prop.User?.FirstName + " " + prop.User?.LastName,
+                    Email = prop.User?.Email ?? "",
+                    Type = requestType,
+                    ProfilePictureUrl = prop.User?.ProfilePictureUrl,
+                    PropertyId = prop.Id,
+                    PropertyTitle = prop.Title,
+                    RequestDate = prop.UpdatedAt ?? prop.CreatedAt
+                });
             }
 
             return View(requests);
@@ -133,6 +143,57 @@ namespace FindMeHome.Controllers
             user.VerificationStatus = FindMeHome.Enums.VerificationStatus.Rejected;
             await _userManager.UpdateAsync(user);
 
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        public async Task<IActionResult> ApproveProperty(int id)
+        {
+            var dto = await _realStateService.GetByIdAsync(id);
+            if (dto == null) return NotFound();
+
+            // We need to update the status. Since UpdateAsync requires a full DTO, 
+            // and we just want to change status, we should probably add a dedicated method 
+            // or just use UpdateAsync but mapping back is tedious.
+            // Using a simple workaround: If we have direct access to Entity via Service, that's best.
+            // Since we don't, we might need to add ChangeStatus method to Service 
+            // OR use the existing update mechanism but modifying specific fields.
+            //
+            // Given constraints, I will assume we can add a simple property update method or fetch-modify-save pattern if we had the context here.
+            // BUT we don't (Service layer abstraction).
+            //
+            // Best approach: Add `ApprovePropertyAsync(id)` and `RejectPropertyAsync(id)` to Service.
+            // But to save time/files, I'll piggyback on UpdateAsync assuming it handles this OR
+            // better yet, just for this task, I'll Add ChangeStatusAsync to IRealStateService.
+
+            // Wait, I can't easily add methods without breaking interface implementations elsewhere if mocked.
+            // Let's rely on `UpdateAsync`? No, that takes `CreateRealEstateDto`.
+            // Let's check if I can just call a new method I'll add to service: `UpdateStatusAsync(int id, PropertyStatus status)`
+
+            // NOTE: I am adding UpdateStatusAsync to the Service in the next step.
+
+            PropertyStatus newStatus = PropertyStatus.Active;
+            if (dto.Status == PropertyStatus.PendingDeletion)
+            {
+                newStatus = PropertyStatus.Deleted;
+            }
+
+            await _realStateService.UpdateStatusAsync(id, newStatus);
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RejectProperty(int id)
+        {
+            var dto = await _realStateService.GetByIdAsync(id);
+            if (dto == null) return NotFound();
+
+            // If it's a deletion or edit request that was rejected, return to Active
+            // If it's a new listing request (Pending), it should be set to Rejected
+            PropertyStatus newStatus = (dto.Status == PropertyStatus.PendingApproval || dto.Status == PropertyStatus.PendingDeletion)
+                ? PropertyStatus.Active
+                : PropertyStatus.Rejected;
+
+            await _realStateService.UpdateStatusAsync(id, newStatus);
             return RedirectToAction(nameof(Index));
         }
     }

@@ -1,8 +1,9 @@
-﻿@model FindMeHome.Dtos.CreateRealEstateDto
+@model FindMeHome.Dtos.CreateRealEstateDto
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<SharedResource> Localizer
 @{
-    ViewData["Title"] = Localizer["AddPropertyTitle"];
+    ViewData["Title"] = Localizer["EditPropertyTitle"];
+    var existingImages = ViewBag.ExistingImages as List<FindMeHome.Dtos.RealEstateImageDto>;
 }
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -14,14 +15,14 @@
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                 <div class="card-header bg-gradient-primary text-white text-center py-4 border-0"
                     style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
-                    <h3 class="mb-1 fw-bold"><i class="fa-solid fa-house-chimney-medical me-2"></i>
-                        @Localizer["AddPropertyTitle"]</h3>
-                    <p class="mb-0 opacity-75">@Localizer["AddPropertySubtitle"]</p>
+                    <h3 class="mb-1 fw-bold"><i class="fa-solid fa-pen-to-square me-2"></i>
+                        @Localizer["EditPropertyTitle"]</h3>
+                    <p class="mb-0 opacity-75">@Localizer["EditPropertySubtitle"]</p>
                 </div>
 
                 <div class="card-body p-5 bg-light">
-                    <form asp-action="Create" asp-controller="RealEstate" method="post" enctype="multipart/form-data"
-                        id="createForm">
+                    <form asp-action="Edit" asp-controller="RealEstate" asp-route-id="@ViewBag.Id" method="post"
+                        enctype="multipart/form-data" id="editForm">
 
                         <!-- Basic Info Section -->
                         <div class="bg-white p-4 rounded-4 shadow-sm mb-4">
@@ -33,7 +34,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i
                                                 class="fa-solid fa-heading text-primary"></i></span>
-                                        <input name="Title" class="form-control bg-light border-0 py-2"
+                                        <input asp-for="Title" class="form-control bg-light border-0 py-2"
                                             placeholder="@Localizer["AdTitlePlaceholder"]" required />
                                     </div>
                                     <span asp-validation-for="Title" class="text-danger small"></span>
@@ -44,8 +45,8 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i
                                                 class="fa-solid fa-money-bill-wave text-success"></i></span>
-                                        <input type="number" name="Price" class="form-control bg-light border-0 py-2"
-                                            placeholder="0" step="1" min="1" required />
+                                        <input asp-for="Price" type="number" class="form-control bg-light border-0 py-2"
+                                            value="@Model.Price.ToString("G0")" placeholder="0" step="1" min="1" required />
                                     </div>
                                     <span asp-validation-for="Price" class="text-danger small"></span>
                                 </div>
@@ -55,7 +56,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i
                                                 class="fa-solid fa-ruler-combined text-warning"></i></span>
-                                        <input type="number" name="Area" class="form-control bg-light border-0 py-2"
+                                        <input asp-for="Area" type="number" class="form-control bg-light border-0 py-2"
                                             placeholder="0" step="0.01" min="1" required />
                                     </div>
                                 </div>
@@ -65,7 +66,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i
                                                 class="fa-solid fa-tag text-info"></i></span>
-                                        <select name="ApartmentType" class="form-select bg-light border-0 py-2"
+                                        <select asp-for="ApartmentType" class="form-select bg-light border-0 py-2"
                                             required>
                                             <option value="">@Localizer["SelectOption"]</option>
                                             <option value="ForSale">@Localizer["ForSale"]</option>
@@ -79,7 +80,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i
                                                 class="fa-solid fa-building text-secondary"></i></span>
-                                        <select name="UnitType" class="form-select bg-light border-0 py-2" required>
+                                        <select asp-for="UnitType" class="form-select bg-light border-0 py-2" required>
                                             <option value="">@Localizer["SelectOption"]</option>
                                             <option value="Residential">@Localizer["Residential"]</option>
                                             <option value="Commercial">@Localizer["Commercial"]</option>
@@ -99,8 +100,8 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i
                                                 class="fa-solid fa-bed text-primary"></i></span>
-                                        <input type="number" name="Rooms" class="form-control bg-light border-0 py-2"
-                                            min="1" value="1" required />
+                                        <input asp-for="Rooms" type="number" class="form-control bg-light border-0 py-2"
+                                            min="1" required />
                                     </div>
                                 </div>
 
@@ -109,43 +110,28 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i
                                                 class="fa-solid fa-bath text-info"></i></span>
-                                        <input type="number" name="Bathrooms"
-                                            class="form-control bg-light border-0 py-2" min="1" value="1" required />
+                                        <input asp-for="Bathrooms" type="number"
+                                            class="form-control bg-light border-0 py-2" min="1" required />
                                     </div>
                                 </div>
 
                                 <div class="col-12">
                                     <label
                                         class="form-label fw-bold text-muted">@Localizer["PropertyDescription"]</label>
-                                    <textarea name="Description" class="form-control bg-light border-0 rounded-3"
+                                    <textarea asp-for="Description" class="form-control bg-light border-0 rounded-3"
                                         rows="4" placeholder="@Localizer["DescriptionPlaceholder"]"></textarea>
                                 </div>
 
                                 <div class="col-12">
                                     <div
                                         class="form-check form-switch p-0 d-flex align-items-center gap-3 bg-light p-3 rounded-3">
-                                        <input id="CanBeFurnished" name="CanBeFurnished" class="form-check-input ms-0"
-                                            type="checkbox" value="true" style="width: 3em; height: 1.5em;" />
+                                        <input asp-for="CanBeFurnished" class="form-check-input ms-0" type="checkbox"
+                                            style="width: 3em; height: 1.5em;" />
                                         <div>
                                             <label class="form-check-label fw-bold mb-0"
                                                 for="CanBeFurnished">@Localizer["FurnishedCheckbox"]</label>
                                             <small class="d-block text-muted">@Localizer["FurnishedHint"]</small>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Furniture Section -->
-                            <div id="furnitureSection" class="mt-4" style="display:none;">
-                                <div class="card border-primary border-opacity-25 bg-primary bg-opacity-10">
-                                    <div class="card-body">
-                                        <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-couch me-2"></i>
-                                            @Localizer["FurnitureList"]</h6>
-                                        <div id="furnitureList"></div>
-                                        <button type="button" id="addFurnitureBtn"
-                                            class="btn btn-outline-primary w-100 border-2 border-dashed py-2 mt-2">
-                                            <i class="fa-solid fa-plus me-2"></i> @Localizer["AddFurnitureItem"]
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -161,7 +147,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i
                                                 class="fa-solid fa-city text-secondary"></i></span>
-                                        <input name="City" class="form-control bg-light border-0 py-2"
+                                        <input asp-for="City" class="form-control bg-light border-0 py-2"
                                             placeholder="@Localizer["City"]" required />
                                     </div>
                                 </div>
@@ -171,14 +157,14 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i
                                                 class="fa-solid fa-map-pin text-danger"></i></span>
-                                        <input name="Neighborhood" class="form-control bg-light border-0 py-2"
+                                        <input asp-for="Neighborhood" class="form-control bg-light border-0 py-2"
                                             placeholder="@Localizer["Neighborhood"]" required />
                                     </div>
                                 </div>
 
                                 <div class="col-12">
                                     <label class="form-label fw-bold text-muted">@Localizer["DetailedAddress"]</label>
-                                    <input name="Address" class="form-control bg-light border-0 py-2"
+                                    <input asp-for="Address" class="form-control bg-light border-0 py-2"
                                         placeholder="@Localizer["AddressPlaceholder"]" required />
                                 </div>
 
@@ -206,7 +192,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0"><i
                                                 class="fa-brands fa-whatsapp text-success fs-5"></i></span>
-                                        <input type="tel" name="WhatsAppNumber"
+                                        <input asp-for="WhatsAppNumber" type="tel"
                                             class="form-control bg-light border-0 py-2" placeholder="201xxxxxxxxx"
                                             required />
                                     </div>
@@ -214,11 +200,27 @@
 
                                 <div class="col-12">
                                     <label class="form-label fw-bold text-muted">@Localizer["PropertyImages"]</label>
+
+                                    <!-- Existing Images -->
+                                    @if (existingImages != null && existingImages.Any())
+                                    {
+                                        <div class="mb-3">
+                                            <h6 class="text-muted small">@Localizer["CurrentImages"]</h6>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                @foreach (var img in existingImages)
+                                                {
+                                                    <img src="@img.ImageUrl" class="rounded-3 shadow-sm object-fit-cover"
+                                                        style="width: 100px; height: 100px;">
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
                                     <div class="upload-box border-2 border-dashed rounded-4 p-5 text-center bg-light position-relative overflow-hidden transition-all"
                                         style="cursor:pointer; border-color: #dee2e6;">
                                         <div class="content">
                                             <i class="fa-solid fa-cloud-arrow-up fs-1 text-primary mb-3"></i>
-                                            <h6 class="fw-bold mb-1">@Localizer["UploadImages"]</h6>
+                                            <h6 class="fw-bold mb-1">@Localizer["UploadNewImages"]</h6>
                                             <p class="text-muted small mb-0">@Localizer["DragDropImages"]</p>
                                         </div>
                                         <input type="file" name="Images" multiple
@@ -235,9 +237,9 @@
                         <div class="d-flex gap-3 justify-content-center mt-5">
                             <button type="submit"
                                 class="btn btn-primary btn-lg px-5 rounded-pill fw-bold shadow hover-scale">
-                                <i class="fa-solid fa-check me-2"></i> @Localizer["PublishProperty"]
+                                <i class="fa-solid fa-save me-2"></i> @Localizer["SaveChanges"]
                             </button>
-                            <a asp-action="Index" asp-controller="RealEstate"
+                            <a asp-action="MyProperties" asp-controller="RealEstate"
                                 class="btn btn-light btn-lg px-5 rounded-pill fw-bold shadow-sm hover-scale">
                                 <i class="fa-solid fa-xmark me-2"></i> @Localizer["Cancel"]
                             </a>
@@ -315,32 +317,10 @@
     <script>
         $(document).ready(function () {
             // Form Submit Logic
-            $("#createForm").on("submit", function (e) {
+            $("#editForm").on("submit", function (e) {
                 e.preventDefault();
                 const form = $(this);
                 const formData = new FormData(this);
-
-                // Validation logic for furniture
-                const isFurnished = $("#CanBeFurnished").is(":checked");
-                const furnitureItems = $(".furniture-item");
-
-                if (isFurnished && furnitureItems.length > 0) {
-                    let valid = true;
-                    furnitureItems.each(function () {
-                        const name = $(this).find("input[name*='Name']").val();
-                        const price = $(this).find("input[name*='Price']").val();
-                        const imageInput = $(this).find("input[name*='Image']")[0];
-                        if (!name || !price || (!imageInput.files[0] && !$(this).find('.img-preview').attr('src'))) valid = false;
-                    });
-
-                    if (!valid) {
-                        Swal.fire({ icon: "warning", title: "بيانات ناقصة", text: "يرجى تعبئة جميع بيانات الأثاث" });
-                        return;
-                    }
-                } else if (isFurnished && furnitureItems.length === 0) {
-                    Swal.fire({ icon: "info", title: "تنبيه", text: "يرجى إضافة قطع أثاث أو إلغاء خيار 'مفروش'" });
-                    return;
-                }
 
                 $.ajax({
                     url: form.attr("action"),
@@ -350,7 +330,7 @@
                     contentType: false,
                     beforeSend: function () {
                         Swal.fire({
-                            title: "جارٍ النشر...",
+                            title: "جارٍ الحفظ...",
                             text: "يرجى الانتظار",
                             allowOutsideClick: false,
                             didOpen: () => Swal.showLoading()
@@ -360,10 +340,10 @@
                         if (response.isSuccess) {
                             Swal.fire({
                                 icon: "success",
-                                title: "تم النشر بنجاح!",
+                                title: "تم الحفظ بنجاح!",
                                 text: response.message,
-                                confirmButtonText: "عرض العقارات"
-                            }).then(() => window.location.href = "/RealEstate/Index");
+                                confirmButtonText: "حسناً"
+                            }).then(() => window.location.href = "/RealEstate/MyProperties");
                         } else {
                             Swal.fire({ icon: "error", title: "خطأ", text: response.message });
                         }
@@ -373,74 +353,6 @@
                     }
                 });
             });
-
-            // Furniture Logic
-            const checkbox = document.getElementById("CanBeFurnished");
-            const furnitureSection = document.getElementById("furnitureSection");
-            const list = document.getElementById("furnitureList");
-            let furnitureIndex = 0;
-
-            checkbox.addEventListener("change", () => {
-                furnitureSection.style.display = checkbox.checked ? "block" : "none";
-                if (checkbox.checked && list.children.length === 0) addFurnitureItem(0);
-            });
-
-            function addFurnitureItem(index) {
-                const item = document.createElement("div");
-                item.classList.add("card", "p-3", "mb-3", "furniture-item", "shadow-sm", "border-0", "bg-white");
-                item.innerHTML = `
-                            <div class="row g-3 align-items-end">
-                                <div class="col-md-4">
-                                    <label class="form-label small fw-bold text-muted">@Localizer["ItemName"]</label>
-                                    <input type="text" name="Furnitures[${index}].Name" class="form-control bg-light border-0" placeholder="@Localizer["ItemNamePlaceholder"]" required />
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small fw-bold text-muted">@Localizer["ItemPrice"]</label>
-                                    <input type="number" name="Furnitures[${index}].Price" class="form-control bg-light border-0" placeholder="0" step="1" required />
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label small fw-bold text-muted">@Localizer["ItemImage"]</label>
-                                    <input type="file" name="Furnitures[${index}].Image" accept="image/*" class="form-control bg-light border-0 furniture-image-input" required />
-                                </div>
-                                <div class="col-md-1">
-                                    <button type="button" class="btn btn-danger btn-sm remove-furniture w-100 rounded-3"><i class="fa-solid fa-trash"></i></button>
-                                </div>
-                            </div>
-                            <div class="mt-2 text-center">
-                                <img class="img-preview rounded-3 shadow-sm" style="max-height:100px; display:none;" />
-                            </div>
-                        `;
-                list.appendChild(item);
-                furnitureIndex++;
-            }
-
-            $("#addFurnitureBtn").click(() => addFurnitureItem(furnitureIndex));
-
-            $(list).on("click", ".remove-furniture", function () {
-                $(this).closest(".furniture-item").remove();
-                updateFurnitureIndexes();
-            });
-
-            $(list).on("change", ".furniture-image-input", function () {
-                const file = this.files[0];
-                const img = $(this).closest(".furniture-item").find(".img-preview");
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = e => { img.attr("src", e.target.result).show(); };
-                    reader.readAsDataURL(file);
-                } else {
-                    img.hide();
-                }
-            });
-
-            function updateFurnitureIndexes() {
-                $(".furniture-item").each(function (i) {
-                    $(this).find("input").each(function () {
-                        if (this.name) this.name = this.name.replace(/Furnitures\[\d+\]/, `Furnitures[${i}]`);
-                    });
-                });
-                furnitureIndex = $(".furniture-item").length;
-            }
 
             // Image Preview
             $("#propertyImages").change(function () {

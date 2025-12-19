@@ -24,7 +24,7 @@
                         <tr>
                             <th class="py-3 ps-4">@Localizer["User"]</th>
                             <th class="py-3">@Localizer["RequestType"]</th>
-                            <th class="py-3">@Localizer["Email"]</th>
+                            <th class="py-3">@Localizer["Details"]</th>
                             <th class="py-3 text-end pe-4">@Localizer["Actions"]</th>
                         </tr>
                     </thead>
@@ -38,7 +38,7 @@
                                             class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
                                         <div>
                                             <div class="fw-bold">@item.FullName</div>
-                                            <div class="text-muted small">ID: @item.UserId.Substring(0, 8)...</div>
+                                            <div class="text-muted small">@item.Email</div>
                                         </div>
                                     </div>
                                 </td>
@@ -49,14 +49,42 @@
                                             <i class="fa-solid fa-user-plus me-1"></i> @Localizer["NewSellerRequest"]
                                         </span>
                                     }
-                                    else
+                                    else if (item.Type == FindMeHome.ViewModels.RequestType.Verification)
                                     {
                                         <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 py-2">
                                             <i class="fa-solid fa-certificate me-1"></i> @Localizer["VerificationRequest"]
                                         </span>
                                     }
+                                    else if (item.Type == FindMeHome.ViewModels.RequestType.PropertyEdit)
+                                    {
+                                        <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3 py-2">
+                                            <i class="fa-solid fa-pen-to-square me-1"></i> طلب تعديل عقار
+                                        </span>
+                                    }
+                                    else if (item.Type == FindMeHome.ViewModels.RequestType.PropertyDeletion)
+                                    {
+                                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2">
+                                            <i class="fa-solid fa-trash me-1"></i> طلب حذف عقار
+                                        </span>
+                                    }
                                 </td>
-                                <td>@item.Email</td>
+                                <td>
+                                    @if (item.Type == FindMeHome.ViewModels.RequestType.PropertyEdit || item.Type ==
+                                   FindMeHome.ViewModels.RequestType.PropertyDeletion)
+                                    {
+                                        <div>
+                                            <div class="fw-bold">@item.PropertyTitle</div>
+                                            <div class="text-muted small">
+                                                <i class="fa-regular fa-clock me-1"></i>
+                                                @item.RequestDate?.ToString("dd/MM/yyyy HH:mm")
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
                                 <td class="text-end pe-4">
                                     @if (item.Type == FindMeHome.ViewModels.RequestType.SellerRegistration)
                                     {
@@ -67,7 +95,7 @@
                                             </button>
                                         </form>
                                     }
-                                    else
+                                    else if (item.Type == FindMeHome.ViewModels.RequestType.Verification)
                                     {
                                         <div class="d-flex gap-2 justify-content-end">
                                             <form asp-action="ApproveVerification" method="post">
@@ -82,6 +110,28 @@
                                                     <i class="fa-solid fa-xmark me-1"></i> @Localizer["Reject"]
                                                 </button>
                                             </form>
+                                        </div>
+                                    }
+                                    else if (item.Type == FindMeHome.ViewModels.RequestType.PropertyEdit || item.Type ==
+                                    FindMeHome.ViewModels.RequestType.PropertyDeletion)
+                                    {
+                                        <div class="d-flex gap-2 justify-content-end">
+                                            <form asp-action="ApproveProperty" method="post">
+                                                <input type="hidden" name="id" value="@item.PropertyId" />
+                                                <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 fw-bold">
+                                                    <i class="fa-solid fa-check me-1"></i> موافقة
+                                                </button>
+                                            </form>
+                                            <form asp-action="RejectProperty" method="post">
+                                                <input type="hidden" name="id" value="@item.PropertyId" />
+                                                <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold">
+                                                    <i class="fa-solid fa-xmark me-1"></i> رفض
+                                                </button>
+                                            </form>
+                                            <a asp-controller="RealEstate" asp-action="Details" asp-route-id="@item.PropertyId"
+                                                target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
+                                                <i class="fa-solid fa-eye me-1"></i> عرض
+                                            </a>
                                         </div>
                                     }
                                 </td>

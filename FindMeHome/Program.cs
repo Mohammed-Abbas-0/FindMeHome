@@ -5,6 +5,7 @@ using FindMeHome.Repositories.AbstractionLayer;
 using FindMeHome.Repositories.ImplementationLayer;
 using FindMeHome.Services.Abstraction;
 using FindMeHome.Services.Implementation;
+using FindMeHome.Services.Background;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -42,6 +43,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICraftsmanService, CraftsmanService>();
+builder.Services.AddHostedService<ListingExpirationService>();
 
 // JWT Authentication
 builder.Services.AddAuthentication()

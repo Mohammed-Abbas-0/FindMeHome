@@ -21,9 +21,9 @@ namespace FindMeHome.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var realEstates = await _realStateService.GetAllAsync();
+            var result = await _realStateService.GetAllAsync(page, 9);
 
             var userId = _userManager.GetUserId(User);
             if (userId != null)
@@ -33,7 +33,7 @@ namespace FindMeHome.Controllers
 
                 // Get liked property IDs
                 var likedIds = new List<int>();
-                foreach (var estate in realEstates)
+                foreach (var estate in result.Items)
                 {
                     if (await _realStateService.IsLikedByUserAsync(estate.Id, userId))
                     {
@@ -48,13 +48,14 @@ namespace FindMeHome.Controllers
                 ViewBag.LikedIds = new List<int>();
             }
 
-            return View(realEstates);
+            return View(result);
         }
 
-        [HttpGet("AdvancedSearch")]
-        public async Task<IActionResult> AdvancedSearch(string? query, decimal? priceFrom, decimal? priceTo, double? areaFrom, double? areaTo, int? rooms, int? bathrooms, string? city, string? neighborhood, UnitType? unitType, bool? isFurnished)
+        [HttpGet]
+        [HttpGet]
+        public async Task<IActionResult> AdvancedSearch(string? query, decimal? priceFrom, decimal? priceTo, double? areaFrom, double? areaTo, int? rooms, int? bathrooms, string? city, string? neighborhood, UnitType? unitType, bool? isFurnished, string? location, int page = 1)
         {
-            var results = await _realStateService.SearchAsync(query, priceFrom, priceTo, areaFrom, areaTo, rooms, bathrooms, city, neighborhood, unitType, isFurnished);
+            var results = await _realStateService.SearchAsync(query, priceFrom, priceTo, areaFrom, areaTo, rooms, bathrooms, city, neighborhood, unitType, isFurnished, location, page, 9);
 
             var userId = _userManager.GetUserId(User);
             if (userId != null)
@@ -64,7 +65,7 @@ namespace FindMeHome.Controllers
 
                 // Get liked property IDs
                 var likedIds = new List<int>();
-                foreach (var estate in results)
+                foreach (var estate in results.Items)
                 {
                     if (await _realStateService.IsLikedByUserAsync(estate.Id, userId))
                     {
@@ -91,11 +92,12 @@ namespace FindMeHome.Controllers
             ViewBag.Neighborhood = neighborhood;
             ViewBag.UnitType = unitType;
             ViewBag.IsFurnished = isFurnished;
+            ViewBag.Location = location;
 
             return View("Index", results);
         }
 
-        [HttpGet("Create")]
+        [HttpGet]
         [Authorize(Roles = "Admin,Seller")]
         public IActionResult Create()
         {
@@ -107,7 +109,7 @@ namespace FindMeHome.Controllers
             return View();
         }
 
-        [HttpPost("Create")]
+        [HttpPost]
         [Authorize(Roles = "Admin,Seller")]
         public async Task<IActionResult> CreateAsync([FromForm] CreateRealEstateDto createDto)
         {
@@ -138,7 +140,7 @@ namespace FindMeHome.Controllers
             }
         }
 
-        [HttpGet("Details/{id}")]
+        [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
             var realEstate = await _realStateService.GetByIdAsync(id);
@@ -193,7 +195,7 @@ namespace FindMeHome.Controllers
             });
         }
 
-        [HttpGet("Wishlist")]
+        [HttpGet]
         public async Task<IActionResult> Wishlist()
         {
             var userId = _userManager.GetUserId(User);
@@ -203,7 +205,7 @@ namespace FindMeHome.Controllers
             return View(wishlist);
         }
 
-        [HttpGet("GetWishlistCount")]
+        [HttpGet]
         public async Task<IActionResult> GetWishlistCount()
         {
             var userId = _userManager.GetUserId(User);
@@ -251,14 +253,14 @@ namespace FindMeHome.Controllers
             });
         }
 
-        [HttpGet("GetLikesCount/{id}")]
+        [HttpGet]
         public async Task<IActionResult> GetLikesCount(int id)
         {
             var count = await _realStateService.GetLikesCountAsync(id);
             return Json(new { count = count });
         }
 
-        [HttpGet("MyProperties")]
+        [HttpGet]
         [Authorize(Roles = "Seller,Admin")]
         public async Task<IActionResult> MyProperties()
         {
@@ -267,6 +269,106 @@ namespace FindMeHome.Controllers
 
             var properties = await _realStateService.GetByUserIdAsync(userId);
             return View(properties);
+        }
+        [HttpGet]
+        [Authorize(Roles = "Admin,Seller")]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null) return RedirectToAction("Login", "Account");
+
+            var realEstate = await _realStateService.GetByIdAsync(id);
+            if (realEstate == null) return NotFound();
+
+            // Check ownership (or admin) - Service also checks, but good to check here for UI redirection
+            // Note: GetByIdAsync returns DTO which doesn't have UserId directly exposed usually, 
+            // but we can check if the current user is the owner if we expose UserId in DTO or check via service.
+            // For now, let's assume the service `UpdateAsync` will handle the security check, 
+            // but for GET we should also verify. 
+            // Let's add UserId to RealEstateDto if not present, or fetch entity to check.
+            // Wait, RealEstateDto doesn't have UserId. Let's check the service implementation.
+            // The service `GetByUserIdAsync` filters by user. 
+            // Ideally `GetByIdAsync` should return owner info or we use a specific method `GetForEditAsync`.
+            // For simplicity, let's proceed and let the view/post handle it, or fetch via a new service method if needed.
+            // Actually, let's trust the user for the GET (or better, check ownership).
+            // Since I can't easily check ownership without modifying DTO, I will rely on the POST action for strict security,
+            // and for GET, I'll just show the view. If they try to save, it will fail.
+            // BETTER: Fetch all user properties and check if ID is in there.
+            var userProperties = await _realStateService.GetByUserIdAsync(userId);
+            if (!userProperties.Any(p => p.Id == id) && !User.IsInRole("Admin"))
+            {
+                return Forbid();
+            }
+
+            // Map DTO to CreateRealEstateDto for the edit view
+            var editDto = new CreateRealEstateDto
+            {
+                Title = realEstate.Title,
+                Description = realEstate.Description,
+                Address = realEstate.Address,
+                City = realEstate.City,
+                Neighborhood = realEstate.Neighborhood,
+                Price = realEstate.Price,
+                Area = realEstate.Area,
+                ApartmentType = realEstate.ApartmentType,
+                CanBeFurnished = realEstate.CanBeFurnished,
+                Rooms = realEstate.Rooms,
+                Bathrooms = realEstate.Bathrooms,
+                UnitType = realEstate.UnitType,
+                WhatsAppNumber = realEstate.WhatsAppNumber,
+                // Images and Furniture are handled separately or just displayed
+            };
+
+            ViewBag.Id = id;
+            ViewBag.ExistingImages = realEstate.Images;
+
+            return View(editDto);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin,Seller")]
+        public async Task<IActionResult> Edit(int id, [FromForm] CreateRealEstateDto dto)
+        {
+            if (!ModelState.IsValid)
+                return Json(new { isSuccess = false, message = "❌ البيانات المدخلة غير صحيحة" });
+
+            var userId = _userManager.GetUserId(User);
+            if (userId == null) return Json(new { isSuccess = false, message = "❌ يجب تسجيل الدخول أولاً" });
+
+            try
+            {
+                var result = await _realStateService.UpdateAsync(id, dto, userId);
+                return Json(new { isSuccess = result.IsSuccess, message = result.Message });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = "❌ حدث خطأ غير متوقع: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin,Seller")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null) return Json(new { isSuccess = false, message = "❌ يجب تسجيل الدخول أولاً" });
+
+            try
+            {
+                var result = await _realStateService.DeleteAsync(id, userId);
+                return Json(new { isSuccess = result.IsSuccess, message = result.Message });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = "❌ حدث خطأ غير متوقع: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetLocations(string term)
+        {
+            var locations = await _realStateService.GetLocationsAsync(term);
+            return Json(locations);
         }
     }
 }

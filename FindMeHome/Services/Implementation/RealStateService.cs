@@ -1,18 +1,22 @@
-﻿using AutoMapper;
+﻿using FindMeHome.AppContext;
 using FindMeHome.Dtos;
 using FindMeHome.Enums;
 using FindMeHome.Models;
 using FindMeHome.Repositories.AbstractionLayer;
 using FindMeHome.Services.Abstraction;
+using Microsoft.EntityFrameworkCore;
 
 namespace FindMeHome.Services.Implementation
 {
     public class RealStateService : IRealStateService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public RealStateService(IUnitOfWork unitOfWork)
+        private readonly AppDBContext _context;
+
+        public RealStateService(IUnitOfWork unitOfWork, AppDBContext context)
         {
             _unitOfWork = unitOfWork;
+            _context = context;
         }
 
         #region Public Methods
@@ -39,12 +43,14 @@ namespace FindMeHome.Services.Implementation
                 UnitType = dto.UnitType,
                 WhatsAppNumber = dto.WhatsAppNumber,
                 IsActive = true,
+                Status = PropertyStatus.Active, // Or Pending if we want to moderate new ones. Prompt implies Edits/Deletes need moderation. Let's start Active.
                 CreatedAt = DateTime.Now,
+                ExpirationDate = DateTime.Now.AddMonths(2),
                 UserId = userId
             };
 
             await SaveImages(dto, entity);
-
+           
             await _unitOfWork.RealEstates.AddAsync(entity);
             await _unitOfWork.CompleteAsync();
 
@@ -55,23 +61,52 @@ namespace FindMeHome.Services.Implementation
             return ResultDto.Success("✅ تم الحفظ بنجاح");
         }
 
+        public async Task<List<RealEstateDto>> GetPendingPropertiesAsync()
+        {
+            var entities = await _context.RealEstates
+                .Include(r => r.Images)
+                .Include(r => r.User)
+                .Where(r => r.Status == PropertyStatus.PendingApproval || r.Status == PropertyStatus.PendingDeletion)
+                .OrderByDescending(r => r.UpdatedAt)
+                .ToListAsync();
+
+            return entities.Select(MapToDto).ToList();
+        }
+
         public async Task<RealEstateDto?> GetByIdAsync(int id)
         {
             var entity = await _unitOfWork.RealEstates
                 .GetByIdAsync(id, includeProperties: "Images,Furnitures,Likes");
-
             if (entity == null)
                 return null;
 
             return MapToDto(entity);
         }
 
-        public async Task<List<RealEstateDto>> GetAllAsync()
+        public async Task<PagedResultDto<RealEstateDto>> GetAllAsync(int page = 1, int pageSize = 50)
         {
             var entities = await _unitOfWork.RealEstates
                 .GetAllAsync(includeProperties: "Images,Furnitures,Likes");
 
-            return entities.Select(MapToDto).ToList();
+            // Public listing should only show Active and non-expired
+            var query = entities
+                .Where(e => (e.Status == 0 || e.Status == PropertyStatus.Active) && (e.ExpirationDate == null || e.ExpirationDate > DateTime.Now))
+                .OrderByDescending(e => e.CreatedAt);
+
+            var totalCount = query.Count();
+            var items = query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(MapToDto)
+                .ToList();
+
+            return new PagedResultDto<RealEstateDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
         }
 
         public async Task<List<RealEstateDto>> GetByUserIdAsync(string userId)
@@ -82,12 +117,12 @@ namespace FindMeHome.Services.Implementation
             return entities.Select(MapToDto).ToList();
         }
 
-        public async Task<List<RealEstateDto>> SearchAsync(string? query, decimal? minPrice, decimal? maxPrice, double? minArea, double? maxArea, int? rooms, int? bathrooms, string? city, string? neighborhood, UnitType? unitType, bool? isFurnished)
+        public async Task<PagedResultDto<RealEstateDto>> SearchAsync(string? query, decimal? minPrice, decimal? maxPrice, double? minArea, double? maxArea, int? rooms, int? bathrooms, string? city, string? neighborhood, UnitType? unitType, bool? isFurnished, string? location = null, int page = 1, int pageSize = 50)
         {
             var entities = await _unitOfWork.RealEstates
                 .GetAllAsync(includeProperties: "Images,Furnitures,Likes");
 
-            var filtered = entities.AsQueryable();
+            var filtered = entities.Where(x => x.Status == PropertyStatus.Active && (x.ExpirationDate == null || x.ExpirationDate > DateTime.Now)).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(query))
             {
@@ -121,15 +156,33 @@ namespace FindMeHome.Services.Implementation
             if (!string.IsNullOrWhiteSpace(neighborhood))
                 filtered = filtered.Where(x => x.Neighborhood.Contains(neighborhood));
 
+            if (!string.IsNullOrWhiteSpace(location))
+            {
+                filtered = filtered.Where(x => (x.City != null && x.City.Contains(location)) ||
+                                             (x.Neighborhood != null && x.Neighborhood.Contains(location)));
+            }
+
             if (unitType.HasValue)
                 filtered = filtered.Where(x => x.UnitType == unitType.Value);
 
             if (isFurnished.HasValue)
-                filtered = filtered.Where(x => x.CanBeFurnished == isFurnished.Value); // Assuming CanBeFurnished implies furnished option, or we might need a separate IsFurnished field if the model had it. The model has CanBeFurnished. Let's assume this filters for properties that CAN be furnished or are furnished. 
-                                                                                       // Wait, the model has `CanBeFurnished`. The user might want to search for furnished apartments. 
-                                                                                       // If the user selects "Furnished", they probably want `CanBeFurnished == true`.
+                filtered = filtered.Where(x => x.CanBeFurnished == isFurnished.Value);
 
-            return filtered.Select(MapToDto).ToList();
+            var totalCount = filtered.Count();
+            var items = filtered
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(MapToDto)
+                .ToList();
+
+            return new PagedResultDto<RealEstateDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = page,
+                PageSize = pageSize
+            };
         }
 
         public async Task<ResultDto> AddToWishlistAsync(int realEstateId, string userId)
@@ -244,6 +297,148 @@ namespace FindMeHome.Services.Implementation
             return likes.Count();
         }
 
+
+        public async Task<ResultDto> UpdateAsync(int id, CreateRealEstateDto dto, string userId)
+        {
+            var entity = await _unitOfWork.RealEstates
+                .GetByIdAsync(id, includeProperties: "Images,Furnitures");
+
+            if (entity == null)
+                return ResultDto.Failure("العقار غير موجود");
+
+            if (entity.UserId != userId)
+                return ResultDto.Failure("لا تملك صلاحية تعديل هذا العقار");
+
+            // Validate only essential fields (skip image validation if entity already has images)
+            if (string.IsNullOrWhiteSpace(dto.Title))
+                return ResultDto.Failure("عنوان العقار مطلوب.");
+
+            if (dto.Price <= 0)
+                return ResultDto.Failure("يجب إدخال سعر صحيح للعقار.");
+
+            if (string.IsNullOrWhiteSpace(dto.City))
+                return ResultDto.Failure("المدينة مطلوبة.");
+
+            if (string.IsNullOrWhiteSpace(dto.Address))
+                return ResultDto.Failure("العنوان مطلوب.");
+
+            if (dto.Area <= 0)
+                return ResultDto.Failure("يجب إدخال مساحة صحيحة.");
+
+            if (string.IsNullOrWhiteSpace(dto.WhatsAppNumber))
+                return ResultDto.Failure("رقم الواتساب مطلوب.");
+
+            // Only require new images if the entity has no existing images
+            if ((dto.Images == null || dto.Images.Count == 0) && (entity.Images == null || !entity.Images.Any()))
+                return ResultDto.Failure("يجب رفع صورة واحدة على الأقل للعقار.");
+
+            entity.Title = dto.Title;
+            entity.Description = dto.Description;
+            entity.Address = dto.Address;
+            entity.City = dto.City;
+            entity.Neighborhood = dto.Neighborhood;
+            entity.Price = dto.Price;
+            entity.Area = dto.Area;
+            entity.ApartmentType = dto.ApartmentType;
+            entity.CanBeFurnished = dto.CanBeFurnished;
+            entity.Rooms = dto.Rooms;
+            entity.Bathrooms = dto.Bathrooms;
+            entity.UnitType = dto.UnitType;
+            entity.WhatsAppNumber = dto.WhatsAppNumber;
+            entity.WhatsAppNumber = dto.WhatsAppNumber;
+            entity.Status = PropertyStatus.PendingApproval;
+            entity.UpdatedAt = DateTime.Now;
+
+            // Handle Images: For simplicity in this iteration, we are APPENDING new images. 
+            // A more complex UI would allow deleting specific images.
+            await SaveImages(dto, entity);
+
+            // Handle Furniture: 
+            // For simplicity, we are NOT updating furniture in this iteration to avoid complexity with existing IDs.
+            // If the user wants to update furniture, they might need a separate UI or we clear and re-add (which is risky for IDs).
+            // Let's assume furniture update is out of scope for this simple "Edit Property" request unless specified.
+
+            _unitOfWork.RealEstates.Update(entity);
+            await _unitOfWork.CompleteAsync();
+
+            return ResultDto.Success("✅ تم إرسال طلب التعديل إلى المسؤول بنجاح");
+        }
+
+        public async Task<ResultDto> DeleteAsync(int id, string userId)
+        {
+            var entity = await _unitOfWork.RealEstates
+                .GetByIdAsync(id, includeProperties: "Images,Furnitures");
+
+            if (entity == null)
+                return ResultDto.Failure("العقار غير موجود");
+
+            if (entity.UserId != userId)
+                return ResultDto.Failure("لا تملك صلاحية حذف هذا العقار");
+
+            // Soft Delete request
+            entity.Status = PropertyStatus.PendingDeletion;
+            // entity.DeletedAt = DateTime.Now; // Set this only when actually deleted/approved? No, prompt says "Request delete".
+            // So we just change status.
+
+            _unitOfWork.RealEstates.Update(entity); // Update instead of Remove
+            await _unitOfWork.CompleteAsync();
+
+            return ResultDto.Success("✅ تم إرسال طلب الحذف إلى المسؤول بنجاح");
+        }
+
+        public async Task<ResultDto> UpdateStatusAsync(int id, PropertyStatus status)
+        {
+            var entity = await _unitOfWork.RealEstates.GetByIdAsync(id);
+            if (entity == null)
+                return ResultDto.Failure("العقار غير موجود");
+
+            entity.Status = status;
+            if (status == PropertyStatus.Deleted)
+            {
+                entity.DeletedAt = DateTime.Now;
+            }
+
+            _unitOfWork.RealEstates.Update(entity);
+            await _unitOfWork.CompleteAsync();
+
+            return ResultDto.Success("✅ تم تحديث حالة العقار بنجاح");
+        }
+
+        public async Task<List<LocationSuggestionDto>> GetLocationsAsync(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return new List<LocationSuggestionDto>();
+
+            term = term.ToLower();
+
+            var allProperties = await _unitOfWork.RealEstates.GetAllAsync();
+
+            var cities = allProperties
+                .Where(p => p.City != null && p.City.ToLower().Contains(term))
+                .GroupBy(p => p.City)
+                .Select(g => new LocationSuggestionDto
+                {
+                    Name = g.Key,
+                    Type = "City",
+                    Count = g.Count()
+                });
+
+            var neighborhoods = allProperties
+                .Where(p => p.Neighborhood != null && p.Neighborhood.ToLower().Contains(term))
+                .GroupBy(p => p.Neighborhood)
+                .Select(g => new LocationSuggestionDto
+                {
+                    Name = g.Key,
+                    Type = "Neighborhood",
+                    Count = g.Count()
+                });
+
+            return cities.Concat(neighborhoods)
+                         .OrderByDescending(x => x.Count)
+                         .ThenBy(x => x.Name)
+                         .Take(10)
+                         .ToList();
+        }
 
         #endregion
 
@@ -379,7 +574,11 @@ namespace FindMeHome.Services.Implementation
                 entity.IsActive,
                 entity.WhatsAppNumber,
                 entity.Images?.Select(img => new RealEstateImageDto(img.Id, Path.GetFileName(img.ImageUrl), img.ImageUrl)).ToList(),
-                entity.Likes != null ? entity.Likes.Count : 0
+                entity.Likes != null ? entity.Likes.Count : 0,
+                entity.Status,
+                entity.UserId,
+                entity.User != null ? new UserDto(entity.User.FirstName, entity.User.LastName, entity.User.Email, entity.User.ProfilePictureUrl) : null,
+                entity.UpdatedAt
             );
         }
 
