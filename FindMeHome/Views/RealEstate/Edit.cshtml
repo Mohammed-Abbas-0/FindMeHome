@@ -12,7 +12,13 @@
     dir="@(System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft ? "rtl" : "ltr")">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            @if (ViewBag.DraftMessage != null)
+            {
+                <div class="alert alert-warning rounded-4 shadow-sm border-0 mb-4 animate__animated animate__fadeInDown">
+                    <i class="fa-solid fa-circle-exclamation me-2"></i> @ViewBag.DraftMessage
+                </div>
+            }
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
                 <div class="card-header bg-gradient-primary text-white text-center py-4 border-0"
                     style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
                     <h3 class="mb-1 fw-bold"><i class="fa-solid fa-pen-to-square me-2"></i>
@@ -46,7 +52,8 @@
                                         <span class="input-group-text bg-light border-0"><i
                                                 class="fa-solid fa-money-bill-wave text-success"></i></span>
                                         <input asp-for="Price" type="number" class="form-control bg-light border-0 py-2"
-                                            value="@Model.Price.ToString("G0")" placeholder="0" step="1" min="1" required />
+                                            value="@Model.Price.ToString("G0")" placeholder="0" step="1" min="1"
+                                            required />
                                     </div>
                                     <span asp-validation-for="Price" class="text-danger small"></span>
                                 </div>

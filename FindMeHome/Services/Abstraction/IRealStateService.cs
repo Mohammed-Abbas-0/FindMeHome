@@ -23,5 +23,11 @@ namespace FindMeHome.Services.Abstraction
         Task<ResultDto> UpdateStatusAsync(int id, PropertyStatus status);
         Task<ResultDto> DeleteAsync(int id, string userId);
         Task<List<LocationSuggestionDto>> GetLocationsAsync(string term);
+
+        // Moderated Edits
+        Task<CreateRealEstateDto?> GetEditRequestAsync(int id);
+        Task<ResultDto> ApproveEditAsync(int id);
+        Task<ResultDto> RejectEditAsync(int id);
+        bool HasPendingEdit(int id);
     }
 }

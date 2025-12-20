@@ -1,0 +1,94 @@
+@model FindMeHome.Dtos.CreateRealEstateDto
+@using FindMeHome.Dtos
+@{
+    ViewData["Title"] = "مقارنة التعديلات";
+    var current = ViewBag.Current as RealEstateDto;
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary"><i class="fa-solid fa-code-compare me-2"></i>مراجعة طلب التعديل</h2>
+        <a asp-action="Index" class="btn btn-light rounded-pill px-4 shadow-sm">
+            <i class="fa-solid fa-arrow-right me-2"></i> العودة للوحة التحكم
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Current Data -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-light border-0 py-3">
+                    <h5 class="mb-0 fw-bold text-muted"><i class="fa-solid fa-clock-rotate-left me-2"></i>البيانات الحالية</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">العنوان</label>
+                        <p class="fs-5">@current.Title</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">السعر</label>
+                        <p class="fs-5 text-primary fw-bold">@current.Price.ToString("#,##0", System.Globalization.CultureInfo.InvariantCulture) ج.م</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">المدينة / المنطقة</label>
+                        <p>@current.City, @current.Neighborhood</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">المساحة</label>
+                        <p>@current.Area م²</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">الغرف / الحمامات</label>
+                        <p>@current.Rooms غرف، @current.Bathrooms حمامات</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Data -->
+        <div class="col-md-6">
+            <div class="card border-primary border-2 shadow rounded-4 h-100">
+                <div class="card-header bg-primary text-white border-0 py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>التعديلات الجديدة</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">العنوان</label>
+                        <p class="fs-5 @(current.Title != Model.Title ? "text-success fw-bold" : "")">@Model.Title</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">السعر</label>
+                        <p class="fs-5 @(current.Price != Model.Price ? "text-success fw-bold" : "text-primary fw-bold")">@Model.Price.ToString("#,##0", System.Globalization.CultureInfo.InvariantCulture) ج.م</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">المدينة / المنطقة</label>
+                        <p class="@(current.City != Model.City || current.Neighborhood != Model.Neighborhood ? "text-success fw-bold" : "")">@Model.City, @Model.Neighborhood</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">المساحة</label>
+                        <p class="@(current.Area != Model.Area ? "text-success fw-bold" : "")">@Model.Area م²</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold">الغرف / الحمامات</label>
+                        <p class="@(current.Rooms != Model.Rooms || current.Bathrooms != Model.Bathrooms ? "text-success fw-bold" : "")">@Model.Rooms غرف، @Model.Bathrooms حمامات</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5 d-flex gap-3 justify-content-center">
+        <form asp-action="ApproveEdit" method="post">
+            <input type="hidden" name="id" value="@ViewBag.PropertyId" />
+            <button type="submit" class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow">
+                <i class="fa-solid fa-check me-2"></i> الموافقة على التعديلات
+            </button>
+        </form>
+        <form asp-action="RejectEdit" method="post">
+            <input type="hidden" name="id" value="@ViewBag.PropertyId" />
+            <button type="submit" class="btn btn-outline-danger btn-lg rounded-pill px-5 fw-bold shadow-sm">
+                <i class="fa-solid fa-xmark me-2"></i> رفض التعديلات
+            </button>
+        </form>
+    </div>
+</div>

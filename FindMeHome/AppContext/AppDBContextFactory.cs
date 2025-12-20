@@ -10,8 +10,8 @@ namespace FindMeHome.AppContext
             var optionsBuilder = new DbContextOptionsBuilder<AppDBContext>();
 
             optionsBuilder.UseSqlServer(
-                //"Server=db33755.public.databaseasp.net;Database=db33755;User Id=db33755;Password=S+z25K_x%mH6;Encrypt=False;MultipleActiveResultSets=True;"
-             "Server=.;Database=FindMeHomeDB;User Id=sa;Password=123456;TrustServerCertificate=True;"
+                "Server=db33755.public.databaseasp.net;Database=db33755;User Id=db33755;Password=S+z25K_x%mH6;Encrypt=False;MultipleActiveResultSets=True;"
+             //"Server=.;Database=FindMeHomeDB;User Id=sa;Password=123456;TrustServerCertificate=True;"
 
              );
 

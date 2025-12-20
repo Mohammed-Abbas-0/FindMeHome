@@ -144,13 +144,24 @@ namespace FindMeHome.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var realEstate = await _realStateService.GetByIdAsync(id);
-            if (realEstate == null)
-            {
-                return NotFound();
-            }
+            if (realEstate == null) return NotFound();
 
             var userId = _userManager.GetUserId(User);
-            ViewBag.IsInWishlist = userId != null && await _realStateService.IsInWishlistAsync(id, userId);
+            if (userId != null)
+            {
+                ViewBag.IsInWishlist = await _realStateService.IsInWishlistAsync(id, userId);
+            }
+
+            // Fetch seller verification status
+            if (!string.IsNullOrEmpty(realEstate.UserId))
+            {
+                var seller = await _userManager.FindByIdAsync(realEstate.UserId);
+                if (seller != null)
+                {
+                    ViewBag.SellerVerificationStatus = seller.VerificationStatus;
+                    ViewBag.SellerPhoneNumber = seller.PhoneNumber;
+                }
+            }
 
             return View(realEstate);
         }
@@ -321,6 +332,15 @@ namespace FindMeHome.Controllers
 
             ViewBag.Id = id;
             ViewBag.ExistingImages = realEstate.Images;
+
+            // Check for pending edit draft
+            var pendingDraft = await _realStateService.GetEditRequestAsync(id);
+            if (pendingDraft != null)
+            {
+                editDto = pendingDraft;
+                ViewBag.IsDraft = true;
+                ViewBag.DraftMessage = "⚠️ أنت تشاهد حالياً مسودة تعديلات قيد المراجعة. يمكنك تعديلها أو انتظار موافقة المسؤول.";
+            }
 
             return View(editDto);
         }

@@ -63,7 +63,7 @@ namespace FindMeHome.Controllers
                 }
             }
 
-            // 3. Pending Property Requests (Edit / Delete)
+            // 3. Pending Property Requests (New / Edit / Delete)
             var pendingProperties = await _realStateService.GetPendingPropertiesAsync();
             foreach (var prop in pendingProperties)
             {
@@ -82,6 +82,30 @@ namespace FindMeHome.Controllers
                     PropertyTitle = prop.Title,
                     RequestDate = prop.UpdatedAt ?? prop.CreatedAt
                 });
+            }
+
+            // 4. Moderated Edit Requests (JSON based)
+            var allActiveProperties = await _realStateService.GetAllAsync(1, 1000); // Simple fetch
+            foreach (var prop in allActiveProperties.Items)
+            {
+                if (_realStateService.HasPendingEdit(prop.Id))
+                {
+                    // Avoid duplicates if already in pendingProperties
+                    if (!requests.Any(r => r.PropertyId == prop.Id && r.Type == FindMeHome.ViewModels.RequestType.PropertyEdit))
+                    {
+                        requests.Add(new FindMeHome.ViewModels.AdminRequestViewModel
+                        {
+                            UserId = prop.UserId ?? "",
+                            FullName = prop.User?.FirstName + " " + prop.User?.LastName,
+                            Email = prop.User?.Email ?? "",
+                            Type = FindMeHome.ViewModels.RequestType.PropertyEdit,
+                            ProfilePictureUrl = prop.User?.ProfilePictureUrl,
+                            PropertyId = prop.Id,
+                            PropertyTitle = prop.Title,
+                            RequestDate = prop.UpdatedAt ?? prop.CreatedAt
+                        });
+                    }
+                }
             }
 
             return View(requests);

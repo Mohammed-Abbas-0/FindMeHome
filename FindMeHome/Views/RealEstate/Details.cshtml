@@ -148,6 +148,29 @@
 
                 <hr class="my-4 opacity-10">
 
+                <!-- Seller Information Section -->
+                @if (Model.User != null)
+                {
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-muted mb-3"><i class="fa-solid fa-user-tie me-2"></i>معلومات البائع</h6>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <img src="@(string.IsNullOrEmpty(Model.User.ProfilePictureUrl) ? $"https://ui-avatars.com/api/?name={Model.User.FirstName}+{Model.User.LastName}&background=random&color=fff" : Model.User.ProfilePictureUrl)" 
+                                 class="rounded-circle" 
+                                 style="width: 50px; height: 50px; object-fit: cover;" 
+                                 alt="صورة البائع">
+                            <div>
+                                <h6 class="fw-bold mb-0">@Model.User.FirstName @Model.User.LastName</h6>
+                                <small class="text-muted">@Model.User.Email</small>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill w-100 fw-bold" data-bs-toggle="modal" data-bs-target="#sellerModal">
+                            <i class="fa-solid fa-info-circle me-2"></i>تفاصيل عن البائع
+                        </button>
+                    </div>
+
+                    <hr class="my-4 opacity-10">
+                }
+
                 <div class="d-flex align-items-center gap-3">
                     <div class="bg-light rounded-circle p-3">
                         <i class="fa-solid fa-shield-halved text-secondary fs-4"></i>
@@ -161,6 +184,76 @@
         </div>
     </div>
 </div>
+
+<!-- Seller Details Modal -->
+@if (Model.User != null)
+{
+    <div class="modal fade" id="sellerModal" tabindex="-1" aria-labelledby="sellerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 bg-gradient-primary text-white rounded-top-4" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+                    <h5 class="modal-title fw-bold" id="sellerModalLabel"><i class="fa-solid fa-user-circle me-2"></i>معلومات البائع</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <img src="@(string.IsNullOrEmpty(Model.User.ProfilePictureUrl) ? $"https://ui-avatars.com/api/?name={Model.User.FirstName}+{Model.User.LastName}&background=random&color=fff&size=150" : Model.User.ProfilePictureUrl)" 
+                             class="rounded-circle shadow-sm mb-3" 
+                             style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #f8f9fa;" 
+                             alt="صورة البائع">
+                        <h4 class="fw-bold mb-1">@Model.User.FirstName @Model.User.LastName</h4>
+                        @{
+                            var verificationBadge = "";
+                            var verificationText = "";
+                            var verificationIcon = "";
+                            
+                            // Note: We need to fetch VerificationStatus from the User entity
+                            // For now, we'll use a placeholder. In production, you'd pass this via ViewBag or extend UserDto
+                            var isVerified = ViewBag.SellerVerificationStatus == FindMeHome.Enums.VerificationStatus.Verified;
+                            
+                            if (isVerified)
+                            {
+                                verificationBadge = "bg-success";
+                                verificationText = "موثق";
+                                verificationIcon = "fa-check-circle";
+                            }
+                            else
+                            {
+                                verificationBadge = "bg-secondary";
+                                verificationText = "غير موثق";
+                                verificationIcon = "fa-circle-xmark";
+                            }
+                        }
+                        <span class="badge @verificationBadge bg-opacity-10 text-@(isVerified ? "success" : "secondary") rounded-pill px-3 py-2">
+                            <i class="fa-solid @verificationIcon me-1"></i> @verificationText
+                        </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="small text-muted fw-bold mb-1"><i class="fa-solid fa-envelope me-2"></i>البريد الإلكتروني</label>
+                        <p class="mb-0">@Model.User.Email</p>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.WhatsAppNumber))
+                    {
+                        <div class="mb-3">
+                            <label class="small text-muted fw-bold mb-1"><i class="fa-solid fa-phone me-2"></i>رقم الهاتف</label>
+                            <p class="mb-0 d-flex align-items-center gap-2">
+                                <span>@Model.WhatsAppNumber</span>
+                                <a href="https://wa.me/@Model.WhatsAppNumber.Replace("+", "")" target="_blank" class="btn btn-success btn-sm rounded-pill px-3">
+                                    <i class="fa-brands fa-whatsapp me-1"></i>واتساب
+                                </a>
+                            </p>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer border-0 bg-light rounded-bottom-4">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 <style>
     .cursor-pointer { cursor: pointer; }

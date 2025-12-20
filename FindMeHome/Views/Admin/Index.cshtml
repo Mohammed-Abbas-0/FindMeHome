@@ -116,12 +116,22 @@
                                     FindMeHome.ViewModels.RequestType.PropertyDeletion)
                                     {
                                         <div class="d-flex gap-2 justify-content-end">
-                                            <form asp-action="ApproveProperty" method="post">
-                                                <input type="hidden" name="id" value="@item.PropertyId" />
-                                                <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 fw-bold">
-                                                    <i class="fa-solid fa-check me-1"></i> موافقة
-                                                </button>
-                                            </form>
+                                            @if (item.Type == FindMeHome.ViewModels.RequestType.PropertyEdit)
+                                            {
+                                                <a asp-action="Compare" asp-route-id="@item.PropertyId"
+                                                    class="btn btn-primary btn-sm rounded-pill px-3 fw-bold">
+                                                    <i class="fa-solid fa-code-compare me-1"></i> مراجعة التعديلات
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <form asp-action="ApproveProperty" method="post">
+                                                    <input type="hidden" name="id" value="@item.PropertyId" />
+                                                    <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 fw-bold">
+                                                        <i class="fa-solid fa-check me-1"></i> موافقة
+                                                    </button>
+                                                </form>
+                                            }
                                             <form asp-action="RejectProperty" method="post">
                                                 <input type="hidden" name="id" value="@item.PropertyId" />
                                                 <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold">
