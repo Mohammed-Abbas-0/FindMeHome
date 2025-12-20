@@ -414,4 +414,13 @@
   <data name="Next" xml:space="preserve">
     <value>Next</value>
   </data>
+  <data name="NoPropertiesFoundTitle" xml:space="preserve">
+    <value>No Properties Found</value>
+  </data>
+  <data name="NoPropertiesFoundText" xml:space="preserve">
+    <value>Sorry, we couldn't find any properties matching your search criteria. Try adjusting the filters or searching for something else.</value>
+  </data>
+  <data name="ShowAllProperties" xml:space="preserve">
+    <value>Show All Properties</value>
+  </data>
 </root>

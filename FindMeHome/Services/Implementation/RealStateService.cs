@@ -1,4 +1,4 @@
-﻿using FindMeHome.AppContext;
+using FindMeHome.AppContext;
 using FindMeHome.Dtos;
 using FindMeHome.Enums;
 using FindMeHome.Models;
@@ -48,8 +48,8 @@ namespace FindMeHome.Services.Implementation
                 WhatsAppNumber = dto.WhatsAppNumber,
                 IsActive = true,
                 Status = PropertyStatus.Active, // Or Pending if we want to moderate new ones. Prompt implies Edits/Deletes need moderation. Let's start Active.
-                CreatedAt = DateTime.Now,
-                ExpirationDate = DateTime.Now.AddMonths(2),
+                CreatedAt = DateTime.UtcNow,
+                ExpirationDate = DateTime.UtcNow.AddMonths(2),
                 UserId = userId
             };
 
@@ -62,7 +62,7 @@ namespace FindMeHome.Services.Implementation
             await SaveFurnitures(dto, entity);
             await _unitOfWork.CompleteAsync();
 
-            return ResultDto.Success("✅ تم الحفظ بنجاح");
+            return ResultDto.Success("? ?? ????? ?????");
         }
 
         public async Task<List<RealEstateDto>> GetPendingPropertiesAsync()
@@ -80,7 +80,7 @@ namespace FindMeHome.Services.Implementation
         public async Task<RealEstateDto?> GetByIdAsync(int id)
         {
             var entity = await _unitOfWork.RealEstates
-                .GetByIdAsync(id, includeProperties: "Images,Furnitures,Likes");
+                .GetByIdAsync(id, includeProperties: "Images,Furnitures,Likes,User");
             if (entity == null)
                 return null;
 
@@ -90,11 +90,11 @@ namespace FindMeHome.Services.Implementation
         public async Task<PagedResultDto<RealEstateDto>> GetAllAsync(int page = 1, int pageSize = 50)
         {
             var entities = await _unitOfWork.RealEstates
-                .GetAllAsync(includeProperties: "Images,Furnitures,Likes");
+                .GetAllAsync(includeProperties: "Images,Furnitures,Likes,User");
 
             // Public listing should only show Active and non-expired
             var query = entities
-                .Where(e => (e.Status == 0 || e.Status == PropertyStatus.Active) && (e.ExpirationDate == null || e.ExpirationDate > DateTime.Now))
+                .Where(e => (e.Status == 0 || e.Status == PropertyStatus.Active) && (e.ExpirationDate == null || e.ExpirationDate > DateTime.UtcNow))
                 .OrderByDescending(e => e.CreatedAt);
 
             var totalCount = query.Count();
@@ -124,16 +124,16 @@ namespace FindMeHome.Services.Implementation
         public async Task<PagedResultDto<RealEstateDto>> SearchAsync(string? query, decimal? minPrice, decimal? maxPrice, double? minArea, double? maxArea, int? rooms, int? bathrooms, string? city, string? neighborhood, UnitType? unitType, bool? isFurnished, string? location = null, int page = 1, int pageSize = 50)
         {
             var entities = await _unitOfWork.RealEstates
-                .GetAllAsync(includeProperties: "Images,Furnitures,Likes");
+                .GetAllAsync(includeProperties: "Images,Furnitures,Likes,User");
 
-            var filtered = entities.Where(x => x.Status == PropertyStatus.Active && (x.ExpirationDate == null || x.ExpirationDate > DateTime.Now)).AsQueryable();
+            var filtered = entities.Where(x => (x.Status == 0 || x.Status == PropertyStatus.Active) && (x.ExpirationDate == null || x.ExpirationDate > DateTime.UtcNow)).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(query))
             {
-                query = query.ToLower();
-                filtered = filtered.Where(x => x.Title.ToLower().Contains(query) ||
-                                             x.Description.ToLower().Contains(query) ||
-                                             x.Address.ToLower().Contains(query));
+                var lowerQuery = query.Trim().ToLower();
+                filtered = filtered.Where(x => (x.Title != null && x.Title.ToLower().Contains(lowerQuery)) ||
+                                             (x.Description != null && x.Description.ToLower().Contains(lowerQuery)) ||
+                                             (x.Address != null && x.Address.ToLower().Contains(lowerQuery)));
             }
 
             if (minPrice.HasValue)
@@ -149,21 +149,28 @@ namespace FindMeHome.Services.Implementation
                 filtered = filtered.Where(x => x.Area <= maxArea.Value);
 
             if (rooms.HasValue)
-                filtered = filtered.Where(x => x.Rooms >= rooms.Value);
+                filtered = filtered.Where(x => x.Rooms == rooms.Value);
 
             if (bathrooms.HasValue)
-                filtered = filtered.Where(x => x.Bathrooms >= bathrooms.Value);
+                filtered = filtered.Where(x => x.Bathrooms == bathrooms.Value);
 
             if (!string.IsNullOrWhiteSpace(city))
-                filtered = filtered.Where(x => x.City.Contains(city));
+            {
+                var lowerCity = city.Trim().ToLower();
+                filtered = filtered.Where(x => x.City != null && x.City.ToLower().Contains(lowerCity));
+            }
 
             if (!string.IsNullOrWhiteSpace(neighborhood))
-                filtered = filtered.Where(x => x.Neighborhood.Contains(neighborhood));
+            {
+                var lowerNeigh = neighborhood.Trim().ToLower();
+                filtered = filtered.Where(x => x.Neighborhood != null && x.Neighborhood.ToLower().Contains(lowerNeigh));
+            }
 
             if (!string.IsNullOrWhiteSpace(location))
             {
-                filtered = filtered.Where(x => (x.City != null && x.City.Contains(location)) ||
-                                             (x.Neighborhood != null && x.Neighborhood.Contains(location)));
+                var lowerLoc = location.Trim().ToLower();
+                filtered = filtered.Where(x => (x.City != null && x.City.ToLower().Contains(lowerLoc)) ||
+                                             (x.Neighborhood != null && x.Neighborhood.ToLower().Contains(lowerLoc)));
             }
 
             if (unitType.HasValue)
@@ -195,23 +202,23 @@ namespace FindMeHome.Services.Implementation
                 .FindAsync(w => w.RealEstateId == realEstateId && w.UserId == userId);
 
             if (exists.Any())
-                return ResultDto.Failure("العقار موجود بالفعل في قائمة المفضلة");
+                return ResultDto.Failure("?????? ????? ?????? ?? ????? ???????");
 
             var realEstate = await _unitOfWork.RealEstates.GetByIdAsync(realEstateId);
             if (realEstate == null)
-                return ResultDto.Failure("العقار غير موجود");
+                return ResultDto.Failure("?????? ??? ?????");
 
             var wishlist = new Wishlist
             {
                 RealEstateId = realEstateId,
                 UserId = userId,
-                AddedAt = DateTime.Now
+                AddedAt = DateTime.UtcNow
             };
 
             await _unitOfWork.Wishlists.AddAsync(wishlist);
             await _unitOfWork.CompleteAsync();
 
-            return ResultDto.Success("تمت الإضافة إلى قائمة المفضلة بنجاح");
+            return ResultDto.Success("??? ??????? ??? ????? ??????? ?????");
         }
 
         public async Task<ResultDto> RemoveFromWishlistAsync(int realEstateId, string userId)
@@ -221,12 +228,12 @@ namespace FindMeHome.Services.Implementation
 
             var item = wishlist.FirstOrDefault();
             if (item == null)
-                return ResultDto.Failure("العقار غير موجود في قائمة المفضلة");
+                return ResultDto.Failure("?????? ??? ????? ?? ????? ???????");
 
             _unitOfWork.Wishlists.Remove(item);
             await _unitOfWork.CompleteAsync();
 
-            return ResultDto.Success("تمت الإزالة من قائمة المفضلة بنجاح");
+            return ResultDto.Success("??? ??????? ?? ????? ??????? ?????");
         }
 
         public async Task<bool> IsInWishlistAsync(int realEstateId, string userId)
@@ -251,23 +258,23 @@ namespace FindMeHome.Services.Implementation
                 .FindAsync(l => l.RealEstateId == realEstateId && l.UserId == userId);
 
             if (exists.Any())
-                return ResultDto.Failure("لقد أعجبت بهذا العقار بالفعل");
+                return ResultDto.Failure("??? ????? ???? ?????? ??????");
 
             var realEstate = await _unitOfWork.RealEstates.GetByIdAsync(realEstateId);
             if (realEstate == null)
-                return ResultDto.Failure("العقار غير موجود");
+                return ResultDto.Failure("?????? ??? ?????");
 
             var like = new PropertyLike
             {
                 RealEstateId = realEstateId,
                 UserId = userId,
-                LikedAt = DateTime.Now
+                LikedAt = DateTime.UtcNow
             };
 
             await _unitOfWork.PropertyLikes.AddAsync(like);
             await _unitOfWork.CompleteAsync();
 
-            return ResultDto.Success("تم الإعجاب بالعقار بنجاح ❤️");
+            return ResultDto.Success("?? ??????? ??????? ????? ??");
         }
 
         public async Task<ResultDto> UnlikePropertyAsync(int realEstateId, string userId)
@@ -277,12 +284,12 @@ namespace FindMeHome.Services.Implementation
 
             var item = like.FirstOrDefault();
             if (item == null)
-                return ResultDto.Failure("لم تقم بالإعجاب بهذا العقار من قبل");
+                return ResultDto.Failure("?? ??? ???????? ???? ?????? ?? ???");
 
             _unitOfWork.PropertyLikes.Remove(item);
             await _unitOfWork.CompleteAsync();
 
-            return ResultDto.Success("تم إلغاء الإعجاب بالعقار");
+            return ResultDto.Success("?? ????? ??????? ???????");
         }
 
         public async Task<bool> IsLikedByUserAsync(int realEstateId, string userId)
@@ -308,14 +315,14 @@ namespace FindMeHome.Services.Implementation
                 .GetByIdAsync(id, includeProperties: "Images,Furnitures");
 
             if (entity == null)
-                return ResultDto.Failure("العقار غير موجود");
+                return ResultDto.Failure("?????? ??? ?????");
 
             if (entity.UserId != userId && !userId.Contains("admin")) // Simple admin check or use auth
-                return ResultDto.Failure("لا تملك صلاحية تعديل هذا العقار");
+                return ResultDto.Failure("?? ???? ?????? ????? ??? ??????");
 
             // Basic Validation
-            if (string.IsNullOrWhiteSpace(dto.Title)) return ResultDto.Failure("عنوان العقار مطلوب.");
-            if (dto.Price <= 0) return ResultDto.Failure("يجب إدخال سعر صحيح للعقار.");
+            if (string.IsNullOrWhiteSpace(dto.Title)) return ResultDto.Failure("????? ?????? ?????.");
+            if (dto.Price <= 0) return ResultDto.Failure("??? ????? ??? ???? ??????.");
 
             // If the property is ACTIVE, we save changes as a PENDING REQUEST (JSON)
             // If it's PENDING (newlisting), we can either overwrite or also save as JSON.
@@ -337,11 +344,11 @@ namespace FindMeHome.Services.Implementation
             // We don't change the entity fields yet! 
             // But we might want to update the status to indicate a pending edit if we aren't using a separate flag.
             // The user didn't ask to hide the property, so we keep it Active but maybe update UpdatedAt.
-            entity.UpdatedAt = DateTime.Now;
+            entity.UpdatedAt = DateTime.UtcNow;
             _unitOfWork.RealEstates.Update(entity);
             await _unitOfWork.CompleteAsync();
 
-            return ResultDto.Success("✅ تم إرسال طلب التعديل إلى المسؤول بنجاح. سيظل العقار متاحاً بالبيانات الحالية حتى الموافقة.");
+            return ResultDto.Success("? ?? ????? ??? ??????? ??? ??????? ?????. ???? ?????? ?????? ????????? ??????? ??? ????????.");
         }
 
         public async Task<ResultDto> DeleteAsync(int id, string userId)
@@ -350,38 +357,38 @@ namespace FindMeHome.Services.Implementation
                 .GetByIdAsync(id, includeProperties: "Images,Furnitures");
 
             if (entity == null)
-                return ResultDto.Failure("العقار غير موجود");
+                return ResultDto.Failure("?????? ??? ?????");
 
             if (entity.UserId != userId)
-                return ResultDto.Failure("لا تملك صلاحية حذف هذا العقار");
+                return ResultDto.Failure("?? ???? ?????? ??? ??? ??????");
 
             // Soft Delete request
             entity.Status = PropertyStatus.PendingDeletion;
-            // entity.DeletedAt = DateTime.Now; // Set this only when actually deleted/approved? No, prompt says "Request delete".
+            // entity.DeletedAt = DateTime.UtcNow; // Set this only when actually deleted/approved? No, prompt says "Request delete".
             // So we just change status.
 
             _unitOfWork.RealEstates.Update(entity); // Update instead of Remove
             await _unitOfWork.CompleteAsync();
 
-            return ResultDto.Success("✅ تم إرسال طلب الحذف إلى المسؤول بنجاح");
+            return ResultDto.Success("? ?? ????? ??? ????? ??? ??????? ?????");
         }
 
         public async Task<ResultDto> UpdateStatusAsync(int id, PropertyStatus status)
         {
             var entity = await _unitOfWork.RealEstates.GetByIdAsync(id);
             if (entity == null)
-                return ResultDto.Failure("العقار غير موجود");
+                return ResultDto.Failure("?????? ??? ?????");
 
             entity.Status = status;
             if (status == PropertyStatus.Deleted)
             {
-                entity.DeletedAt = DateTime.Now;
+                entity.DeletedAt = DateTime.UtcNow;
             }
 
             _unitOfWork.RealEstates.Update(entity);
             await _unitOfWork.CompleteAsync();
 
-            return ResultDto.Success("✅ تم تحديث حالة العقار بنجاح");
+            return ResultDto.Success("? ?? ????? ???? ?????? ?????");
         }
 
         public async Task<List<LocationSuggestionDto>> GetLocationsAsync(string term)
@@ -389,11 +396,12 @@ namespace FindMeHome.Services.Implementation
             if (string.IsNullOrWhiteSpace(term))
                 return new List<LocationSuggestionDto>();
 
-            term = term.ToLower();
+            term = term.Trim().ToLower();
 
             var allProperties = await _unitOfWork.RealEstates.GetAllAsync();
+            var activeProperties = allProperties.Where(p => (p.Status == 0 || p.Status == PropertyStatus.Active) && (p.ExpirationDate == null || p.ExpirationDate > DateTime.UtcNow));
 
-            var cities = allProperties
+            var cities = activeProperties
                 .Where(p => p.City != null && p.City.ToLower().Contains(term))
                 .GroupBy(p => p.City)
                 .Select(g => new LocationSuggestionDto
@@ -403,7 +411,7 @@ namespace FindMeHome.Services.Implementation
                     Count = g.Count()
                 });
 
-            var neighborhoods = allProperties
+            var neighborhoods = activeProperties
                 .Where(p => p.Neighborhood != null && p.Neighborhood.ToLower().Contains(term))
                 .GroupBy(p => p.Neighborhood)
                 .Select(g => new LocationSuggestionDto
@@ -427,35 +435,35 @@ namespace FindMeHome.Services.Implementation
         private ResultDto ValidateCreateRealEstateDto(CreateRealEstateDto dto)
         {
             if (dto == null)
-                return ResultDto.Failure("بيانات العقار غير موجودة.");
+                return ResultDto.Failure("?????? ?????? ??? ??????.");
 
             if (string.IsNullOrWhiteSpace(dto.Title))
-                return ResultDto.Failure("عنوان العقار مطلوب.");
+                return ResultDto.Failure("????? ?????? ?????.");
 
             if (dto.Price <= 0)
-                return ResultDto.Failure("يجب إدخال سعر صحيح للعقار.");
+                return ResultDto.Failure("??? ????? ??? ???? ??????.");
 
             if (string.IsNullOrWhiteSpace(dto.City))
-                return ResultDto.Failure("المدينة مطلوبة.");
+                return ResultDto.Failure("??????? ??????.");
 
             if (string.IsNullOrWhiteSpace(dto.Address))
-                return ResultDto.Failure("العنوان مطلوب.");
+                return ResultDto.Failure("??????? ?????.");
 
             if (dto.Area <= 0)
-                return ResultDto.Failure("يجب إدخال مساحة صحيحة.");
+                return ResultDto.Failure("??? ????? ????? ?????.");
 
             if (string.IsNullOrWhiteSpace(dto.WhatsAppNumber))
-                return ResultDto.Failure("رقم الواتساب مطلوب.");
+                return ResultDto.Failure("??? ???????? ?????.");
 
             if (dto.Images == null || dto.Images.Count == 0)
-                return ResultDto.Failure("يجب رفع صورة واحدة على الأقل للعقار.");
+                return ResultDto.Failure("??? ??? ???? ????? ??? ????? ??????.");
 
-            return ResultDto.Success("تم التحقق بنجاح ✅");
+            return ResultDto.Success("?? ?????? ????? ?");
         }
 
         private async Task SaveImages(CreateRealEstateDto dto, RealEstate entity)
         {
-            // 🖼️ حفظ صور العقار
+            // ??? ??? ??? ??????
             if (dto.Images != null && dto.Images.Count > 0)
             {
                 try
@@ -500,14 +508,14 @@ namespace FindMeHome.Services.Implementation
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("حدث خطأ أثناء حفظ صور العقار.", ex);
+                    throw new Exception("??? ??? ????? ??? ??? ??????.", ex);
                 }
             }
         }
 
         private async Task SaveFurnitures(CreateRealEstateDto dto, RealEstate entity)
         {
-            // 🪑 حفظ الأثاث
+            // ?? ??? ??????
             if (dto.Furnitures != null && dto.Furnitures.Count > 0 && dto.CanBeFurnished)
             {
                 foreach (var furniture in dto.Furnitures)
@@ -556,10 +564,10 @@ namespace FindMeHome.Services.Implementation
         public async Task<ResultDto> ApproveEditAsync(int id)
         {
             var dto = await GetEditRequestAsync(id);
-            if (dto == null) return ResultDto.Failure("طلب التعديل غير موجود");
+            if (dto == null) return ResultDto.Failure("??? ??????? ??? ?????");
 
             var entity = await _unitOfWork.RealEstates.GetByIdAsync(id, includeProperties: "Images,Furnitures");
-            if (entity == null) return ResultDto.Failure("العقار غير موجود");
+            if (entity == null) return ResultDto.Failure("?????? ??? ?????");
 
             // Apply changes from DTO to Entity
             entity.Title = dto.Title;
@@ -575,7 +583,7 @@ namespace FindMeHome.Services.Implementation
             entity.Bathrooms = dto.Bathrooms;
             entity.UnitType = dto.UnitType;
             entity.WhatsAppNumber = dto.WhatsAppNumber;
-            entity.UpdatedAt = DateTime.Now;
+            entity.UpdatedAt = DateTime.UtcNow;
             entity.Status = PropertyStatus.Active; // In case it was pending new listing
 
             // Save new images if any
@@ -587,7 +595,7 @@ namespace FindMeHome.Services.Implementation
             // Delete the JSON file
             File.Delete(Path.Combine(_env.WebRootPath, "pending_edits", $"{id}.json"));
 
-            return ResultDto.Success("✅ تم قبول التعديلات وتحديث البيانات بنجاح");
+            return ResultDto.Success("? ?? ???? ????????? ?????? ???????? ?????");
         }
 
         public async Task<ResultDto> RejectEditAsync(int id)
@@ -596,9 +604,9 @@ namespace FindMeHome.Services.Implementation
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
-                return ResultDto.Success("✅ تم رفض طلب التعديل");
+                return ResultDto.Success("? ?? ??? ??? ???????");
             }
-            return ResultDto.Failure("طلب التعديل غير موجود");
+            return ResultDto.Failure("??? ??????? ??? ?????");
         }
 
         public bool HasPendingEdit(int id)
@@ -632,7 +640,7 @@ namespace FindMeHome.Services.Implementation
                 entity.Likes?.Count ?? 0,
                 entity.Status,
                 entity.UserId,
-                entity.User != null ? new UserDto(entity.User.FirstName, entity.User.LastName, entity.User.Email, entity.User.ProfilePictureUrl) : null,
+                entity.User != null ? new UserDto(entity.User.FirstName, entity.User.LastName, entity.User.Email, entity.User.ProfilePictureUrl, entity.User.PhoneNumber, entity.User.VerificationStatus) : null,
                 entity.UpdatedAt
             );
         }
@@ -640,3 +648,5 @@ namespace FindMeHome.Services.Implementation
         #endregion
     }
 }
+
+

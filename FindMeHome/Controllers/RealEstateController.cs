@@ -52,7 +52,6 @@ namespace FindMeHome.Controllers
         }
 
         [HttpGet]
-        [HttpGet]
         public async Task<IActionResult> AdvancedSearch(string? query, decimal? priceFrom, decimal? priceTo, double? areaFrom, double? areaTo, int? rooms, int? bathrooms, string? city, string? neighborhood, UnitType? unitType, bool? isFurnished, string? location, int page = 1)
         {
             var results = await _realStateService.SearchAsync(query, priceFrom, priceTo, areaFrom, areaTo, rooms, bathrooms, city, neighborhood, unitType, isFurnished, location, page, 9);
@@ -144,24 +143,13 @@ namespace FindMeHome.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var realEstate = await _realStateService.GetByIdAsync(id);
-            if (realEstate == null) return NotFound();
+            if (realEstate == null)
+            {
+                return NotFound();
+            }
 
             var userId = _userManager.GetUserId(User);
-            if (userId != null)
-            {
-                ViewBag.IsInWishlist = await _realStateService.IsInWishlistAsync(id, userId);
-            }
-
-            // Fetch seller verification status
-            if (!string.IsNullOrEmpty(realEstate.UserId))
-            {
-                var seller = await _userManager.FindByIdAsync(realEstate.UserId);
-                if (seller != null)
-                {
-                    ViewBag.SellerVerificationStatus = seller.VerificationStatus;
-                    ViewBag.SellerPhoneNumber = seller.PhoneNumber;
-                }
-            }
+            ViewBag.IsInWishlist = userId != null && await _realStateService.IsInWishlistAsync(id, userId);
 
             return View(realEstate);
         }

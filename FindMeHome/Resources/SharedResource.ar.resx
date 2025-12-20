@@ -486,4 +486,13 @@
   <data name="Next" xml:space="preserve">
     <value>التالي</value>
   </data>
+  <data name="NoPropertiesFoundTitle" xml:space="preserve">
+    <value>لم يتم العثور على عقارات</value>
+  </data>
+  <data name="NoPropertiesFoundText" xml:space="preserve">
+    <value>نأسف، لم نجد أي عقارات تطابق معايير البحث الخاصة بك. حاول تغيير الفلاتر أو البحث بكلمات أخرى.</value>
+  </data>
+  <data name="ShowAllProperties" xml:space="preserve">
+    <value>عرض كل العقارات</value>
+  </data>
 </root>

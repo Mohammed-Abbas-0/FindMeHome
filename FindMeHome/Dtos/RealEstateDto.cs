@@ -68,7 +68,9 @@ namespace FindMeHome.Dtos
         string? FirstName,
         string? LastName,
         string? Email,
-        string? ProfilePictureUrl
+        string? ProfilePictureUrl,
+        string? PhoneNumber,
+        FindMeHome.Enums.VerificationStatus VerificationStatus
     );
     public record FurnitureDto
     (
